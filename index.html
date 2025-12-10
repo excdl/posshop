@@ -236,6 +236,7 @@ button{cursor:pointer;outline:none;transition:0.2s;}
 
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbz_8rflldxr2_D0PuC8dk276PP4LclYGpv4u7JbD9RtjPbF6N4t4mgjDsTin_qBsdG9/exec";
+function formatNumber(num) { if (num === null || num === undefined || num === "") return "0"; let n = Number(num); if (isNaN(n)) return "0"; return n.toLocaleString('zh-TW'); }
 let POS_STORE = "";
 let posCart = [], currentTax = "應稅";
 
@@ -288,11 +289,7 @@ async function login() {
       updateLoginTime();
       setInterval(updateLoginTime, 1000);
       
-      // 千分位格式化
-      function formatNumber(num) {
-      return Number(num).toLocaleString('zh-TW');
-      }
-      
+          
       // 取得商品資料
       fetchProducts();
     } else {
@@ -446,9 +443,9 @@ let tax = currentTax === "應稅" ? Math.round(taxBase * 0.05) : 0;  // 稅額
 let finalAmount = taxBase + tax;                        // 稅後總額
 
 // 更新三列表
-document.getElementById("beforeTax").innerText = formatNumber(taxBase.toFixed(0));
-document.getElementById("taxAmount").innerText = formatNumber(tax.toFixed(0));
-document.getElementById("afterTax").innerText = formatNumber(finalAmount.toFixed(0));
+document.getElementById("beforeTax").innerText = formatNumber(Math.round(taxBase));
+document.getElementById("taxAmount").innerText = formatNumber(Math.round(tax));
+document.getElementById("afterTax").innerText = formatNumber(Math.round(finalAmount));
 
 // 仍更新總額（給付款 / 現金找零用）
 document.getElementById("posTotal").innerText = finalAmount.toFixed(0);
