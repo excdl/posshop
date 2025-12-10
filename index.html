@@ -132,6 +132,28 @@ button{cursor:pointer;outline:none;transition:0.2s;}
     font-size: 15px;
     color: #2980b9;
 }
+#paymentButtons {
+  display: flex;
+  gap: 8px;
+  margin: 10px 0;
+}
+
+#paymentButtons .payBtn {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  background: #bdc3c7;
+  color: #2c3e50;
+  cursor: pointer;
+  font-size: 1em;
+}
+
+#paymentButtons .payBtn.active {
+  background: #27ae60;
+  color: white;
+  font-weight: bold;
+}
 
 </style>
 </head>
@@ -190,11 +212,21 @@ button{cursor:pointer;outline:none;transition:0.2s;}
 
     <p style="display:none;">總額：<span id="posTotal">0</span> 元</p>
 
-    <select id="posPayment">
-      <option value="現金" selected>現金</option>
-      <option value="信用卡">信用卡</option>
-      <option value="Line Pay">Line Pay</option>
-    </select>
+    <div id="paymentButtons">
+    <button class="payBtn active" data-pay="現金">
+        💵<br>現金
+    </button>
+    <button class="payBtn" data-pay="信用卡">
+        💳<br>信用卡
+    </button>
+    <button class="payBtn" data-pay="Line Pay">
+        🟢<br>Line Pay
+    </button>
+</div>
+
+<!-- 隱藏的真正付款資料（給 JS 使用） -->
+<input type="hidden" id="posPayment" value="現金">
+
     <div id="cashPanel">
       <input id="cashInput" placeholder="收現金額" type="text" readonly>
       <p>找零：<span id="changeOut">0</span> 元</p>
@@ -256,8 +288,6 @@ async function getIP() {
     }
 }
 
-
-
 function updateLoginTime() {
   const now = new Date();
   document.getElementById("loginTime").innerText = `登入時間：${now.toLocaleString("zh-TW",{hour12:false})}`;
@@ -290,7 +320,6 @@ async function login() {
       updateLoginTime();
       setInterval(updateLoginTime, 1000);
       
-          
       // 取得商品資料
       fetchProducts();
     } else {
@@ -413,7 +442,42 @@ function addPOSItem(p) {
     renderCart();
 }
 
-// ===== 渲染購物車 =====
+// 初始化付款方式按鈕
+function initPOSButtons() {
+    const buttons = document.querySelectorAll("#paymentButtons .payBtn");
+    buttons.forEach(btn => {
+        btn.addEventListener("click", function () {
+
+            // 取消所有 active
+            buttons.forEach(b => b.classList.remove("active"));
+
+            // 設定 active
+            this.classList.add("active");
+
+            // 寫入隱藏欄位
+            const pay = this.getAttribute("data-pay");
+            document.getElementById("posPayment").value = pay;
+
+            // 現金 → 顯示收現金欄位
+            const cashPanel = document.getElementById("cashPanel");
+            const cashInput = document.getElementById("cashInput");
+            const changeOut = document.getElementById("changeOut");
+
+            if (pay === "現金") {
+                cashPanel.style.display = "block";
+            } else {
+                cashPanel.style.display = "none";
+                cashInput.value = "";
+                changeOut.innerText = "0";
+            }
+
+            // 更新購物車顯示（總額、稅額、找零）
+            renderCart();
+        });
+    });
+}
+
+  // ===== 渲染購物車 =====
 function renderCart() {
     const box = document.getElementById("posCart"); box.innerHTML = "";
     let total = 0;
@@ -440,8 +504,8 @@ function renderCart() {
     });
     let discountValue = Number(document.getElementById("discount").value) || 0;
     let taxBase = total - discountValue;                    // 稅前金額
-let tax = currentTax === "應稅" ? Math.round(taxBase * 0.05) : 0;  // 稅額
-let finalAmount = taxBase + tax;                        // 稅後總額
+    let tax = currentTax === "應稅" ? Math.round(taxBase * 0.05) : 0;  // 稅額
+    let finalAmount = taxBase + tax;                        // 稅後總額
 
 // 更新三列表
 document.getElementById("beforeTax").innerText = formatNumber(Math.round(taxBase));
