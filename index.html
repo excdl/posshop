@@ -186,9 +186,7 @@ button{cursor:pointer;outline:none;transition:0.2s;}
       <span>商品</span><span>數量</span><span>單價</span><span>小計</span><span>刪除</span>
     </div>
     <div id="posCart"></div>
-    <div id="discountContainer">
-      <input type="text" id="discount" placeholder="折扣金額" readonly>
-    </div>
+    
     <div id="taxContainer">
   <button id="taxIncluded" class="active" onclick="setTax('應稅')">應稅</button>
   <button id="taxExempt" onclick="setTax('免稅')">免稅</button>
@@ -208,29 +206,25 @@ button{cursor:pointer;outline:none;transition:0.2s;}
     <span class="value"><span id="afterTax">0</span> 元</span>
   </div>
 </div>
-
+<div id="discountContainer">
+      <input type="text" id="discount" placeholder="折扣金額" readonly>
+    </div>
 
     <p style="display:none;">總額：<span id="posTotal">0</span> 元</p>
 
-    <div id="paymentButtons">
-    <button class="payBtn active" data-pay="現金">
-        💵<br>現金
-    </button>
-    <button class="payBtn" data-pay="信用卡">
-        💳<br>信用卡
-    </button>
-    <button class="payBtn" data-pay="Line Pay">
-        🟢<br>Line Pay
-    </button>
+   <div id="paymentButtons">
+  <button class="payBtn" data-pay="現金">現金</button>
+  <button class="payBtn" data-pay="信用卡">信用卡</button>
+  <button class="payBtn" data-pay="Line Pay">Line Pay</button>
 </div>
 
-<!-- 隱藏的真正付款資料（給 JS 使用） -->
-<input type="hidden" id="posPayment" value="現金">
+<div id="cashPanel" style="display:none; margin-top:10px;">
+  收現金：<input type="number" id="cashInput" value="0" placeholder="收現金額">
+  找零：<span id="changeOut">0</span> 元
+</div>
 
-    <div id="cashPanel">
-      <input id="cashInput" placeholder="收現金額" type="text" readonly>
-      <p>找零：<span id="changeOut">0</span> 元</p>
-    </div>
+<input type="hidden" id="posPayment" value="">
+
   <!-- 結帳按鈕 -->
 <button id="posCheckout">結帳列印</button>
 
@@ -458,7 +452,6 @@ function initPOSButtons() {
             const pay = this.getAttribute("data-pay");
             document.getElementById("posPayment").value = pay;
 
-            // 現金 → 顯示收現金欄位
             const cashPanel = document.getElementById("cashPanel");
             const cashInput = document.getElementById("cashInput");
             const changeOut = document.getElementById("changeOut");
@@ -471,11 +464,13 @@ function initPOSButtons() {
                 changeOut.innerText = "0";
             }
 
-            // 更新購物車顯示（總額、稅額、找零）
-            renderCart();
+            renderCart(); // 更新總額/找零
         });
     });
 }
+
+document.addEventListener("DOMContentLoaded", initPOSButtons);
+
 
   // ===== 渲染購物車 =====
 function renderCart() {
