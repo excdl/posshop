@@ -434,6 +434,10 @@ document.getElementById("searchBox").oninput = function () {
     renderProducts(null, this.value.trim().toLowerCase());
 };
 
+  function parseNumber(str) {
+    return Number(str.replace(/,/g, ""));
+}
+
 // ===== 渲染商品 =====
 function renderProducts(category = null, search = "") {
     const box = document.getElementById("posProducts");
@@ -777,8 +781,8 @@ function calcDiscountedSubtotal(item) {
         storeCode: POS_STORE,
 
         taxStatus: currentTax,
-        taxAmount: Number(document.getElementById("taxAmount").innerText),
-        totalAmount: Number(document.getElementById("posTotal").innerText),
+        totalAmount: parseNumber(document.getElementById("posTotal").innerText),
+        taxAmount: parseNumber(document.getElementById("taxAmount").innerText),
         paymentMethod: document.getElementById("posPayment").value,
         discount: Number(document.getElementById("discount").value) || 0,
         cashReceive: Number(document.getElementById("cashInput").value) || 0,
