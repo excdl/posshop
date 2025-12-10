@@ -189,9 +189,7 @@ button{cursor:pointer;outline:none;transition:0.2s;}
       <span>商品</span><span>數量</span><span>單價</span><span>小計</span><span>刪除</span>
     </div>
     <div id="posCart"></div>
-    <div id="discountContainer">
-      <input type="text" id="discount" placeholder="折扣金額" readonly>
-    </div>
+    
     <div id="taxContainer">
   <button id="taxIncluded" class="active" onclick="setTax('應稅')">應稅</button>
   <button id="taxExempt" onclick="setTax('免稅')">免稅</button>
@@ -211,8 +209,14 @@ button{cursor:pointer;outline:none;transition:0.2s;}
     <span class="value"><span id="afterTax">0</span> 元</span>
   </div>
 </div>
+<div id="discountContainer">
+      <input type="text" id="discount" placeholder="折扣金額" readonly>
+    </div>
+   <div class="taxRow total">
+  <span class="label">應收總額：</span>
+  <span class="value"><span id="posTotal">0</span> 元</span>
+</div>
 
-    <p style="display:none;">總額：<span id="posTotal">0</span> 元</p>
 
    <div id="paymentButtons">
   <button class="payBtn" data-pay="現金">現金</button>
@@ -476,8 +480,10 @@ document.addEventListener("DOMContentLoaded", initPOSButtons);
 
   // ===== 渲染購物車 =====
 function renderCart() {
-    const box = document.getElementById("posCart"); box.innerHTML = "";
+    const box = document.getElementById("posCart"); 
+    box.innerHTML = "";
     let total = 0;
+
     posCart.forEach((item, i) => {
         let sub = item.quantity * item.price;
         if (item.discount) {
@@ -499,19 +505,27 @@ function renderCart() {
             <span class="remove"><button onclick="removeItem(${i})">刪</button></span>`;
         box.appendChild(row);
     });
-    let discountValue = Number(document.getElementById("discount").value) || 0;
-    let taxBase = total - discountValue;                    // 稅前金額
+
+    // 計算稅額
+    let taxBase = total;  // 稅前金額
     let tax = currentTax === "應稅" ? Math.round(taxBase * 0.05) : 0;  // 稅額
-    let finalAmount = taxBase + tax;                        // 稅後總額
+    let afterTax = taxBase + tax;  // 稅後總額
 
-// 更新三列表
-document.getElementById("beforeTax").innerText = formatNumber(Math.round(taxBase));
-document.getElementById("taxAmount").innerText = formatNumber(Math.round(tax));
-document.getElementById("afterTax").innerText = formatNumber(Math.round(finalAmount));
+    // 折扣
+    let discountValue = Number(document.getElementById("discount").value) || 0;
 
-// 仍更新總額（給付款 / 現金找零用）
-document.getElementById("posTotal").innerText = finalAmount.toFixed(0);
+    // 應收總額 = 稅後總額 - 折扣
+    let receivable = afterTax - discountValue;
 
+    // 更新畫面上的三個金額
+    document.getElementById("beforeTax").innerText = formatNumber(Math.round(taxBase));
+    document.getElementById("taxAmount").innerText = formatNumber(Math.round(tax));
+    document.getElementById("afterTax").innerText = formatNumber(Math.round(afterTax));
+
+    // 顯示應收總額（並更新隱藏欄位給付款 / 找零使用）
+    document.getElementById("posTotal").innerText = formatNumber(Math.round(receivable));
+
+    // 更新找零
     updateChange();
 }
 
