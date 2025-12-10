@@ -160,6 +160,9 @@ button{cursor:pointer;outline:none;transition:0.2s;}
   #discountContainer, .taxRow.total, #paymentButtons {
     margin: 12px 0; /* 上下 12px */
 }
+#logoutBtn.active {
+    background-color: #ccc;  /* 運作中提示色，可自行調整 */
+}
 
 
 </style>
@@ -349,37 +352,51 @@ function updateLoginTime() {
 document.getElementById("logoutBtn").onclick = logout;
 
 async function logout() {
-  const now = new Date();
-  const logoutTime = now.toLocaleString("zh-TW",{hour12:false});
+    const logoutBtn = document.getElementById("logoutBtn");
 
-  try {
-    // 呼叫 API 記錄登出時間
-    await fetch(`${API_URL}?action=logout&store=${POS_STORE}&time=${encodeURIComponent(logoutTime)}`);
-  } catch(err) {
-    console.error(err);
-  }
+    // 顯示運作中
+    logoutBtn.disabled = true;
+    const originalText = logoutBtn.innerText;
+    logoutBtn.innerText = "登出中...";
+    logoutBtn.classList.add("active"); // 可在 CSS 設計 active 樣式
 
-  // 隱藏 POS 主頁，顯示登入頁
-  document.getElementById("posApp").style.display = "none";
-  document.getElementById("loginPage").style.display = "flex";
+    const now = new Date();
+    const logoutTime = now.toLocaleString("zh-TW", { hour12: false });
 
-  // 清空登入欄位
-  document.getElementById("storeInput").value = "";
-  document.getElementById("passwordInput").value = "";
-  document.getElementById("loginMsg").innerText = "";
+    try {
+        // 呼叫 API 記錄登出時間
+        await fetch(`${API_URL}?action=logout&store=${POS_STORE}&time=${encodeURIComponent(logoutTime)}`);
+    } catch (err) {
+        console.error(err);
+    } finally {
+        // 隱藏 POS 主頁，顯示登入頁
+        document.getElementById("posApp").style.display = "none";
+        document.getElementById("loginPage").style.display = "flex";
 
-  // 重置登入按鈕狀態
-  const loginBtn = document.getElementById("loginBtn");
-  loginBtn.innerText = "登入";
-  loginBtn.disabled = false;
+        // 清空登入欄位
+        document.getElementById("storeInput").value = "";
+        document.getElementById("passwordInput").value = "";
+        document.getElementById("loginMsg").innerText = "";
 
-  // 清除 POS_STORE
-  POS_STORE = "";
+        // 重置登入按鈕狀態
+        const loginBtn = document.getElementById("loginBtn");
+        loginBtn.innerText = "登入";
+        loginBtn.disabled = false;
+
+        // 清除 POS_STORE
+        POS_STORE = "";
+
+        // 恢復登出按鈕狀態
+        logoutBtn.disabled = false;
+        logoutBtn.innerText = originalText;
+        logoutBtn.classList.remove("active");
+    }
 }
-  
+
 // 綁定按鈕事件
-document.getElementById("loginBtn").addEventListener("click",login);
-document.getElementById("logoutBtn").addEventListener("click",logout);
+document.getElementById("loginBtn").addEventListener("click", login);
+document.getElementById("logoutBtn").addEventListener("click", logout);
+
 
 
 // ===== 取得商品 =====
