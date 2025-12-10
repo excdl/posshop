@@ -650,11 +650,13 @@ function openPromoModal(item) {
     modalType = 'promo';
     editIndex = null;
 
-    // 顯示優惠按鈕、隱藏數字鍵盤
-    document.getElementById("numpad").style.display = 'none';
+    // 顯示優惠按鈕
     const promoDiv = document.getElementById("promoButtons");
     promoDiv.style.display = 'grid';
     promoDiv.innerHTML = '';
+
+    // 👉 不再隱藏數字鍵盤
+    // document.getElementById("numpad").style.display = 'none';  // ❌刪掉這行
 
     const promoList = [
         { name: '95折', rate: 0.95 },
@@ -669,36 +671,27 @@ function openPromoModal(item) {
         { name: '第二件6折', type: '第二件6折' }
     ];
 
-    // 直接套用優惠，不需要確定按鈕
+    // 自動套用折扣 — 不用確定鍵
     promoList.forEach(p => {
         const btn = document.createElement('button');
-        btn.classList.add("promoBtn");
         btn.innerText = p.name;
-
         btn.onclick = () => {
             let idx = posCart.findIndex(x => x.name === item.name);
             if (idx === -1) addPOSItem(item);
             idx = posCart.findIndex(x => x.name === item.name);
 
-            // 設定折扣資料
-            if (p.type) {
-                posCart[idx].discount = { type: p.type };
-            } else {
-                posCart[idx].discount = { rate: p.rate, type: '折扣' };
-            }
+            if (p.type) posCart[idx].discount = { type: p.type };
+            else posCart[idx].discount = { rate: p.rate, type: '折扣' };
 
-            // 套用後直接關閉
             closeModal();
             renderCart();
         };
-
         promoDiv.appendChild(btn);
     });
 
-    // 顯示商品名稱
     document.getElementById("modalProductName").innerText = item.name;
 
-    // 顯示彈窗（不含按鍵）
+    // 顯示彈窗
     document.getElementById("editModal").style.display = 'flex';
     document.getElementById("editModal").classList.add("promoMode");
 }
@@ -735,7 +728,7 @@ function confirmEdit() {
 function closeModal() {
     document.getElementById("editModal").style.display = 'none';
 
-    // 恢復預設狀態（很重要）
+    // 還原 UI（保持數字鍵盤正常）
     document.getElementById("promoButtons").style.display = 'none';
     document.getElementById("numpad").style.display = 'grid';
 
@@ -743,6 +736,7 @@ function closeModal() {
     editingField = null;
     modalType = null;
 }
+
 
 function setTax(t) {
     currentTax = t;
