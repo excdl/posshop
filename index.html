@@ -700,6 +700,11 @@ function setTax(t) {
     renderCart();
 }
 
+  // 頁面載入時預設免稅
+window.addEventListener("DOMContentLoaded", () => {
+    setTax("免稅");
+});
+
 function updateChange() {
     let cash = Number(document.getElementById("cashInput").value) || 0;
     let total = Number(document.getElementById("posTotal").innerText) || 0;
