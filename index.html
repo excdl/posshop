@@ -647,57 +647,30 @@ function openEditModal(index, field) {
 }
 
 function openPromoModal(item) {
-    modalType = 'promo';
-    editIndex = null;
-
-    // 顯示優惠按鈕區
+    modalType = 'promo'; editIndex = null;
+    document.getElementById("numpad").style.display = 'none';
     const promoDiv = document.getElementById("promoButtons");
     promoDiv.style.display = 'grid';
     promoDiv.innerHTML = '';
-
-    // ❗ 不要隱藏數字鍵盤，不要動其他彈窗功能
-    // document.getElementById("numpad").style.display = 'none'; // ⛔ 不要這行
-
-    // 優惠清單
     const promoList = [
-        { name: '95折', rate: 0.95 },
-        { name: '9折', rate: 0.9 },
-        { name: '85折', rate: 0.85 },
-        { name: '8折', rate: 0.8 },
-        { name: '7折', rate: 0.7 },
-        { name: '6折', rate: 0.6 },
-        { name: '買一送一', type: '買一送一' },
-        { name: '買二送一', type: '買二送一' },
-        { name: '第二件減10', type: '第二件減10' },
-        { name: '第二件6折', type: '第二件6折' }
+        { name: '95折', rate: 0.95 }, { name: '9折', rate: 0.9 }, { name: '85折', rate: 0.85 }, { name: '8折', rate: 0.8 },
+        { name: '7折', rate: 0.7 }, { name: '6折', rate: 0.6 }, { name: '買一送一', type: '買一送一' }, { name: '買二送一', type: '買二送一' },
+        { name: '第二件減10', type: '第二件減10' }, { name: '第二件6折', type: '第二件6折' }
     ];
-
-    // 建立優惠按鈕
     promoList.forEach(p => {
         const btn = document.createElement('button');
         btn.innerText = p.name;
-
         btn.onclick = () => {
             let idx = posCart.findIndex(x => x.name === item.name);
             if (idx === -1) addPOSItem(item);
             idx = posCart.findIndex(x => x.name === item.name);
-
-            if (p.type)
-                posCart[idx].discount = { type: p.type };
-            else
-                posCart[idx].discount = { rate: p.rate, type: '折扣' };
-
-            closeModal();
-            renderCart();
+            if (p.type) posCart[idx].discount = { type: p.type };
+            else posCart[idx].discount = { rate: p.rate, type: '折扣' };
+            closeModal(); renderCart();
         };
-
         promoDiv.appendChild(btn);
     });
-
-    // 設定商品名稱
     document.getElementById("modalProductName").innerText = item.name;
-
-    // 顯示彈窗
     document.getElementById("editModal").style.display = 'flex';
     document.getElementById("editModal").classList.add("promoMode");
 }
@@ -733,12 +706,9 @@ function confirmEdit() {
 
 function closeModal() {
     document.getElementById("editModal").style.display = 'none';
-    document.getElementById("promoButtons").style.display = 'none';
-    document.getElementById("numpad").style.display = 'grid';  // 數字鍵盤保持正常
-    modalType = null;
+    editIndex = null; editingField = null; modalType = null;
+    document.getElementById("editModal").classList.remove("promoMode");
 }
-
-
 
 function setTax(t) {
     currentTax = t;
