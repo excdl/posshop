@@ -902,7 +902,7 @@ document.getElementById("cashInput").onclick = () => {
   openPOSKeypad("cash", document.getElementById("cashInput").value);
 };
 
-// ====== 打開編輯 Modal ======
+// ====== 打開編輯 Modal ====== 
 function openEditModal(index, field) {
     editIndex = index;
     editingField = field;
@@ -921,6 +921,30 @@ function openEditModal(index, field) {
         return;
     }
 
+    // ===== 商品名稱 / 優惠方案 → 顯示按鈕 =====
+    if (field === 'name' || field === 'promo') {
+        document.getElementById("numpad").style.display = 'none';
+        const promoContainer = document.getElementById("promoButtons");
+        promoContainer.style.display = 'grid';
+        promoContainer.innerHTML = ''; // 清空原本按鈕
+
+        const promos = ['買一送一', '折扣10%', '滿額折扣']; // 範例優惠
+        promos.forEach(p => {
+            const btn = document.createElement('button');
+            btn.textContent = p;
+            btn.onclick = () => {
+                if (editIndex !== null) posCart[editIndex][editingField] = p;
+                closeModal();
+                renderCart();
+            };
+            promoContainer.appendChild(btn);
+        });
+
+        document.getElementById("modalProductName").innerText = "優惠方案";
+        document.getElementById("editModal").style.display = "flex";
+        return;
+    }
+
     // ===== 其他 → 小鍵盤 =====
     document.getElementById("promoButtons").style.display = 'none';
     document.getElementById("numpad").style.display = 'grid';
@@ -931,6 +955,7 @@ function openEditModal(index, field) {
 
     document.getElementById("editModal").style.display = "flex";
 }
+
 
 // ====== 小鍵盤輸入 ======
 function np(v) {
