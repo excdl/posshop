@@ -514,6 +514,10 @@ const API_URL = "https://script.google.com/macros/s/AKfycbyKa23KavY-bH2LZA0jj6z3
 function formatNumber(num) { if (num === null || num === undefined || num === "") return "0"; let n = Number(num); if (isNaN(n)) return "0"; return n.toLocaleString('zh-TW'); }
 let POS_STORE = "";
 let posCart = [], currentTax = "應稅";
+let editIndex = null;       // 正在編輯的商品索引
+let editingField = null;    // 正在編輯的欄位
+let posCart = [];           // 範例購物車資料
+
 
   // ====== 更快的 IP 取得（含 sessionStorage 快取）======
 async function getIP() {
@@ -737,8 +741,6 @@ function initPOSButtons() {
 
 document.addEventListener("DOMContentLoaded", initPOSButtons);
 
-
-  // ===== 渲染購物車 =====
 // ===== 渲染購物車 =====
 function renderCart() {
     const box = document.getElementById("posCart");
@@ -900,80 +902,104 @@ document.getElementById("cashInput").onclick = () => {
   openPOSKeypad("cash", document.getElementById("cashInput").value);
 };
 
+// ====== 打開編輯 Modal ======
 function openEditModal(index, field) {
-    editIndex = index; editingField = field; modalType = field;
+    editIndex = index;
+    editingField = field;
+
+    // ===== 折扣 & 現金 → 大鍵盤 =====
+    if (field === 'discount' || field === 'cash') {
+        document.getElementById("posKeypadTitle").innerText =
+            (field === 'discount') ? "輸入折扣" : "收現金";
+
+        document.getElementById("posKeypadInput").value =
+            (field === 'discount')
+                ? document.getElementById("discount").value
+                : document.getElementById("cashInput").value || '';
+
+        document.getElementById("posKeypadModal").style.display = "flex";
+        return;
+    }
+
+    // ===== 其他 → 小鍵盤 =====
     document.getElementById("promoButtons").style.display = 'none';
     document.getElementById("numpad").style.display = 'grid';
-    let value = (field === 'discount' ? document.getElementById("discount").value
-        : field === 'cash' ? document.getElementById("cashInput").value
-            : posCart[index][field]);
+
+    let value = posCart[index] && posCart[index][field] ? posCart[index][field] : '';
     document.getElementById("modalInput").value = value;
-    document.getElementById("modalProductName").innerText = field === 'cash' ? '收現金' : field === 'discount' ? '折扣' : '輸入';
+    document.getElementById("modalProductName").innerText = "輸入";
+
     document.getElementById("editModal").style.display = "flex";
 }
 
-function openPromoModal(item) {
-    modalType = 'promo'; editIndex = null;
-    document.getElementById("numpad").style.display = 'none';
-    const promoDiv = document.getElementById("promoButtons");
-    promoDiv.style.display = 'grid';
-    promoDiv.innerHTML = '';
-    const promoList = [
-        { name: '95折', rate: 0.95 }, { name: '9折', rate: 0.9 }, { name: '85折', rate: 0.85 }, { name: '8折', rate: 0.8 },
-        { name: '7折', rate: 0.7 }, { name: '6折', rate: 0.6 }, { name: '買一送一', type: '買一送一' }, { name: '買二送一', type: '買二送一' },
-        { name: '第二件減10', type: '第二件減10' }, { name: '第二件6折', type: '第二件6折' }
-    ];
-    promoList.forEach(p => {
-        const btn = document.createElement('button');
-        btn.innerText = p.name;
-        btn.onclick = () => {
-            let idx = posCart.findIndex(x => x.name === item.name);
-            if (idx === -1) addPOSItem(item);
-            idx = posCart.findIndex(x => x.name === item.name);
-            if (p.type) posCart[idx].discount = { type: p.type };
-            else posCart[idx].discount = { rate: p.rate, type: '折扣' };
-            closeModal(); renderCart();
-        };
-        promoDiv.appendChild(btn);
-    });
-    document.getElementById("modalProductName").innerText = item.name;
-    document.getElementById("editModal").style.display = 'flex';
-    document.getElementById("editModal").classList.add("promoMode");
-}
-
+// ====== 小鍵盤輸入 ======
 function np(v) {
     let input = document.getElementById("modalInput");
-    input.value = (input.value === '0' && v !== '.') ? v : input.value + v;
+    input.value += v;
 }
 
+// ====== 小鍵盤刪除 ======
 function backspace() {
     let input = document.getElementById("modalInput");
     input.value = input.value.slice(0, -1);
-    if (input.value === '') input.value = '0';
 }
 
+// ====== 小鍵盤確認 ======
 function confirmEdit() {
     let val = document.getElementById("modalInput").value;
-    if (editIndex !== null && editingField === 'quantity' && posCart[editIndex].unit === '斤') {
+
+    if (editIndex !== null && editingField === 'quantity' &&
+        posCart[editIndex].unit === '斤') {
+
         const parts = val.split('.');
         let j = Number(parts[0]) || 0;
         let l = Number(parts[1]) || 0;
         let q = Number(parts[2]) || 0;
+
+        // 斤、兩、錢換算成總斤
         let totalQty = j + l / 16 + q / 160;
         posCart[editIndex].quantity = totalQty;
+
     } else {
         let v = Number(val);
-        if (modalType === 'discount') document.getElementById("discount").value = v;
-        else if (modalType === 'cash') document.getElementById("cashInput").value = v;
-        else if (editIndex !== null) posCart[editIndex][editingField] = v;
+        if (editIndex !== null) posCart[editIndex][editingField] = v;
     }
-    closeModal(); renderCart();
+
+    closeModal();
+    renderCart();
 }
 
+// ====== 關閉 Modal ======
 function closeModal() {
     document.getElementById("editModal").style.display = 'none';
-    editIndex = null; editingField = null; modalType = null;
-    document.getElementById("editModal").classList.remove("promoMode");
+    document.getElementById("posKeypadModal").style.display = 'none';
+}
+
+// ====== POS 大鍵盤輸入 ======
+function kpInput(v) {
+    let input = document.getElementById("posKeypadInput");
+    input.value += v;
+}
+
+// ====== POS 大鍵盤刪除 ======
+function kpBack() {
+    let input = document.getElementById("posKeypadInput");
+    input.value = input.value.slice(0, -1);
+}
+
+// ====== POS 大鍵盤確認 ======
+function kpConfirm() {
+    let v = Number(document.getElementById("posKeypadInput").value) || 0;
+
+    if (editingField === 'discount') {
+        document.getElementById("discount").value = v;
+    } else if (editingField === 'cash') {
+        document.getElementById("cashInput").value = v;
+        updateChange(); // 計算找零或其他現金功能
+    }
+
+    closeModal();
+    renderCart();
 }
 
 function setTax(t) {
