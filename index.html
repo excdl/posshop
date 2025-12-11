@@ -277,17 +277,20 @@ button{cursor:pointer;outline:none;transition:0.2s;}
 
 /* ======== 顯示輸入框 ======== */
 #modalInput {
-  width: 100%;
+  width: 80%;
+  max-width: 400px;
+  margin: 0 auto 15px auto;   /* ← 水平完全置中 */
+  display: block;             /* ← 必加 */
+  
   font-size: 30px;
   padding: 12px;
   border-radius: 8px;
-  text-align: center; /* ✅ 由 right 改為 center */
+  text-align: center;
   border: none;
   background: #111;
   color: #0f0;
   letter-spacing: 2px;
   box-sizing: border-box;
-  margin-bottom: 15px;
 }
 
 
