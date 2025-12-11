@@ -362,6 +362,26 @@ button{cursor:pointer;outline:none;transition:0.2s;}
 .modalActions .confirm {
   background: #43a047;
 }
+.closeModal {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 28px;
+  height: 28px;
+  line-height: 28px;
+  text-align: center;
+  border-radius: 50%;
+  background: #ccc;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 18px;
+  transition: background 0.2s;
+}
+
+.closeModal:hover {
+  background: #999;
+  color: white;
+}
 
 
 </style>
@@ -454,21 +474,28 @@ button{cursor:pointer;outline:none;transition:0.2s;}
   <!-- 編輯 Modal -->
 <div id="editModal">
   <div class="modalContent">
+    <!-- 新增右上角圓形 X -->
+    <span class="closeModal" onclick="closeModal()">×</span>
+
     <h4 id="modalProductName">輸入</h4>
     <input id="modalInput" readonly>
+
     <div id="numpad">
       <button onclick="np('7')">7</button><button onclick="np('8')">8</button><button onclick="np('9')">9</button>
       <button onclick="np('4')">4</button><button onclick="np('5')">5</button><button onclick="np('6')">6</button>
       <button onclick="np('1')">1</button><button onclick="np('2')">2</button><button onclick="np('3')">3</button>
       <button onclick="np('0')">0</button><button onclick="np('.')">.</button><button onclick="backspace()">←</button>
     </div>
+
     <div id="promoButtons"></div>
+
     <div class="modalActions">
       <button class="cancel" onclick="closeModal()">取消</button>
       <button class="confirm" onclick="confirmEdit()">確定</button>
     </div>
   </div>
 </div>
+
 
 <!-- ======= POS 大鍵盤（折扣 / 收現金 專用） ======= -->
 <div id="posKeypadModal">
@@ -945,11 +972,15 @@ function openPromoModal(item) {
     const modal = document.getElementById("editModal");
     const promoDiv = document.getElementById("promoButtons");
     const numpad = document.getElementById("numpad");
+    const modalActions = document.querySelector("#editModal .modalActions");
 
     // 隱藏小鍵盤，顯示優惠方案
     numpad.style.display = 'none';
     promoDiv.style.display = 'grid';
     promoDiv.innerHTML = '';
+
+    // 隱藏取消 & 確定按鈕
+    modalActions.style.display = 'none';
 
     const promoList = [
         { name: '95折', rate: 0.95 }, { name: '9折', rate: 0.9 }, { name: '85折', rate: 0.85 }, { name: '8折', rate: 0.8 },
@@ -977,6 +1008,7 @@ function openPromoModal(item) {
     document.getElementById("modalProductName").innerText = item.name;
     modal.style.display = 'flex';
 }
+
 
 // ====== 小鍵盤輸入 ======
 function np(v) {
