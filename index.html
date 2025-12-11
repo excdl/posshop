@@ -303,19 +303,45 @@ button {
 
   
   <!-- 編輯 Modal -->
-<div id="numpad">
-  <button onclick="np('7')">7</button><button onclick="np('8')">8</button><button onclick="np('9')">9</button>
-  <button onclick="np('4')">4</button><button onclick="np('5')">5</button><button onclick="np('6')">6</button>
-  <button onclick="np('1')">1</button><button onclick="np('2')">2</button><button onclick="np('3')">3</button>
-  <button onclick="np('0')">0</button><button onclick="np('.')">.</button><button onclick="backspace()">←</button>
+<div id="editModal">
+  <div class="modalContent">
+    <h4 id="modalProductName">輸入</h4>
+    <input id="modalInput" readonly>
+    
+    <!-- 數字鍵 -->
+    <div id="numpad">
+      <button onclick="np('7')">7</button>
+      <button onclick="np('8')">8</button>
+      <button onclick="np('9')">9</button>
+      <button onclick="np('4')">4</button>
+      <button onclick="np('5')">5</button>
+      <button onclick="np('6')">6</button>
+      <button onclick="np('1')">1</button>
+      <button onclick="np('2')">2</button>
+      <button onclick="np('3')">3</button>
+      <button onclick="np('0')">0</button>
+      <button onclick="np('.')">.</button>
+      <button onclick="backspace()">←</button>
+    </div>
+
+    <!-- 快速金額按鈕 -->
+    <div id="quickButtons">
+      <button onclick="np('1000')">1000</button>
+      <button onclick="np('500')">500</button>
+      <button onclick="np('100')">100</button>
+      <button onclick="np('00')">00</button>
+    </div>
+
+    <!-- 促銷按鈕 -->
+    <div id="promoButtons"></div>
+
+    <div class="modalActions">
+      <button class="cancel" onclick="closeModal()">取消</button>
+      <button class="confirm" onclick="confirmEdit()">確定</button>
+    </div>
+  </div>
 </div>
 
-<div id="promoButtons">
-  <button onclick="np('1000')">1000</button>
-  <button onclick="np('500')">500</button>
-  <button onclick="np('100')">100</button>
-  <button onclick="np('00')">00</button>
-</div>
 
 
 <!-- 列印收據區 -->
