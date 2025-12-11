@@ -938,7 +938,6 @@ document.getElementById("cashInput").onclick = () => {
 };
 
 // ====== 打開編輯 Modal ======
-// ====== 打開編輯 Modal ======
 function openEditModal(index, field) {
     editIndex = index;
     editingField = field;
@@ -1018,6 +1017,54 @@ function openPromoModal(item) {
     document.getElementById("modalProductName").innerText = item.name;
     modal.style.display = 'flex';
 }
+/ ===== 其他 → 小鍵盤 =====
+    document.getElementById("promoButtons").style.display = 'none';
+    document.getElementById("numpad").style.display = 'grid';
+
+    let value = posCart[index] && posCart[index][field] ? posCart[index][field] : '';
+    document.getElementById("modalInput").value = value;
+    document.getElementById("modalProductName").innerText = "輸入";
+
+    document.getElementById("editModal").style.display = "flex";
+}
+
+// ====== 小鍵盤輸入 ======
+function np(v) {
+    let input = document.getElementById("modalInput");
+    input.value += v;
+}
+
+// ====== 小鍵盤刪除 ======
+function backspace() {
+    let input = document.getElementById("modalInput");
+    input.value = input.value.slice(0, -1);
+}
+
+// ====== 小鍵盤確認 ======
+function confirmEdit() {
+    let val = document.getElementById("modalInput").value;
+
+    if (editIndex !== null && editingField === 'quantity' &&
+        posCart[editIndex].unit === '斤') {
+
+        const parts = val.split('.');
+        let j = Number(parts[0]) || 0;
+        let l = Number(parts[1]) || 0;
+        let q = Number(parts[2]) || 0;
+
+        // 斤、兩、錢換算成總斤
+        let totalQty = j + l / 16 + q / 160;
+        posCart[editIndex].quantity = totalQty;
+
+    } else {
+        let v = Number(val);
+        if (editIndex !== null) posCart[editIndex][editingField] = v;
+    }
+
+    closeModal();
+    renderCart();
+}
+
 
 // ====== 關閉 modal ======
 function closeModal() {
