@@ -903,59 +903,7 @@ document.getElementById("cashInput").onclick = () => {
 };
 
 // ====== 打開編輯 Modal ====== 
-function openPromoModal(item) { 
-    modalType = 'promo'; 
-    editIndex = null;
-
-    const modal = document.getElementById("editModal");
-    const promoDiv = document.getElementById("promoButtons");
-    const numpad = document.getElementById("numpad");
-
-    // 隱藏小鍵盤，顯示優惠方案
-    numpad.style.display = 'none';
-    promoDiv.style.display = 'grid';
-    promoDiv.innerHTML = '';
-
-    const promoList = [
-        { name: '95折', rate: 0.95 }, { name: '9折', rate: 0.9 }, { name: '85折', rate: 0.85 }, { name: '8折', rate: 0.8 },
-        { name: '7折', rate: 0.7 }, { name: '6折', rate: 0.6 }, { name: '買一送一', type: '買一送一' }, { name: '買二送一', type: '買二送一' },
-        { name: '第二件減10', type: '第二件減10' }, { name: '第二件6折', type: '第二件6折' }
-    ];
-
-    promoList.forEach(p => {
-        const btn = document.createElement('button');
-        btn.innerText = p.name;
-        btn.onclick = () => {
-            let idx = posCart.findIndex(x => x.name === item.name);
-            if (idx === -1) addPOSItem(item);
-            idx = posCart.findIndex(x => x.name === item.name);
-            if (idx !== -1) {
-                if (p.type) posCart[idx].discount = { type: p.type };
-                else posCart[idx].discount = { rate: p.rate, type: '折扣' };
-            }
-            closeModal(); 
-            renderCart();
-        };
-        promoDiv.appendChild(btn);
-    });
-
-    // 設置商品名稱
-    document.getElementById("modalProductName").innerText = item.name;
-
-    // 顯示 Modal
-    modal.style.display = 'flex';
-}
-
-    // ===== 其他欄位 → 小鍵盤 =====
-    promoContainer.style.display = 'none';
-    numpad.style.display = 'grid';
-
-    let value = item && item[field] ? item[field] : '';
-    document.getElementById("modalInput").value = value;
-    document.getElementById("modalProductName").innerText = "輸入";
-
-    document.getElementById("editModal").style.display = "flex";
-}function openEditModal(index, field) {
+function openEditModal(index, field) {
     editIndex = index;
     editingField = field;
     modalType = 'edit';
@@ -1099,6 +1047,7 @@ function kpConfirm() {
     closeModal();
     renderCart();
 }
+  
 function setTax(t) {
     currentTax = t;
     document.getElementById("taxIncluded").classList.toggle('active', t === "應稅");
