@@ -182,6 +182,7 @@ button{cursor:pointer;outline:none;transition:0.2s;}
   border-radius: 14px;
   text-align: center;
   box-shadow: 0 0 30px rgba(0,0,0,0.35);
+  position: relative; /* 讓右上 X 絕對定位在 modal 內 */
 }
 
 #posKeypadTitle {
@@ -191,7 +192,6 @@ button{cursor:pointer;outline:none;transition:0.2s;}
   color: #fff;
 }
 
-/* 顯示金額框 */
 #posKeypadInput {
   width: 100%;
   font-size: 32px;
@@ -202,7 +202,7 @@ button{cursor:pointer;outline:none;transition:0.2s;}
   border-radius: 8px;
   box-sizing: border-box;
   background: #111;
-  color: #0f0;      /* 綠字＝電子收銀機風格 */
+  color: #0f0;
   letter-spacing: 2px;
 }
 
@@ -219,13 +219,12 @@ button{cursor:pointer;outline:none;transition:0.2s;}
   border-radius: 8px;
   background: #444;
   color: #fff;
-  box-shadow: inset 0 -3px 0 rgba(0,0,0,0.3);
-  transition: 0.1s;
+  box-shadow: inset 0 -3px 0 rgba(0,0,0,0.35);
 }
 
 .posKeypadGrid button:active {
   transform: translateY(2px);
-  box-shadow: inset 0 0 0 rgba(0,0,0,0.4);
+  box-shadow: none;
 }
 
 .posKeypadGrid button.big {
@@ -238,6 +237,7 @@ button{cursor:pointer;outline:none;transition:0.2s;}
   font-size: 22px;
   font-weight: bold;
 }
+
 /* ======== 統一 POS Modal 外層 ======== */
 #editModal,
 .promoMode {
@@ -260,9 +260,9 @@ button{cursor:pointer;outline:none;transition:0.2s;}
   box-shadow: 0 0 25px rgba(0,0,0,0.35);
   text-align: center;
   animation: popup 0.15s ease-out;
+  position: relative; /* 右上 X 絕對定位 */
 }
 
-/* 彈入動畫 */
 @keyframes popup {
   from { transform: scale(0.85); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
@@ -362,6 +362,8 @@ button{cursor:pointer;outline:none;transition:0.2s;}
 .modalActions .confirm {
   background: #43a047;
 }
+
+/* ======== 右上 X 按鈕 ======== */
 .closeModal {
   display: none; /* 預設隱藏 */
   position: absolute;
@@ -377,6 +379,7 @@ button{cursor:pointer;outline:none;transition:0.2s;}
   font-weight: bold;
   font-size: 18px;
   transition: background 0.2s;
+  z-index: 10;
 }
 
 .closeModal:hover {
@@ -473,15 +476,13 @@ button{cursor:pointer;outline:none;transition:0.2s;}
 
 
   
-  <!-- 編輯 Modal -->
+ <!-- 共用編輯 modal（小鍵盤 & 優惠方案） -->
 <div id="editModal">
   <div class="modalContent">
-    <!-- 右上角 X -->
-    <span id="promoCloseBtn" class="closeModal" onclick="closeModal()">×</span>
-
     <h4 id="modalProductName">輸入</h4>
-    <input id="modalInput" readonly>
+    <input id="modalInput">
 
+    <!-- 小鍵盤 -->
     <div id="numpad">
       <button onclick="np('7')">7</button><button onclick="np('8')">8</button><button onclick="np('9')">9</button>
       <button onclick="np('4')">4</button><button onclick="np('5')">5</button><button onclick="np('6')">6</button>
@@ -489,19 +490,25 @@ button{cursor:pointer;outline:none;transition:0.2s;}
       <button onclick="np('0')">0</button><button onclick="np('.')">.</button><button onclick="backspace()">←</button>
     </div>
 
+    <!-- 優惠方案按鈕 -->
     <div id="promoButtons"></div>
 
+    <!-- 小鍵盤確認/取消按鈕 -->
     <div class="modalActions">
       <button class="cancel" onclick="closeModal()">取消</button>
       <button class="confirm" onclick="confirmEdit()">確定</button>
     </div>
+
+    <!-- 優惠方案專用右上 X -->
+    <span class="closeModal" id="promoCloseBtn" onclick="closeModal()">×</span>
   </div>
 </div>
-
 
 <!-- ======= POS 大鍵盤（折扣 / 收現金 專用） ======= -->
 <div id="posKeypadModal">
   <div class="keypadBox">
+    <!-- 右上 X 關閉 -->
+    <span class="closeModal" id="posCloseBtn" onclick="closeModal()">×</span>
 
     <h3 id="posKeypadTitle">輸入</h3>
 
@@ -528,7 +535,6 @@ button{cursor:pointer;outline:none;transition:0.2s;}
       <button onclick="kpInput('0')">0</button>
       <button onclick="kpBack()">←</button>
     </div>
-
   </div>
 </div>
 
@@ -945,25 +951,18 @@ function openEditModal(index, field) {
     const modalInput = document.getElementById("modalInput");
     const closeBtn = document.getElementById("promoCloseBtn");
 
-    // 隱藏優惠方案特定元素
-    closeBtn.style.display = 'none';
+    // 隱藏優惠方案專用元素
     promoDiv.style.display = 'none';
+    closeBtn.style.display = 'none';
 
-    // ===== 折扣 & 現金 → 大鍵盤 =====
     if (field === 'discount' || field === 'cash') {
-        document.getElementById("posKeypadTitle").innerText =
-            (field === 'discount') ? "輸入折扣" : "收現金";
-
-        document.getElementById("posKeypadInput").value =
-            (field === 'discount')
-                ? document.getElementById("discount").value
-                : document.getElementById("cashInput").value || '';
-
+        document.getElementById("posKeypadTitle").innerText = (field === 'discount') ? "輸入折扣" : "收現金";
+        document.getElementById("posKeypadInput").value = (field === 'discount') ? document.getElementById("discount").value : document.getElementById("cashInput").value || '';
         document.getElementById("posKeypadModal").style.display = "flex";
         return;
     }
 
-    // ===== 其他 → 小鍵盤 =====
+    // 小鍵盤模式
     numpad.style.display = 'grid';
     modalInput.style.display = 'block';
     modalActions.style.display = 'flex';
@@ -971,7 +970,6 @@ function openEditModal(index, field) {
     let value = posCart[index] && posCart[index][field] ? posCart[index][field] : '';
     modalInput.value = value;
     document.getElementById("modalProductName").innerText = "輸入";
-
     modal.style.display = "flex";
 }
 
@@ -987,13 +985,10 @@ function openPromoModal(item) {
     const modalInput = document.getElementById("modalInput");
     const closeBtn = document.getElementById("promoCloseBtn");
 
-    // 顯示優惠方案彈窗
     numpad.style.display = 'none';
     modalInput.style.display = 'none';
     promoDiv.style.display = 'grid';
     promoDiv.innerHTML = '';
-
-    // 隱藏原本按鈕，顯示右上 X
     modalActions.style.display = 'none';
     closeBtn.style.display = 'block';
 
@@ -1063,12 +1058,13 @@ function kpConfirm() {
         document.getElementById("discount").value = v;
     } else if (editingField === 'cash') {
         document.getElementById("cashInput").value = v;
-        updateChange(); // 計算找零或其他現金功能
+        updateChange();
     }
 
     closeModal();
     renderCart();
 }
+
 
   
 function setTax(t) {
