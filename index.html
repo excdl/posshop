@@ -647,11 +647,11 @@ document.getElementById("logoutBtn").onclick = logout;
 async function logout() {
     const logoutBtn = document.getElementById("logoutBtn");
 
-    // 顯示運作中
+    // 點擊後鎖定按鈕，並顯示登出中
     logoutBtn.disabled = true;
     const originalText = logoutBtn.innerText;
-    logoutBtn.innerText = "登出中...";
-    logoutBtn.classList.add("active"); // 可在 CSS 設計 active 樣式
+    logoutBtn.innerText = "登出中";
+    logoutBtn.classList.add("active");
 
     const now = new Date();
     const logoutTime = now.toLocaleString("zh-TW", { hour12: false });
@@ -689,6 +689,7 @@ async function logout() {
 // 綁定按鈕事件
 document.getElementById("loginBtn").addEventListener("click", login);
 document.getElementById("logoutBtn").addEventListener("click", logout);
+
 
 
 
