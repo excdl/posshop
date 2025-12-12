@@ -414,9 +414,15 @@ button{cursor:pointer;outline:none;transition:0.2s;}
 .modalActions .cancel { background: #d32f2f; }
 .modalActions .confirm { background: #43a047; }
 
-/* 登出按鈕點擊中效果 */
+/* 登出按鈕正常狀態 */
+#logoutBtn {
+    color: white; /* 文字白色，底色橘紅 */
+}
+
+/* 登出中效果 */
 #logoutBtn.active {
-    background-color: #e67e22;
+    background-color: #e67e22; /* 比原本橘紅更亮 */
+    color: white; /* 文字保持白色，高對比 */
     position: relative;
 }
 
@@ -427,13 +433,13 @@ button{cursor:pointer;outline:none;transition:0.2s;}
     right: 10px;
     top: 50%;
     transform: translateY(-50%);
+    color: white; /* 小動畫點也保持白色 */
 }
 
 @keyframes blink {
     0%, 50%, 100% { opacity: 0; }
     25%, 75% { opacity: 1; }
 }
-
 
 </style>
 </head>
