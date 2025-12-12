@@ -647,17 +647,15 @@ document.getElementById("logoutBtn").onclick = logout;
 async function logout() {
     const logoutBtn = document.getElementById("logoutBtn");
 
-    // 點擊後鎖定按鈕，並顯示登出中
+    // 點擊後才改文字
     logoutBtn.disabled = true;
-    const originalText = logoutBtn.innerText;
-    logoutBtn.innerText = "登出中";
+    logoutBtn.innerText = "登出中...";
     logoutBtn.classList.add("active");
 
     const now = new Date();
     const logoutTime = now.toLocaleString("zh-TW", { hour12: false });
 
     try {
-        // 呼叫 API 記錄登出時間
         await fetch(`${API_URL}?action=logout&store=${POS_STORE}&time=${encodeURIComponent(logoutTime)}`);
     } catch (err) {
         console.error(err);
@@ -671,7 +669,7 @@ async function logout() {
         document.getElementById("passwordInput").value = "";
         document.getElementById("loginMsg").innerText = "";
 
-        // 重置登入按鈕狀態
+        // 重置登入按鈕
         const loginBtn = document.getElementById("loginBtn");
         loginBtn.innerText = "登入";
         loginBtn.disabled = false;
@@ -681,7 +679,7 @@ async function logout() {
 
         // 恢復登出按鈕狀態
         logoutBtn.disabled = false;
-        logoutBtn.innerText = originalText;
+        logoutBtn.innerText = "登出"; // 固定回「登出」
         logoutBtn.classList.remove("active");
     }
 }
@@ -689,8 +687,6 @@ async function logout() {
 // 綁定按鈕事件
 document.getElementById("loginBtn").addEventListener("click", login);
 document.getElementById("logoutBtn").addEventListener("click", logout);
-
-
 
 
 // ===== 取得商品 =====
