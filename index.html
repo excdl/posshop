@@ -1304,83 +1304,87 @@ document.getElementById("posCheckout").onclick = async function () {
         await sendCheckoutToSheet();
         updateTodaySales();
 
-        // STEP 2：準備收據格式內容
-        function getMaxLength() {
-            let maxNameLen = 0, maxQtyLen = 0, maxPriceLen = 0, maxSubtotalLen = 0;
-            posCart.forEach(item => {
-                maxNameLen = Math.max(maxNameLen, item.name.length);
-                maxQtyLen = Math.max(maxQtyLen, item.quantity.toFixed(2).length);
-                maxPriceLen = Math.max(maxPriceLen, item.price.toFixed(0).length);
-
-                let sub = calcDiscountedSubtotal(item);
-                maxSubtotalLen = Math.max(maxSubtotalLen, sub.toFixed(0).length);
-            });
-            return { maxNameLen, maxQtyLen, maxPriceLen, maxSubtotalLen };
-        }
-
-        function padLeft(str, len) { str = String(str); return ' '.repeat(len - str.length) + str; }
-        function padRight(str, len) { str = String(str); return str + ' '.repeat(len - str.length); }
-
-        function formatProductLine(item, maxNameLen, maxQtyLen, maxPriceLen, maxSubtotalLen) {
-            let sub = calcDiscountedSubtotal(item);
-            let discountText = item.discount
-                ? (item.discount.type === "折扣"
-                    ? formatDiscountRate(item.discount.rate)
-                    : item.discount.type)
-                : "";
-
-            let lines = [];
-            const chunk = 12;
-
-            for (let i = 0; i < item.name.length; i += chunk) {
-                const part = item.name.slice(i, i + chunk);
-
-                if (i === 0) {
-                    lines.push(
-                        padRight(part, maxNameLen) + " " +
-                        padLeft(item.quantity.toFixed(2), maxQtyLen) + " " +
-                        padLeft(item.price, maxPriceLen) + " " +
-                        padLeft(sub, maxSubtotalLen)
-                    );
-                } else {
-                    lines.push("  " + part);
+        // ===== 準備小票資料 =====
+    const receiptPayload = {
+        storeName: "生鮮 POS",
+        datetime: new Date().toLocaleString(),
+        payment: document.getElementById("posPayment").value,
+        openCashDrawer: true,
+        items: posCart.map(item=>{
+            let subtotal=item.quantity*item.price;
+            let discountText="";
+            let discountAmount=0;
+            if(item.discount){
+                switch(item.discount.type){
+                    case "第二件減10": 
+                        discountAmount=Math.floor(item.quantity/2)*10; 
+                        subtotal-=discountAmount; 
+                        discountText="第二件減10"; 
+                        break;
+                    case "買二送一": 
+                        discountAmount=Math.floor(item.quantity/3)*item.price; 
+                        subtotal-=discountAmount; 
+                        discountText="買二送一"; 
+                        break;
+                    case "買一送一": 
+                        discountAmount=Math.floor(item.quantity/2)*item.price; 
+                        subtotal-=discountAmount; 
+                        discountText="買一送一"; 
+                        break;
+                    case "第二件6折": 
+                        discountAmount=Math.floor(item.quantity/2)*item.price*0.4; 
+                        subtotal-=discountAmount; 
+                        discountText="第二件6折"; 
+                        break;
+                    default: 
+                        subtotal*=item.discount.rate||1; 
+                        discountAmount = item.price*item.quantity*(1-(item.discount.rate||1));
+                        discountText=`折扣${(item.discount.rate||1)*100}%`; 
+                        break;
                 }
             }
-
-            if (discountText) lines.push("  優惠: " + discountText);
-            return lines.join("\n");
+            return {name:item.name,qty:item.quantity,price:item.price,subtotal,discountText,discountAmount};
+        }),
+        summary: {
+            discount: document.getElementById("discount").value||0,
+            tax: document.getElementById("taxAmount")?.innerText||0,
+            total: document.getElementById("posTotal")?.innerText||0
         }
+    };
 
-        function formatReceipt() {
-            const { maxNameLen, maxQtyLen, maxPriceLen, maxSubtotalLen } = getMaxLength();
+    // ===== 小票文字產生函式 =====
+    function pad(str,len,right=false){ str=str.toString(); return right? str+' '.repeat(len-str.length):' '.repeat(len-str.length)+str; }
+    function center(str,total){ let padLen=Math.floor((total-str.length)/2); return ' '.repeat(padLen)+str; }
+    function splitText(text,maxWidth){ let lines=[],line=""; for(const ch of text){ const w=ch.charCodeAt(0)>255?2:1; if(line.length+w>maxWidth){lines.push(line); line=ch;} else line+=ch;} if(line) lines.push(line); return lines; }
 
-            let content = "===== 生鮮 POS 小票 =====\n";
-
-            content += padRight("商品", maxNameLen) + " " +
-                       padRight("數量", maxQtyLen) + " " +
-                       padRight("單價", maxPriceLen) + " " +
-                       padRight("小計", maxSubtotalLen) + "\n";
-            content += "-".repeat(maxNameLen + maxQtyLen + maxPriceLen + maxSubtotalLen + 3) + "\n";
-
-            posCart.forEach(item => {
-                content += formatProductLine(item, maxNameLen, maxQtyLen, maxPriceLen, maxSubtotalLen) + "\n";
+    function buildReceiptText(r, profile){
+        let out=[];
+        out.push(center(r.storeName,profile.charsPerLine));
+        out.push(center(r.datetime,profile.charsPerLine));
+        out.push("-".repeat(profile.charsPerLine));
+        out.push(pad("商品",profile.nameWidth)+pad("數量",profile.qtyWidth)+pad("單價",profile.priceWidth)+pad("小計",profile.subWidth));
+        out.push("-".repeat(profile.charsPerLine));
+        r.items.forEach(i=>{
+            const nameLines=splitText(i.name,profile.nameWidth);
+            nameLines.forEach((line,idx)=>{
+                out.push(pad(line,profile.nameWidth)+(idx===0?pad(i.qty,profile.qtyWidth,true)+pad(i.price,profile.priceWidth,true)+pad(i.subtotal,profile.subWidth,true):""));
             });
-
-            content += "-".repeat(maxNameLen + maxQtyLen + maxPriceLen + maxSubtotalLen + 3) + "\n";
-
-            content += "折扣總額: " + document.getElementById("discount").value + " 元\n";
-            content += "稅金: " + document.getElementById("taxAmount").innerText + " 元\n";
-            content += "總額: " + document.getElementById("posTotal").innerText + " 元\n";
-            content += "付款方式: " + document.getElementById("posPayment").value + "\n";
-
-            if (document.getElementById("posPayment").value === "現金") {
-                content += "現金收入: " + document.getElementById("cashInput").value + " 元\n";
-                content += "找零: " + document.getElementById("changeOut").innerText + " 元\n";
-            }
-
-            content += "===== 感謝光臨 =====\n";
-            return content;
+            if(i.discountText) out.push(`  優惠: ${i.discountText} -${i.discountAmount.toFixed(0)} 元`);
+        });
+        out.push("-".repeat(profile.charsPerLine));
+        out.push(pad("折扣總額",profile.nameWidth+profile.qtyWidth)+pad(r.summary.discount,profile.priceWidth+profile.subWidth,true));
+        out.push(pad("稅金",profile.nameWidth+profile.qtyWidth)+pad(r.summary.tax,profile.priceWidth+profile.subWidth,true));
+        out.push(pad("總額",profile.nameWidth+profile.qtyWidth)+pad(r.summary.total,profile.priceWidth+profile.subWidth,true));
+        out.push("付款："+r.payment);
+        if(r.payment==="現金"){
+            let cash=Number(document.getElementById("cashInput")?.value||0);
+            let change=document.getElementById("changeOut")?.innerText||0;
+            out.push(pad("現金收入",profile.nameWidth+profile.qtyWidth)+pad(cash,profile.priceWidth+profile.subWidth,true));
+            out.push(pad("找零",profile.nameWidth+profile.qtyWidth)+pad(change,profile.priceWidth+profile.subWidth,true));
         }
+        out.push(center("===== 感謝光臨 =====",profile.charsPerLine));
+        return out.join("\n");
+    }
 
         // STEP 3：列印
         const receiptContent = formatReceipt();
