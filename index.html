@@ -1226,7 +1226,7 @@ function calcDiscountedSubtotal(item) {
     return Math.round(sub);
 }
 
-  async function sendCheckoutToSheet() {
+ async function sendCheckoutToSheet() {
 
     const now = new Date();
 
@@ -1248,19 +1248,29 @@ function calcDiscountedSubtotal(item) {
 
         items: posCart.map(it => {
 
-            // ① 小計（折扣後）
+            // 原價小計
+            const originalSubtotal = it.price * it.quantity;
+
+            // 折扣後小計
             const discountedSubtotal = calcDiscountedSubtotal(it);
 
-            // ② 折扣文字（ex: 95折 / 買二送一）
+            // 折扣金額（負數）
+            const promoDiscountAmount = discountedSubtotal - originalSubtotal;
+
+            // 折扣文字（含折扣金額）
             let promoText = "";
-            if (it.discount) {
+
+            if (it.discount && promoDiscountAmount < 0) {
+                let promoName = "";
+
                 if (it.discount.type === "折扣") {
-                    promoText = formatDiscountRate(it.discount.rate);
-
-
+                    promoName = formatDiscountRate(it.discount.rate);
                 } else {
-                    promoText = it.discount.type;
+                    promoName = it.discount.type;
                 }
+
+                // 直接寫入原本優惠方案欄位
+                promoText = `${promoName} ${promoDiscountAmount}`;
             }
 
             return {
@@ -1269,10 +1279,10 @@ function calcDiscountedSubtotal(item) {
                 quantity: it.quantity,
                 price: it.price,
 
-                // 寫入試算表的：折扣後小計
+                // 寫入試算表：折扣後小計
                 subtotal: discountedSubtotal,
 
-                // 寫入試算表的折扣名稱
+                // 原本的優惠方案欄位（已含折扣金額）
                 promo: promoText
             };
         })
@@ -1283,6 +1293,8 @@ function calcDiscountedSubtotal(item) {
         body: JSON.stringify(payload)
     });
 }
+
+  
 // ===== 結帳流程：先結帳 → 再列印 =====
 document.getElementById("posCheckout").onclick = async function () {
 
@@ -1297,14 +1309,14 @@ document.getElementById("posCheckout").onclick = async function () {
     checkoutBtn.disabled = true;
     const originalText = checkoutBtn.innerText;
     checkoutBtn.innerText = "結帳中...";
-    checkoutBtn.style.backgroundColor = "#ccc"; // 可改成你喜歡的顏色提示
+    checkoutBtn.style.backgroundColor = "#ccc";
 
     try {
         // STEP 1：先結帳（寫入 Google Sheet）
         await sendCheckoutToSheet();
         updateTodaySales();
 
-        // STEP 2：準備收據格式內容
+        // ===== 小票工具函式 =====
         function getMaxLength() {
             let maxNameLen = 0, maxQtyLen = 0, maxPriceLen = 0, maxSubtotalLen = 0;
             posCart.forEach(item => {
@@ -1318,16 +1330,31 @@ document.getElementById("posCheckout").onclick = async function () {
             return { maxNameLen, maxQtyLen, maxPriceLen, maxSubtotalLen };
         }
 
-        function padLeft(str, len) { str = String(str); return ' '.repeat(len - str.length) + str; }
-        function padRight(str, len) { str = String(str); return str + ' '.repeat(len - str.length); }
+        function padLeft(str, len) {
+            str = String(str);
+            return ' '.repeat(len - str.length) + str;
+        }
 
+        function padRight(str, len) {
+            str = String(str);
+            return str + ' '.repeat(len - str.length);
+        }
+
+        // ===== 單一商品列格式 =====
         function formatProductLine(item, maxNameLen, maxQtyLen, maxPriceLen, maxSubtotalLen) {
-            let sub = calcDiscountedSubtotal(item);
-            let discountText = item.discount
-                ? (item.discount.type === "折扣"
+
+            const originalSubtotal = item.price * item.quantity;
+            const sub = calcDiscountedSubtotal(item);
+            const discountAmount = sub - originalSubtotal; // 負數
+
+            let promoText = "";
+            if (item.discount && discountAmount < 0) {
+                let promoName = item.discount.type === "折扣"
                     ? formatDiscountRate(item.discount.rate)
-                    : item.discount.type)
-                : "";
+                    : item.discount.type;
+
+                promoText = `${promoName} ${discountAmount}`;
+            }
 
             let lines = [];
             const chunk = 12;
@@ -1347,10 +1374,15 @@ document.getElementById("posCheckout").onclick = async function () {
                 }
             }
 
-            if (discountText) lines.push("  優惠: " + discountText);
+            // 👉 優惠列（含折扣金額）
+            if (promoText) {
+                lines.push("  優惠: " + promoText);
+            }
+
             return lines.join("\n");
         }
 
+        // ===== 組整張小票 =====
         function formatReceipt() {
             const { maxNameLen, maxQtyLen, maxPriceLen, maxSubtotalLen } = getMaxLength();
 
@@ -1360,10 +1392,17 @@ document.getElementById("posCheckout").onclick = async function () {
                        padRight("數量", maxQtyLen) + " " +
                        padRight("單價", maxPriceLen) + " " +
                        padRight("小計", maxSubtotalLen) + "\n";
+
             content += "-".repeat(maxNameLen + maxQtyLen + maxPriceLen + maxSubtotalLen + 3) + "\n";
 
             posCart.forEach(item => {
-                content += formatProductLine(item, maxNameLen, maxQtyLen, maxPriceLen, maxSubtotalLen) + "\n";
+                content += formatProductLine(
+                    item,
+                    maxNameLen,
+                    maxQtyLen,
+                    maxPriceLen,
+                    maxSubtotalLen
+                ) + "\n";
             });
 
             content += "-".repeat(maxNameLen + maxQtyLen + maxPriceLen + maxSubtotalLen + 3) + "\n";
@@ -1405,9 +1444,10 @@ document.getElementById("posCheckout").onclick = async function () {
         // STEP 5：恢復按鈕狀態
         checkoutBtn.disabled = false;
         checkoutBtn.innerText = originalText;
-        checkoutBtn.style.backgroundColor = ""; // 恢復原本顏色
+        checkoutBtn.style.backgroundColor = "";
     }
 };
+
 
 
 </script>
