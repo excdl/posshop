@@ -1227,7 +1227,6 @@ function calcDiscountedSubtotal(item) {
 }
 
  async function sendCheckoutToSheet() {
-
     const now = new Date();
 
     const payload = {
@@ -1247,30 +1246,18 @@ function calcDiscountedSubtotal(item) {
         change: Number(document.getElementById("changeOut").innerText) || 0,
 
         items: posCart.map(it => {
-
-            // 原價小計
             const originalSubtotal = it.price * it.quantity;
-
-            // 折扣後小計
             const discountedSubtotal = calcDiscountedSubtotal(it);
 
-            // 折扣金額（負數）
-            const promoDiscountAmount = discountedSubtotal - originalSubtotal;
+            // 折扣金額（正數）
+            const promoDiscount = Math.abs(originalSubtotal - discountedSubtotal);
 
-            // 折扣文字（含折扣金額）
+            // 優惠方案名稱
             let promoText = "";
-
-            if (it.discount && promoDiscountAmount < 0) {
-                let promoName = "";
-
-                if (it.discount.type === "折扣") {
-                    promoName = formatDiscountRate(it.discount.rate);
-                } else {
-                    promoName = it.discount.type;
-                }
-
-                // 直接寫入原本優惠方案欄位
-                promoText = `${promoName} ${promoDiscountAmount}`;
+            if (it.discount) {
+                promoText = it.discount.type === "折扣"
+                    ? formatDiscountRate(it.discount.rate)
+                    : it.discount.type;
             }
 
             return {
@@ -1278,12 +1265,9 @@ function calcDiscountedSubtotal(item) {
                 name: it.name,
                 quantity: it.quantity,
                 price: it.price,
-
-                // 寫入試算表：折扣後小計
-                subtotal: discountedSubtotal,
-
-                // 原本的優惠方案欄位（已含折扣金額）
-                promo: promoText
+                subtotal: discountedSubtotal, // 折扣後小計
+                promo: promoText,             // 優惠方案名稱
+                promoDiscount: promoDiscount  // 優惠折扣金額
             };
         })
     };
