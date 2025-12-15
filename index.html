@@ -613,6 +613,17 @@ let editingField = null;    // 正在編輯的欄位
 let modalType = null;
 let kpTarget = null;
 
+/* ===== 金額進位規則（一定要最前面） ===== */
+const MONEY_ROUND_MODE = "round";
+
+function roundMoney(v) {
+    v = Number(v) || 0;
+    switch (MONEY_ROUND_MODE) {
+        case "floor": return Math.floor(v);
+        case "ceil":  return Math.ceil(v);
+        default:      return Math.round(v);
+    }
+}
 
   // ====== 更快的 IP 取得（含 sessionStorage 快取）======
 async function getIP() {
@@ -834,14 +845,17 @@ function initPOSButtons() {
 document.addEventListener("DOMContentLoaded", initPOSButtons);
 
 // ===== 渲染購物車 =====
+// ===== 渲染購物車 =====
 function renderCart() {
     const box = document.getElementById("posCart");
     box.innerHTML = "";
-    let totalBeforeTax = 0;
 
-    // 計算每一項小計
+    let totalBeforeTaxRaw = 0;   // ← 原始（可小數）
+    let totalBeforeTax = 0;      // ← 進位後（整數）
+
     posCart.forEach((item, i) => {
         let sub = item.quantity * item.price;
+
         if (item.discount) {
             switch (item.discount.type) {
                 case "第二件減10": sub -= Math.floor(item.quantity / 2) * 10; break;
@@ -851,49 +865,67 @@ function renderCart() {
                 default: sub *= item.discount.rate || 1; break;
             }
         }
-        totalBeforeTax += sub;
+
+        totalBeforeTaxRaw += sub;
 
         const row = document.createElement("div");
         row.className = "cartRow";
-        row.innerHTML = `<span class="name" onclick="openPromoModal(posCart[${i}])">${item.name}</span>
+        row.innerHTML = `
+            <span class="name" onclick="openPromoModal(posCart[${i}])">${item.name}</span>
             <span class="qty" onclick="openEditModal(${i},'quantity')">${item.quantity.toFixed(2)} ${item.unit}</span>
             <span class="price" onclick="openEditModal(${i},'price')">${item.price}</span>
-            <span class="subtotal">${formatNumber(Math.round(sub))}</span>
+            <span class="subtotal">${formatNumber(roundMoney(sub))}</span>
             <span class="remove"><button onclick="removeItem(${i})">刪</button></span>`;
         box.appendChild(row);
     });
 
-    // 計算稅額
-    let tax = currentTax === "應稅" ? Math.round(totalBeforeTax * 0.05) : 0;
+    // 👉 稅前總額（只在這裡進位一次）
+    totalBeforeTax = roundMoney(totalBeforeTaxRaw);
+
+    // 👉 稅額
+    let tax = currentTax === "應稅"
+        ? roundMoney(totalBeforeTax * 0.05)
+        : 0;
+
+    // 👉 稅後
     let afterTax = totalBeforeTax + tax;
 
-    // 折扣
-    let discountValue = Number(document.getElementById("discount").value) || 0;
+    // 👉 折扣
+    let discountValue = roundMoney(
+        Number(document.getElementById("discount").value) || 0
+    );
 
-    // 應收總額
-    let receivable = afterTax - discountValue;
+    // 👉 應收總額（唯一金流出口）
+    let receivable = roundMoney(afterTax - discountValue);
 
-    // 更新畫面上的金額
-    document.getElementById("beforeTax").innerText = formatNumber(Math.round(totalBeforeTax));
-    document.getElementById("taxAmount").innerText = formatNumber(Math.round(tax));
-    document.getElementById("afterTax").innerText = formatNumber(Math.round(afterTax));
+    // ===== 更新畫面 =====
+    document.getElementById("beforeTax").innerText = formatNumber(totalBeforeTax);
+    document.getElementById("taxAmount").innerText = formatNumber(tax);
+    document.getElementById("afterTax").innerText = formatNumber(afterTax);
 
-    // 顯示應收總額並存原始數字給找零使用
     const posTotalEl = document.getElementById("posTotal");
-    posTotalEl.dataset.value = receivable;
-    posTotalEl.innerText = formatNumber(Math.round(receivable));
+    posTotalEl.dataset.value = receivable;   // ← 一定是整數
+    posTotalEl.innerText = formatNumber(receivable);
 
-    // 更新找零
     updateChange();
 }
 
+
 // ===== 計算找零 =====
 function updateChange() {
-    const cash = Number(document.getElementById("cashInput").value) || 0;
-    const total = Number(document.getElementById("posTotal").dataset.value) || 0;
+    const cash = roundMoney(
+        Number(document.getElementById("cashInput").value) || 0
+    );
+
+    const total = roundMoney(
+        Number(document.getElementById("posTotal").dataset.value) || 0
+    );
+
     const change = cash - total;
-    document.getElementById("changeOut").textContent = formatNumber(Math.max(change, 0));
+    document.getElementById("changeOut").innerText =
+        formatNumber(Math.max(change, 0));
 }
+
 
 // ===== 千分位格式化 =====
 function formatNumber(num) {
@@ -1238,12 +1270,12 @@ function calcDiscountedSubtotal(item) {
         storeCode: POS_STORE,
 
         taxStatus: currentTax,
-        totalAmount: parseNumber(document.getElementById("posTotal").innerText),
-        taxAmount: parseNumber(document.getElementById("taxAmount").innerText),
+        totalAmount: roundMoney(parseNumber(document.getElementById("posTotal").innerText)),
+        taxAmount: roundMoney(parseNumber(document.getElementById("taxAmount").innerText)),
         paymentMethod: document.getElementById("posPayment").value,
         discount: Number(document.getElementById("discount").value) || 0,
-        cashReceive: Number(document.getElementById("cashInput").value) || 0,
-        change: Number(document.getElementById("changeOut").innerText) || 0,
+        cashReceive: roundMoney(Number(document.getElementById("cashInput").value) || 0),
+        change: roundMoney(parseNumber(document.getElementById("changeOut").innerText)),
 
         items: posCart.map(it => {
             const originalSubtotal = it.price * it.quantity;
