@@ -675,11 +675,7 @@ async function login() {
       // 取得商品資料
       fetchProducts();
       fetchSalesList();
-      setTimeout(() => {
-    const cashBtn = document.querySelector('#paymentButtons .payBtn[data-pay="現金"]');
-    if (cashBtn) cashBtn.click();
-}, 0);
-
+      
     } else {
       document.getElementById("loginMsg").innerText = data.message;
       loginBtn.innerText = "登入";
@@ -803,6 +799,7 @@ function renderProducts(category = null, search = "") {
     });
 }
 
+
 // ===== 加入購物車 =====
 function addPOSItem(p) {
     let qtyAdd = 1;
@@ -814,20 +811,21 @@ function addPOSItem(p) {
     else { posCart.push({ name: p["商品名稱"], quantity: qtyAdd, price: pricePerUnit, unit: unit, discount: null }); }
     renderCart();
 }
+function setDefaultPayment() {
+    const cashBtn = document.querySelector('#paymentButtons .payBtn[data-pay="現金"]');
+    if (cashBtn) cashBtn.click();
+}
 
 // 初始化付款方式按鈕
 function initPOSButtons() {
     const buttons = document.querySelectorAll("#paymentButtons .payBtn");
+
     buttons.forEach(btn => {
         btn.addEventListener("click", function () {
 
-            // 取消所有 active
             buttons.forEach(b => b.classList.remove("active"));
-
-            // 設定 active
             this.classList.add("active");
 
-            // 寫入隱藏欄位
             const pay = this.getAttribute("data-pay");
             document.getElementById("posPayment").value = pay;
 
@@ -843,14 +841,16 @@ function initPOSButtons() {
                 changeOut.innerText = "0";
             }
 
-            renderCart(); // 更新總額/找零
+            renderCart();
         });
     });
+
+    // ✅ 預設付款（初始化）
+    setDefaultPayment();
 }
 
 document.addEventListener("DOMContentLoaded", initPOSButtons);
 
-// ===== 渲染購物車 =====
 // ===== 渲染購物車 =====
 function renderCart() {
     const box = document.getElementById("posCart");
@@ -1009,9 +1009,11 @@ document.getElementById("shiftEndBtn").onclick = async function() {
 Line Pay：${data.linePay} 元`);
 
   posCart = [];
-  renderCart();
-  updateTodaySales(); // 交班後立即更新今日營業額
-};
+
+setDefaultPayment();   // ✅ 新訂單自動現金
+
+renderCart();
+updateTodaySales();
 
 // 點擊按鈕也更新
 document.getElementById("dailySalesBtn").onclick = updateTodaySales;
@@ -1453,12 +1455,14 @@ document.getElementById("posCheckout").onclick = async function () {
         printWindow.document.close();
 
         // STEP 4：清空購物車
-        posCart = [];
-        document.getElementById("discount").value = "0";
-        document.getElementById("cashInput").value = "";
-        document.getElementById("changeOut").textContent = "0";
-        renderCart();
+       posCart = [];
+       document.getElementById("discount").value = "0";
+       document.getElementById("cashInput").value = "";
+       document.getElementById("changeOut").textContent = "0";
 
+       setDefaultPayment();   // ✅ 新訂單自動現金
+
+       renderCart();
     } catch (err) {
         console.error(err);
         alert("結帳發生錯誤，請稍後再試");
