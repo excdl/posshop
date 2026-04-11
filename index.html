@@ -674,6 +674,12 @@ async function login() {
       
       // 取得商品資料
       fetchProducts();
+      fetchSalesList();
+      setTimeout(() => {
+    const cashBtn = document.querySelector('#paymentButtons .payBtn[data-pay="現金"]');
+    if (cashBtn) cashBtn.click();
+}, 0);
+
     } else {
       document.getElementById("loginMsg").innerText = data.message;
       loginBtn.innerText = "登入";
