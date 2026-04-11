@@ -747,7 +747,19 @@ async function fetchProducts() {
     products = await res.json();
     categories = [...new Set(products.map(x => x["類別"]))];
     renderCategories();
-    if (categories.length > 0) renderProducts(categories[0]);
+    if (categories.includes("無菜單")) {
+    renderProducts("無菜單");
+
+    // 同步讓按鈕亮起來
+    setTimeout(() => {
+        document.querySelectorAll("#posCategories button.cat-btn").forEach(b => {
+            b.classList.toggle("active", b.textContent === "無菜單");
+        });
+    }, 0);
+
+} else if (categories.length > 0) {
+    renderProducts(categories[0]);
+}
 }
 
 // ===== 渲染分類 =====
