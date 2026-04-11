@@ -843,7 +843,15 @@ function initPOSButtons() {
 }
 
 document.addEventListener("DOMContentLoaded", initPOSButtons);
+// ===== 預設付款方式：現金 =====
+const defaultBtn = document.querySelector('#paymentButtons .payBtn[data-pay="現金"]');
+if (defaultBtn) {
+    defaultBtn.classList.add("active");
+    document.getElementById("posPayment").value = "現金";
 
+    // 顯示現金面板
+    document.getElementById("cashPanel").style.display = "block";
+}
 // ===== 渲染購物車 =====
 function renderCart() {
     const box = document.getElementById("posCart");
