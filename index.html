@@ -1510,29 +1510,57 @@ document.getElementById("posCheckout").onclick = async function () {
 };
 
 async function loadOrders() {
-  const res = await fetch(`${API_URL}?action=orders&storeCode=${POS_STORE}`);
-  const data = await res.json();
-
   const box = document.getElementById("orderList");
-  box.innerHTML = "";
+  box.innerHTML = "載入中...";
 
-  data.orders.forEach(o => {
-    const div = document.createElement("div");
+  try {
+    if (!POS_STORE) {
+      box.innerHTML = "❌ 尚未登入門市";
+      return;
+    }
 
-    div.innerHTML = `
-      <div style="border-bottom:1px solid #ccc;padding:8px;">
+    const res = await fetch(`${API_URL}?action=orders&storeCode=${POS_STORE}`);
+    const data = await res.json();
+
+    console.log("orders API:", data); // ⭐除錯用
+
+    if (!data || data.status !== "success") {
+      box.innerHTML = "❌ 取得訂單失敗";
+      return;
+    }
+
+    if (!data.orders || data.orders.length === 0) {
+      box.innerHTML = "目前沒有訂單";
+      return;
+    }
+
+    box.innerHTML = "";
+
+    data.orders.forEach(o => {
+      const div = document.createElement("div");
+
+      div.style.padding = "10px";
+      div.style.borderBottom = "1px solid #444";
+      div.style.color = "white";
+
+      div.innerHTML = `
         <b>${o.orderId}</b><br>
         ${o.date} ${o.time}<br>
-        金額：${o.total} / ${o.payment}<br>
+        金額：${o.total}<br>
+        付款：${o.payment}<br>
         狀態：${o.status || "NORMAL"}<br>
 
         <button onclick="voidOrder('${o.orderId}')">作廢</button>
         <button onclick="restoreOrder('${o.orderId}')">還原</button>
-      </div>
-    `;
+      `;
 
-    box.appendChild(div);
-  });
+      box.appendChild(div);
+    });
+
+  } catch (err) {
+    console.error(err);
+    box.innerHTML = "❌ 發生錯誤，請看 console";
+  }
 }
 
 document.getElementById("openOrdersBtn").onclick = () => {
