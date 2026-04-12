@@ -538,6 +538,8 @@ button{cursor:pointer;outline:none;transition:0.2s;}
 <div id="shiftDailyContainer" style="display:flex; gap:10px; margin:20px 0;">
   <button id="shiftEndBtn" style="flex:1; background:#c0392b; color:white; border:none; border-radius:6px; padding:10px;">交班結算</button>
   <button id="dailySalesBtn" style="flex:1; background:#2980b9; color:white; border:none; border-radius:6px; padding:10px;">當日營業額</button>
+<!-- ⭐ 新增：訂單查詢按鈕 -->
+<button id="orderBtn">訂單查詢</button>
 </div>
 
 <div id="todaySalesDisplay" style="margin-top:10px; white-space:pre-line;"></div>
@@ -600,11 +602,21 @@ button{cursor:pointer;outline:none;transition:0.2s;}
     
 <!-- 列印收據區 -->
 <div id="printArea"></div>
+<div id="orderModal" style="display:none;position:fixed;inset:0;background:#111;color:#fff;z-index:9999;">
 
+  <!-- 左：列表 -->
+  <div style="width:40%;float:left;height:100%;overflow:auto;" id="orderList"></div>
+
+  <!-- 右：明細 -->
+  <div style="width:60%;float:right;height:100%;overflow:auto;padding:10px;" id="orderDetail">
+    <div style="opacity:0.5">請選擇訂單</div>
+  </div>
+
+</div>
 </body>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbyD27w9tW4x8MYJd0GW-xCT9bRNgpge5WOqGh_2cMexn8QX_M__rE0-h2L6sTLZyWPHOw/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbx6gfFwSUAip6jDeBYeQ7Dxd5m1h-pFhIl2jm81cfGB0Uux2YZk11Xoh7nIs2EGx9fCbw/exec";
 function formatNumber(num) { if (num === null || num === undefined || num === "") return "0"; let n = Number(num); if (isNaN(n)) return "0"; return n.toLocaleString('zh-TW'); }
 let POS_STORE = "";
 let posCart = [], currentTax = "應稅";
@@ -1497,6 +1509,91 @@ document.getElementById("posCheckout").onclick = async function () {
         checkoutBtn.style.backgroundColor = "";
     }
 };
+
+document.getElementById("orderBtn").onclick = openOrderModal;
+
+async function openOrderModal() {
+  document.getElementById("orderModal").style.display = "block";
+
+  const res = await fetch(API_URL + "?action=orders");
+  const orders = await res.json();
+
+  const box = document.getElementById("orderList");
+  box.innerHTML = "";
+
+  orders.reverse().forEach(o => {
+    const div = document.createElement("div");
+    div.style.padding = "10px";
+    div.style.borderBottom = "1px solid #333";
+    div.style.cursor = "pointer";
+
+    div.innerHTML = `
+      <b>${o.orderId}</b><br>
+      ${o.date} ${o.time}<br>
+      ${o.total} 元｜${o.status}
+    `;
+
+    div.onclick = () => selectOrder(o);
+
+    box.appendChild(div);
+  });
+} 
+
+let selectedOrder = null;
+
+async function selectOrder(o) {
+  selectedOrder = o;
+
+  const res = await fetch(API_URL + "?action=getOrderDetail&orderId=" + o.orderId);
+  const items = await res.json();
+
+  const box = document.getElementById("orderDetail");
+
+  box.innerHTML = `
+    <h3>${o.orderId}</h3>
+    <p>${o.date} ${o.time}</p>
+    <p>總額：${o.total}</p>
+    <hr>
+  `;
+
+  items.forEach(i => {
+    box.innerHTML += `
+      <div>${i.name} × ${i.quantity} = ${i.price}</div>
+    `;
+  });
+
+  box.innerHTML += `
+    <hr>
+    <button onclick="restoreOrder()">還原</button>
+    <button onclick="voidOrder()">作廢</button>
+  `;
+}
+  async function voidOrder() {
+  if (!selectedOrder) return;
+  if (!confirm("確定作廢？")) return;
+
+  await fetch(API_URL + "?action=voidOrder&orderId=" + selectedOrder.orderId);
+
+  alert("已作廢");
+  openOrderModal();
+}
+  async function restoreOrder() {
+  if (!selectedOrder) return;
+
+  const res = await fetch(API_URL + "?action=getOrderDetail&orderId=" + selectedOrder.orderId);
+  const items = await res.json();
+
+  posCart = items.map(i => ({
+    name: i.name,
+    quantity: i.quantity,
+    price: i.price,
+    unit: "件",
+    discount: null
+  }));
+
+  renderCart();
+  document.getElementById("orderModal").style.display = "none";
+}
 window.addEventListener("afterprint", () => {
   setTimeout(() => {
     const success = document.fullscreenElement;
