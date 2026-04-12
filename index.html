@@ -1357,7 +1357,6 @@ return await res.json();
 }
 
   
-// ===== 結帳流程：先結帳 → 再列印 =====
 document.getElementById("posCheckout").onclick = async function () {
 
     const checkoutBtn = document.getElementById("posCheckout");
@@ -1367,25 +1366,44 @@ document.getElementById("posCheckout").onclick = async function () {
         return;
     }
 
-    // STEP 0：按鈕顯示運作中，禁用按鈕
+    // STEP 0：鎖按鈕
     checkoutBtn.disabled = true;
     const originalText = checkoutBtn.innerText;
     checkoutBtn.innerText = "結帳中...";
     checkoutBtn.style.backgroundColor = "#ccc";
 
     try {
-        // STEP 1：先結帳（寫入 Google Sheet）
+
+        // =========================
+        // STEP 1：送出結帳（取得 orderId）
+        // =========================
         const res = await sendCheckoutToSheet();
 
-     // 🔥 1. 記錄最後一張（給還原用）
-     lastOrderMeta = {
-    ...lastOrderMeta,
-    orderId: res.orderId
-};
+        if (!res || !res.orderId) {
+            throw new Error("未取得 orderId");
+        }
 
-// 🔥 2. 記錄目前操作中的訂單（給編輯用）
-currentOrderId = res.orderId;
+        // =========================
+        // STEP 2：記錄訂單狀態
+        // =========================
+
+        // 🔥 目前正在操作的訂單（編輯用）
+        currentOrderId = res.orderId;
+
+        // 🔥 上一筆訂單（還原 UI 用）
+        lastOrderMeta = {
+            orderId: res.orderId,
+            payment: document.getElementById("posPayment").value,
+            total: document.getElementById("posTotal").dataset.value,
+            tax: document.getElementById("taxAmount").innerText,
+            discount: document.getElementById("discount").value
+        };
+
+        // =========================
+        // STEP 3：更新今日營業額
+        // =========================
         updateTodaySales();
+
 
         // ===== 小票工具函式 =====
         function getMaxLength() {
