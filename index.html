@@ -536,18 +536,12 @@ button{cursor:pointer;outline:none;transition:0.2s;}
 <button id="posCheckout">結帳列印</button>
 
 <div id="shiftDailyContainer" style="display:flex; gap:10px; margin:20px 0;">
-  <button id="voidLastBtn" style="flex:1; background:#7f8c8d; color:white; border:none; border-radius:6px; padding:10px;">
-  作廢上一筆
-</button>
-
-<button id="restoreLastBtn" style="flex:1; background:#16a085; color:white; border:none; border-radius:6px; padding:10px;">
-  還原訂單
-</button>
   <button id="shiftEndBtn" style="flex:1; background:#c0392b; color:white; border:none; border-radius:6px; padding:10px;">交班結算</button>
   <button id="dailySalesBtn" style="flex:1; background:#2980b9; color:white; border:none; border-radius:6px; padding:10px;">當日營業額</button>
 </div>
 
 <div id="todaySalesDisplay" style="margin-top:10px; white-space:pre-line;"></div>
+
 <!-- ======== 小鍵盤 / 優惠方案共用 Modal ======== -->
 <div id="editModal">
   <div class="modalContent">
@@ -610,7 +604,7 @@ button{cursor:pointer;outline:none;transition:0.2s;}
 </body>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbyU8ndBITFIw_bbmZT4aEczb5Wl-ZbIdyHewOxW73w7gJtC6WVVcLyG5SPGlp6VxH9sLw/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbyD27w9tW4x8MYJd0GW-xCT9bRNgpge5WOqGh_2cMexn8QX_M__rE0-h2L6sTLZyWPHOw/exec";
 function formatNumber(num) { if (num === null || num === undefined || num === "") return "0"; let n = Number(num); if (isNaN(n)) return "0"; return n.toLocaleString('zh-TW'); }
 let POS_STORE = "";
 let posCart = [], currentTax = "應稅";
@@ -1503,56 +1497,6 @@ document.getElementById("posCheckout").onclick = async function () {
         checkoutBtn.style.backgroundColor = "";
     }
 };
-document.getElementById("voidLastBtn").onclick = async function () {
-
-  if (!lastOrder) {
-    alert("沒有可作廢的訂單");
-    return;
-  }
-
-  if (!confirm("確定要作廢上一筆訂單？")) return;
-
-  try {
-    await fetch(API_URL + "?action=voidOrder", {
-  method: "POST",
-  body: JSON.stringify({
-    orderId: lastOrderMeta.orderId
-  })
-});
-
-    alert("✅ 已成功作廢");
-
-    // 清掉避免重複作廢
-    lastOrder = null;
-    lastOrderMeta = null;
-
-  } catch (err) {
-    console.error(err);
-    alert("作廢失敗");
-  }
-};
- document.getElementById("restoreLastBtn").onclick = function () {
-
-  if (!lastOrder) {
-    alert("沒有可還原的訂單");
-    return;
-  }
-
-  if (!confirm("要回到上一筆訂單進行修改？")) return;
-
-  // 1. 回填購物車
-  posCart = JSON.parse(JSON.stringify(lastOrder));
-
-  // 2. 標記：現在是「編輯模式」
-  currentOrderId = lastOrderMeta.orderId;
-
-  // 3. 不要新增單，只允許 update
-  alert("已進入訂單編輯模式（修改將覆蓋原單）");
-
-  renderCart();
-};
-
-  
 window.addEventListener("afterprint", () => {
   setTimeout(() => {
     const success = document.fullscreenElement;
@@ -1564,11 +1508,11 @@ window.addEventListener("afterprint", () => {
   }, 300);
 });
 
+
 </script>
 
 </body>
 </html>
-
 
 
 
