@@ -611,7 +611,7 @@ button{cursor:pointer;outline:none;transition:0.2s;}
 </body>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbxhXUFYzaQt8dZnQ4Le166C2to8x4FuU1bwyEDs5D10jjO08jJYJCG9Kukjkl0yQ5la8Q/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzGEuVYT7KZTMQjzYLhGAg3sstnj3vbkMTJ0PY-bWRECIeeJLRvGsoQQcqJa26yKR5e6g/exec";
 function formatNumber(num) { if (num === null || num === undefined || num === "") return "0"; let n = Number(num); if (isNaN(n)) return "0"; return n.toLocaleString('zh-TW'); }
 let POS_STORE = "";
 let posCart = [], currentTax = "應稅";
@@ -1304,8 +1304,7 @@ function calcDiscountedSubtotal(item) {
     const now = new Date();
 
     const payload = {
-        action: "checkout",
-        clientKey: crypto.randomUUID(), // ⭐ 防重複關鍵
+             
         orderDate: now.toLocaleDateString("zh-TW"),
         orderTime: now.toLocaleTimeString("zh-TW", { hour12: false }),
         checkoutDateTime: now.toLocaleString("zh-TW", { hour12: false }),
@@ -1348,10 +1347,12 @@ function calcDiscountedSubtotal(item) {
         })
     };
 
-    await fetch(API_URL, {
-        method: "POST",
-        body: JSON.stringify(payload)
-    });
+    const res = await fetch(API_URL + "?action=checkout", {
+    method: "POST",
+    body: JSON.stringify(payload)
+});
+
+return await res.json();
 }
 
   
@@ -1373,7 +1374,11 @@ document.getElementById("posCheckout").onclick = async function () {
 
     try {
         // STEP 1：先結帳（寫入 Google Sheet）
-        await sendCheckoutToSheet();
+        const res = await sendCheckoutToSheet();
+        lastOrderMeta = {
+        ...lastOrderMeta,
+        orderId: res.orderId
+};
         updateTodaySales();
 
         // ===== 小票工具函式 =====
