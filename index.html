@@ -1473,13 +1473,14 @@ document.getElementById("posCheckout").onclick = async function () {
 
         // STEP 3：列印
         const receiptContent = formatReceipt();
-        const printWindow = window.open('', '', 'width=300,height=600');
-        printWindow.document.write(
-            `<pre style="font-family:monospace;font-size:12px;line-height:1.2;">${receiptContent}</pre>`
-        );
-        printWindow.document.write('<script>window.onload=function(){window.print();};<\/script>');
-        printWindow.document.close();
+        const printArea = document.getElementById("printArea");
 
+printArea.innerHTML = `<pre style="font-family:monospace;font-size:12px;line-height:1.2;">${receiptContent}</pre>`;
+printArea.style.display = "block";
+
+window.print();
+
+printArea.style.display = "none";
         // STEP 4：清空購物車
         posCart = [];
         document.getElementById("discount").value = "0";
