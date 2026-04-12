@@ -538,8 +538,7 @@ button{cursor:pointer;outline:none;transition:0.2s;}
 <div id="shiftDailyContainer" style="display:flex; gap:10px; margin:20px 0;">
   <button id="shiftEndBtn" style="flex:1; background:#c0392b; color:white; border:none; border-radius:6px; padding:10px;">交班結算</button>
   <button id="dailySalesBtn" style="flex:1; background:#2980b9; color:white; border:none; border-radius:6px; padding:10px;">當日營業額</button>
-<!-- ⭐ 新增：訂單查詢按鈕 -->
-<button id="orderBtn">訂單查詢</button>
+  <button id="openOrdersBtn">訂單查詢</button>
 </div>
 
 <div id="todaySalesDisplay" style="margin-top:10px; white-space:pre-line;"></div>
@@ -604,19 +603,19 @@ button{cursor:pointer;outline:none;transition:0.2s;}
 <div id="printArea"></div>
 <div id="orderModal" style="display:none;position:fixed;inset:0;background:#111;color:#fff;z-index:9999;">
 
-  <!-- 左：列表 -->
-  <div style="width:40%;float:left;height:100%;overflow:auto;" id="orderList"></div>
-
-  <!-- 右：明細 -->
-  <div style="width:60%;float:right;height:100%;overflow:auto;padding:10px;" id="orderDetail">
-    <div style="opacity:0.5">請選擇訂單</div>
+  <div id="orderModal" style="display:none;">
+  <div class="modalBox">
+    <h3>訂單查詢</h3>
+    <div id="orderList"></div>
+    <button onclick="closeOrderModal()">關閉</button>
   </div>
+</div>
 
 </div>
 </body>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbx6gfFwSUAip6jDeBYeQ7Dxd5m1h-pFhIl2jm81cfGB0Uux2YZk11Xoh7nIs2EGx9fCbw/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzgBk7oBzbR6lQm_v-1jv8-0wkad8KPIOS9c4L7v4BnFO7BO8APQ48P2mZ2r-vEPRJUWw/exec";
 function formatNumber(num) { if (num === null || num === undefined || num === "") return "0"; let n = Number(num); if (isNaN(n)) return "0"; return n.toLocaleString('zh-TW'); }
 let POS_STORE = "";
 let posCart = [], currentTax = "應稅";
@@ -1510,89 +1509,69 @@ document.getElementById("posCheckout").onclick = async function () {
     }
 };
 
-document.getElementById("orderBtn").onclick = openOrderModal;
-
-async function openOrderModal() {
-  document.getElementById("orderModal").style.display = "block";
-
-  const res = await fetch(API_URL + "?action=orders");
-  const orders = await res.json();
+async function loadOrders() {
+  const res = await fetch(`${API_URL}?action=orders&storeCode=${POS_STORE}`);
+  const data = await res.json();
 
   const box = document.getElementById("orderList");
   box.innerHTML = "";
 
-  orders.reverse().forEach(o => {
+  data.orders.forEach(o => {
     const div = document.createElement("div");
-    div.style.padding = "10px";
-    div.style.borderBottom = "1px solid #333";
-    div.style.cursor = "pointer";
 
     div.innerHTML = `
-      <b>${o.orderId}</b><br>
-      ${o.date} ${o.time}<br>
-      ${o.total} 元｜${o.status}
-    `;
+      <div style="border-bottom:1px solid #ccc;padding:8px;">
+        <b>${o.orderId}</b><br>
+        ${o.date} ${o.time}<br>
+        金額：${o.total} / ${o.payment}<br>
+        狀態：${o.status || "NORMAL"}<br>
 
-    div.onclick = () => selectOrder(o);
+        <button onclick="voidOrder('${o.orderId}')">作廢</button>
+        <button onclick="restoreOrder('${o.orderId}')">還原</button>
+      </div>
+    `;
 
     box.appendChild(div);
   });
-} 
+}
 
-let selectedOrder = null;
+document.getElementById("openOrdersBtn").onclick = () => {
+  document.getElementById("orderModal").style.display = "block";
+  loadOrders();
+};
 
-async function selectOrder(o) {
-  selectedOrder = o;
-
-  const res = await fetch(API_URL + "?action=getOrderDetail&orderId=" + o.orderId);
-  const items = await res.json();
-
-  const box = document.getElementById("orderDetail");
-
-  box.innerHTML = `
-    <h3>${o.orderId}</h3>
-    <p>${o.date} ${o.time}</p>
-    <p>總額：${o.total}</p>
-    <hr>
-  `;
-
-  items.forEach(i => {
-    box.innerHTML += `
-      <div>${i.name} × ${i.quantity} = ${i.price}</div>
-    `;
+function closeOrderModal() {
+  document.getElementById("orderModal").style.display = "none";
+}
+async function voidOrder(orderId) {
+  await fetch(API_URL + "?action=voidOrder", {
+    method: "POST",
+    body: JSON.stringify({ orderId })
   });
-
-  box.innerHTML += `
-    <hr>
-    <button onclick="restoreOrder()">還原</button>
-    <button onclick="voidOrder()">作廢</button>
-  `;
+  loadOrders();
 }
-  async function voidOrder() {
-  if (!selectedOrder) return;
-  if (!confirm("確定作廢？")) return;
 
-  await fetch(API_URL + "?action=voidOrder&orderId=" + selectedOrder.orderId);
-
-  alert("已作廢");
-  openOrderModal();
+async function restoreOrder(orderId) {
+  await fetch(API_URL + "?action=restoreOrder", {
+    method: "POST",
+    body: JSON.stringify({ orderId })
+  });
+  loadOrders();
 }
-  async function restoreOrder() {
-  if (!selectedOrder) return;
 
-  const res = await fetch(API_URL + "?action=getOrderDetail&orderId=" + selectedOrder.orderId);
-  const items = await res.json();
+async function restoreToCart(orderId) {
+  const res = await fetch(`${API_URL}?action=orderDetail&orderId=${orderId}`);
+  const data = await res.json();
 
-  posCart = items.map(i => ({
+  posCart = data.items.map(i => ({
     name: i.name,
     quantity: i.quantity,
     price: i.price,
-    unit: "件",
+    unit: "",
     discount: null
   }));
 
   renderCart();
-  document.getElementById("orderModal").style.display = "none";
 }
 window.addEventListener("afterprint", () => {
   setTimeout(() => {
