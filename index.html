@@ -1305,8 +1305,7 @@ function calcDiscountedSubtotal(item) {
     const now = new Date();
 
     const payload = {
-        action: "checkout",
-        clientKey: crypto.randomUUID(), // ⭐ 防重複關鍵     
+        action: "checkout", // ⭐⭐⭐ 必加（你現在很可能少這個）
         orderDate: now.toLocaleDateString("zh-TW"),
         orderTime: now.toLocaleTimeString("zh-TW", { hour12: false }),
         checkoutDateTime: now.toLocaleString("zh-TW", { hour12: false }),
@@ -1326,37 +1325,31 @@ function calcDiscountedSubtotal(item) {
             const originalSubtotal = it.price * it.quantity;
             const discountedSubtotal = calcDiscountedSubtotal(it);
 
-            // 折扣金額（正數）
-            const promoDiscount = Math.abs(originalSubtotal - discountedSubtotal);
-
-            // 優惠方案名稱
-            let promoText = "";
-            if (it.discount) {
-                promoText = it.discount.type === "折扣"
-                    ? formatDiscountRate(it.discount.rate)
-                    : it.discount.type;
-            }
-
             return {
                 category: products.find(p => p["商品名稱"] === it.name)?.["類別"] || "",
                 name: it.name,
                 quantity: it.quantity,
                 price: it.price,
-                subtotal: discountedSubtotal, // 折扣後小計
-                promo: promoText,             // 優惠方案名稱
-                promoDiscount: promoDiscount  // 優惠折扣金額
+                subtotal: discountedSubtotal,
+                promo: it.discount?.type || "",
+                promoDiscount: Math.abs(originalSubtotal - discountedSubtotal)
             };
         })
     };
 
-    const res = await fetch(API_URL + "?action=checkout", {
-    method: "POST",
-    body: JSON.stringify(payload)
-});
+    const res = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json" // ⭐⭐⭐ 必加
+        },
+        body: JSON.stringify(payload)
+    });
 
-return await res.json();
+    const text = await res.text(); // ⭐ 防止 parse crash
+    console.log("checkout raw:", text);
+
+    return JSON.parse(text);
 }
-
   
 document.getElementById("posCheckout").onclick = async function () {
 
