@@ -611,7 +611,7 @@ button{cursor:pointer;outline:none;transition:0.2s;}
 </body>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbzlCFtR1HB8GtqfNSed54wMN8T5S-5kZxWKprgQIyRMBbd6MHJeq3WOSHj3HomYlcf2/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbytk8xkj4dVvXyDXlOz4XnP5Mn4we_zK1cFLVgw8Ww1ydynKnj5s74IWJdc6FHEGayExw/exec";
 function formatNumber(num) { if (num === null || num === undefined || num === "") return "0"; let n = Number(num); if (isNaN(n)) return "0"; return n.toLocaleString('zh-TW'); }
 let POS_STORE = "";
 let posCart = [], currentTax = "應稅";
@@ -1304,6 +1304,8 @@ function calcDiscountedSubtotal(item) {
     const now = new Date();
 
     const payload = {
+        action: "checkout",
+        clientKey: crypto.randomUUID(), // ⭐ 防重複關鍵
         orderDate: now.toLocaleDateString("zh-TW"),
         orderTime: now.toLocaleTimeString("zh-TW", { hour12: false }),
         checkoutDateTime: now.toLocaleString("zh-TW", { hour12: false }),
@@ -1488,12 +1490,12 @@ document.getElementById("posCheckout").onclick = async function () {
         printWindow.document.write('<script>window.onload=function(){window.print();};<\/script>');
         printWindow.document.close();
       // ⭐ 保存上一筆訂單（完整備份）
-    lastOrder = JSON.parse(JSON.stringify(posCart));
-    lastOrderMeta = {
-    payment: document.getElementById("posPayment").value,
-    total: document.getElementById("posTotal").dataset.value,
-    tax: document.getElementById("taxAmount").innerText,
-    discount: document.getElementById("discount").value
+      lastOrder = JSON.parse(JSON.stringify(posCart));
+      lastOrderMeta = {
+      payment: document.getElementById("posPayment").value,
+      total: document.getElementById("posTotal").dataset.value,
+      tax: document.getElementById("taxAmount").innerText,
+      discount: document.getElementById("discount").value
 };
         // STEP 4：清空購物車
         posCart = [];
@@ -1522,15 +1524,12 @@ document.getElementById("posCheckout").onclick = async function () {
   if (!confirm("確定要作廢上一筆訂單？")) return;
 
   try {
-    await fetch(API_URL, {
-      method: "POST",
-      body: JSON.stringify({
-        action: "voidOrder",
-        storeCode: POS_STORE,
-        items: lastOrder,
-        total: lastOrderMeta?.total || 0
-      })
-    });
+    await fetch(API_URL + "?action=voidOrder", {
+  method: "POST",
+  body: JSON.stringify({
+    orderId: lastOrderMeta.orderId
+  })
+});
 
     alert("✅ 已成功作廢");
 
