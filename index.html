@@ -665,6 +665,9 @@ async function login() {
       document.getElementById("loginPage").style.display = "none";
       document.getElementById("posApp").style.display = "flex";
 
+      // ⭐ 加這行：進入全螢幕
+      enterFullscreen();
+
       // 顯示門市資訊
       document.getElementById("storeInfo").innerText = `${data.storeName}（${data.storeCode}）`;
 
@@ -740,7 +743,18 @@ async function logout() {
 document.getElementById("loginBtn").addEventListener("click", login);
 document.getElementById("logoutBtn").addEventListener("click", logout);
 
+// 登入後直接進入全螢幕
+function enterFullscreen() {
+  const elem = document.documentElement;
 
+  if (elem.requestFullscreen) {
+    elem.requestFullscreen();
+  } else if (elem.webkitRequestFullscreen) { // Safari
+    elem.webkitRequestFullscreen();
+  } else if (elem.msRequestFullscreen) { // IE11
+    elem.msRequestFullscreen();
+  }
+}
 // ===== 取得商品 =====
 async function fetchProducts() {
     const res = await fetch(API_URL + "?action=products");
@@ -761,6 +775,7 @@ async function fetchProducts() {
     renderProducts(categories[0]);
 }
 }
+  
 
 // ===== 渲染分類 =====
 function renderCategories() {
