@@ -454,6 +454,21 @@ button{cursor:pointer;outline:none;transition:0.2s;}
     0%, 50%, 100% { opacity: 0; }
     25%, 75% { opacity: 1; }
 }
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  #printArea, #printArea * {
+    visibility: visible;
+  }
+
+  #printArea {
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+}
 
 </style>
 </head>
