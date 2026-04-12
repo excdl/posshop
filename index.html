@@ -536,6 +536,13 @@ button{cursor:pointer;outline:none;transition:0.2s;}
 <button id="posCheckout">結帳列印</button>
 
 <div id="shiftDailyContainer" style="display:flex; gap:10px; margin:20px 0;">
+  <button id="voidLastBtn" style="flex:1; background:#7f8c8d; color:white; border:none; border-radius:6px; padding:10px;">
+  作廢上一筆
+</button>
+
+<button id="restoreLastBtn" style="flex:1; background:#16a085; color:white; border:none; border-radius:6px; padding:10px;">
+  還原訂單
+</button>
   <button id="shiftEndBtn" style="flex:1; background:#c0392b; color:white; border:none; border-radius:6px; padding:10px;">交班結算</button>
   <button id="dailySalesBtn" style="flex:1; background:#2980b9; color:white; border:none; border-radius:6px; padding:10px;">當日營業額</button>
 </div>
@@ -612,7 +619,8 @@ let editIndex = null;       // 正在編輯的商品索引
 let editingField = null;    // 正在編輯的欄位
 let modalType = null;
 let kpTarget = null;
-
+let lastOrder = null;
+let lastOrderMeta = null; // 記錄付款/金額等
 /* ===== 金額進位規則（一定要最前面） ===== */
 const MONEY_ROUND_MODE = "round";
 
@@ -1479,7 +1487,14 @@ document.getElementById("posCheckout").onclick = async function () {
         );
         printWindow.document.write('<script>window.onload=function(){window.print();};<\/script>');
         printWindow.document.close();
-
+      // ⭐ 保存上一筆訂單（完整備份）
+    lastOrder = JSON.parse(JSON.stringify(posCart));
+    lastOrderMeta = {
+    payment: document.getElementById("posPayment").value,
+    total: document.getElementById("posTotal").dataset.value,
+    tax: document.getElementById("taxAmount").innerText,
+    discount: document.getElementById("discount").value
+};
         // STEP 4：清空購物車
         posCart = [];
         document.getElementById("discount").value = "0";
@@ -1496,6 +1511,64 @@ document.getElementById("posCheckout").onclick = async function () {
         checkoutBtn.innerText = originalText;
         checkoutBtn.style.backgroundColor = "";
     }
+};
+  document.getElementById("voidLastBtn").onclick = async function () {
+
+  if (!lastOrder) {
+    alert("沒有可作廢的訂單");
+    return;
+  }
+
+  if (!confirm("確定要作廢上一筆訂單？")) return;
+
+  try {
+    await fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "voidOrder",
+        storeCode: POS_STORE,
+        items: lastOrder,
+        total: lastOrderMeta?.total || 0
+      })
+    });
+
+    alert("✅ 已成功作廢");
+
+    // 清掉避免重複作廢
+    lastOrder = null;
+    lastOrderMeta = null;
+
+  } catch (err) {
+    console.error(err);
+    alert("作廢失敗");
+  }
+};
+  document.getElementById("restoreLastBtn").onclick = function () {
+
+  if (!lastOrder) {
+    alert("沒有可還原的訂單");
+    return;
+  }
+
+  if (!confirm("要將上一筆訂單還原到購物車？")) return;
+
+  // 還原商品
+  posCart = JSON.parse(JSON.stringify(lastOrder));
+
+  // 還原折扣
+  document.getElementById("discount").value = lastOrderMeta?.discount || 0;
+
+  // 還原付款方式
+  const pay = lastOrderMeta?.payment;
+  document.querySelectorAll("#paymentButtons .payBtn").forEach(b => {
+    b.classList.toggle("active", b.getAttribute("data-pay") === pay);
+  });
+
+  document.getElementById("posPayment").value = pay;
+
+  renderCart();
+
+  alert("✅ 已還原訂單");
 };
 window.addEventListener("afterprint", () => {
   setTimeout(() => {
