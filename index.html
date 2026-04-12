@@ -1305,7 +1305,8 @@ function calcDiscountedSubtotal(item) {
     const now = new Date();
 
     const payload = {
-             
+        action: "checkout",
+        clientKey: crypto.randomUUID(), // ⭐ 防重複關鍵     
         orderDate: now.toLocaleDateString("zh-TW"),
         orderTime: now.toLocaleTimeString("zh-TW", { hour12: false }),
         checkoutDateTime: now.toLocaleString("zh-TW", { hour12: false }),
