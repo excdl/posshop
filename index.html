@@ -456,17 +456,19 @@ button{cursor:pointer;outline:none;transition:0.2s;}
 }
 @media print {
   body * {
-    visibility: hidden;
+    display: none !important;
   }
 
   #printArea, #printArea * {
-    visibility: visible;
+    display: block !important;
   }
 
   #printArea {
     position: absolute;
-    left: 0;
     top: 0;
+    left: 0;
+    width: 58mm;
+    background: white;
   }
 }
 
@@ -1490,8 +1492,11 @@ document.getElementById("posCheckout").onclick = async function () {
         const receiptContent = formatReceipt();
         const printArea = document.getElementById("printArea");
 
-printArea.innerHTML = `<pre style="font-family:monospace;font-size:12px;line-height:1.2;">${receiptContent}</pre>`;
-printArea.style.display = "block";
+printArea.innerHTML = `
+<pre style="font-family:monospace;">
+${receiptContent}
+</pre>
+`;
 
 window.print();
 
