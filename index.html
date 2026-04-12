@@ -454,23 +454,6 @@ button{cursor:pointer;outline:none;transition:0.2s;}
     0%, 50%, 100% { opacity: 0; }
     25%, 75% { opacity: 1; }
 }
-@media print {
-  body * {
-    display: none !important;
-  }
-
-  #printArea, #printArea * {
-    display: block !important;
-  }
-
-  #printArea {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 58mm;
-    background: white;
-  }
-}
 
 </style>
 </head>
@@ -1490,17 +1473,13 @@ document.getElementById("posCheckout").onclick = async function () {
 
         // STEP 3：列印
         const receiptContent = formatReceipt();
-        const printArea = document.getElementById("printArea");
+        const printWindow = window.open('', '', 'width=300,height=600');
+        printWindow.document.write(
+            `<pre style="font-family:monospace;font-size:12px;line-height:1.2;">${receiptContent}</pre>`
+        );
+        printWindow.document.write('<script>window.onload=function(){window.print();};<\/script>');
+        printWindow.document.close();
 
-printArea.innerHTML = `
-<pre style="font-family:monospace;">
-${receiptContent}
-</pre>
-`;
-
-window.print();
-
-printArea.style.display = "none";
         // STEP 4：清空購物車
         posCart = [];
         document.getElementById("discount").value = "0";
@@ -1518,13 +1497,41 @@ printArea.style.display = "none";
         checkoutBtn.style.backgroundColor = "";
     }
 };
-
+window.addEventListener("afterprint", () => {
+  setTimeout(() => {
+    const success = document.fullscreenElement;
+    if (!success) {
+      console.log("fullscreen 被阻擋");
+    } else {
+      enterFullscreen();
+    }
+  }, 300);
+});
 
 
 </script>
 
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
