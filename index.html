@@ -538,7 +538,6 @@ button{cursor:pointer;outline:none;transition:0.2s;}
 <div id="shiftDailyContainer" style="display:flex; gap:10px; margin:20px 0;">
   <button id="shiftEndBtn" style="flex:1; background:#c0392b; color:white; border:none; border-radius:6px; padding:10px;">交班結算</button>
   <button id="dailySalesBtn" style="flex:1; background:#2980b9; color:white; border:none; border-radius:6px; padding:10px;">當日營業額</button>
-  <button id="openOrdersBtn">訂單查詢</button>
 </div>
 
 <div id="todaySalesDisplay" style="margin-top:10px; white-space:pre-line;"></div>
@@ -601,21 +600,11 @@ button{cursor:pointer;outline:none;transition:0.2s;}
     
 <!-- 列印收據區 -->
 <div id="printArea"></div>
-<div id="orderModal" style="display:none;position:fixed;inset:0;background:#111;color:#fff;z-index:9999;">
 
-  <div id="orderModal" style="display:none;">
-  <div class="modalBox">
-    <h3>訂單查詢</h3>
-    <div id="orderList"></div>
-    <button onclick="closeOrderModal()">關閉</button>
-  </div>
-</div>
-
-</div>
 </body>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbzgBk7oBzbR6lQm_v-1jv8-0wkad8KPIOS9c4L7v4BnFO7BO8APQ48P2mZ2r-vEPRJUWw/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbyD27w9tW4x8MYJd0GW-xCT9bRNgpge5WOqGh_2cMexn8QX_M__rE0-h2L6sTLZyWPHOw/exec";
 function formatNumber(num) { if (num === null || num === undefined || num === "") return "0"; let n = Number(num); if (isNaN(n)) return "0"; return n.toLocaleString('zh-TW'); }
 let POS_STORE = "";
 let posCart = [], currentTax = "應稅";
@@ -1508,99 +1497,6 @@ document.getElementById("posCheckout").onclick = async function () {
         checkoutBtn.style.backgroundColor = "";
     }
 };
-
-async function loadOrders() {
-  const box = document.getElementById("orderList");
-  box.innerHTML = "載入中...";
-
-  try {
-    if (!POS_STORE) {
-      box.innerHTML = "❌ 尚未登入門市";
-      return;
-    }
-
-    const res = await fetch(`${API_URL}?action=orders&storeCode=${POS_STORE}`);
-    const data = await res.json();
-
-    console.log("orders API:", data); // ⭐除錯用
-
-    if (!data || data.status !== "success") {
-      box.innerHTML = "❌ 取得訂單失敗";
-      return;
-    }
-
-    if (!data.orders || data.orders.length === 0) {
-      box.innerHTML = "目前沒有訂單";
-      return;
-    }
-
-    box.innerHTML = "";
-
-    data.orders.forEach(o => {
-      const div = document.createElement("div");
-
-      div.style.padding = "10px";
-      div.style.borderBottom = "1px solid #444";
-      div.style.color = "white";
-
-      div.innerHTML = `
-        <b>${o.orderId}</b><br>
-        ${o.date} ${o.time}<br>
-        金額：${o.total}<br>
-        付款：${o.payment}<br>
-        狀態：${o.status || "NORMAL"}<br>
-
-        <button onclick="voidOrder('${o.orderId}')">作廢</button>
-        <button onclick="restoreOrder('${o.orderId}')">還原</button>
-      `;
-
-      box.appendChild(div);
-    });
-
-  } catch (err) {
-    console.error(err);
-    box.innerHTML = "❌ 發生錯誤，請看 console";
-  }
-}
-
-document.getElementById("openOrdersBtn").onclick = () => {
-  document.getElementById("orderModal").style.display = "block";
-  loadOrders();
-};
-
-function closeOrderModal() {
-  document.getElementById("orderModal").style.display = "none";
-}
-async function voidOrder(orderId) {
-  await fetch(API_URL + "?action=voidOrder", {
-    method: "POST",
-    body: JSON.stringify({ orderId })
-  });
-  loadOrders();
-}
-
-async function restoreOrder(orderId) {
-  await fetch(API_URL + "?action=restoreOrder", {
-    method: "POST",
-    body: JSON.stringify({ orderId })
-  });
-  loadOrders();
-}
-
-async function restoreToCart(orderId) {
-  const res = await fetch(`${API_URL}?action=orderDetail&orderId=${orderId}`);
-  const data = await res.json();
-
-  posCart = data.items.map(i => ({
-    name: i.name,
-    quantity: i.quantity,
-    price: i.price,
-    unit: "",
-    discount: null
-  }));
-
-  renderCart();
-}
 window.addEventListener("afterprint", () => {
   setTimeout(() => {
     const success = document.fullscreenElement;
@@ -1617,6 +1513,44 @@ window.addEventListener("afterprint", () => {
 
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
