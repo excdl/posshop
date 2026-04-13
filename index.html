@@ -728,6 +728,22 @@ button {
     background:#d70015;
     transform:scale(1.1);
 }
+
+#loginKeypad button {
+  flex:1;
+  padding:15px;
+  font-size:18px;
+  border:none;
+  border-radius:6px;
+  background:#444;
+  color:#fff;
+  cursor:pointer;
+}
+
+#loginKeypad button:hover {
+  background:#666;
+}
+
 </style>
 </head>
 
@@ -894,6 +910,35 @@ button {
 </div>
     </div>
     </div>
+<!-- ===== 登入用數字鍵盤 ===== -->
+<div id="loginKeypad" style="
+  display:none;
+  position:fixed;
+  bottom:0;
+  left:0;
+  width:100%;
+  background:#222;
+  padding:10px;
+  z-index:9999;
+">
+
+  <div style="display:flex;gap:10px;justify-content:center;">
+    <button onclick="kpPress('1')">1</button>
+    <button onclick="kpPress('2')">2</button>
+    <button onclick="kpPress('3')">3</button>
+    <button onclick="kpPress('4')">4</button>
+    <button onclick="kpPress('5')">5</button>
+    <button onclick="kpPress('6')">6</button>
+    <button onclick="kpPress('7')">7</button>
+    <button onclick="kpPress('8')">8</button>
+    <button onclick="kpPress('9')">9</button>
+    <button onclick="kpClear()">清除</button>
+    <button onclick="kpPress('0')">0</button>
+    <button onclick="kpConfirm()">確認</button>
+  </div>
+
+</div>
+  
 </body>
 
 <script>
@@ -1915,6 +1960,34 @@ document.addEventListener("fullscreenchange", () => {
     }
   }
 });
+
+// ===== 登入鍵盤 =====
+let currentInput = null;
+
+document.getElementById("passwordInput").addEventListener("focus", () => {
+  currentInput = document.getElementById("passwordInput");
+  document.getElementById("loginKeypad").style.display = "block";
+});
+
+document.getElementById("storeInput").addEventListener("focus", () => {
+  currentInput = document.getElementById("storeInput");
+  document.getElementById("loginKeypad").style.display = "block";
+});
+
+function kpPress(val) {
+  if (!currentInput) return;
+  currentInput.value += val;
+}
+
+function kpClear() {
+  if (!currentInput) return;
+  currentInput.value = "";
+}
+
+function kpConfirm() {
+  document.getElementById("loginKeypad").style.display = "none";
+  currentInput.blur();
+}
 window.addEventListener("afterprint", () => {
   setTimeout(() => {
     const success = document.fullscreenElement;
