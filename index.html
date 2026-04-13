@@ -972,34 +972,18 @@ button {
 <script>
 let realPassword = "";
 
-function showKeyboard() {
-  document.getElementById("keyboard").style.display = "block";
-}
+document.getElementById("loginBtn").addEventListener("click", function() {
 
-function hideKeyboard() {
-  document.getElementById("keyboard").style.display = "none";
-}
+  const store = document.getElementById("storeInput").value;
+  const password = realPassword; // ⭐ 這裡改這行
 
-function press(num) {
-  realPassword += num;
-  updateDisplay();
-}
-
-function backspace() {
-  realPassword = realPassword.slice(0, -1);
-  updateDisplay();
-}
-
-function clearInput() {
-  realPassword = "";
-  updateDisplay();
-}
-
-function updateDisplay() {
-  document.getElementById("passwordInput").value = "●".repeat(realPassword.length);
-}
+  if (store === "123" && password === "456") {
+    alert("登入成功");
+  } else {
+    document.getElementById("loginMsg").innerText = "帳號或密碼錯誤";
+  }
+});
 </script>
-</body>
 </body>
 
 <script>
