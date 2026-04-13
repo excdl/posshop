@@ -801,37 +801,6 @@ button {
   ">完成</button>
 </div>
 
-<script>
-let realPassword = "";
-
-function showKeyboard() {
-  document.getElementById("keyboard").style.display = "block";
-}
-
-function hideKeyboard() {
-  document.getElementById("keyboard").style.display = "none";
-}
-
-function press(num) {
-  realPassword += num;
-  updateDisplay();
-}
-
-function backspace() {
-  realPassword = realPassword.slice(0, -1);
-  updateDisplay();
-}
-
-function clearInput() {
-  realPassword = "";
-  updateDisplay();
-}
-
-function updateDisplay() {
-  document.getElementById("passwordInput").value = "●".repeat(realPassword.length);
-}
-</script>
-
 <style>
 #keyboard button {
   padding:15px;
@@ -1036,6 +1005,35 @@ async function getIP() {
     } catch {
         return "";
     }
+}
+
+let realPassword = "";
+
+function showKeyboard() {
+  document.getElementById("keyboard").style.display = "block";
+}
+
+function hideKeyboard() {
+  document.getElementById("keyboard").style.display = "none";
+}
+
+function press(num) {
+  realPassword += num;
+  updateDisplay();
+}
+
+function backspace() {
+  realPassword = realPassword.slice(0, -1);
+  updateDisplay();
+}
+
+function clearInput() {
+  realPassword = "";
+  updateDisplay();
+}
+
+function updateDisplay() {
+  document.getElementById("passwordInput").value = "●".repeat(realPassword.length);
 }
 
 function updateLoginTime() {
