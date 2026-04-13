@@ -728,6 +728,18 @@ button {
     background:#d70015;
     transform:scale(1.1);
 }
+#keyboard button {
+  padding:15px;
+  font-size:1.5em;
+  border:none;
+  border-radius:8px;
+  background:#34495e;
+  color:white;
+}
+#keyboard button:active {
+  background:#1abc9c;
+}
+
 </style>
 </head>
 
@@ -739,7 +751,100 @@ button {
   <div style="background:white;padding:40px 30px;border-radius:12px;box-shadow:0 5px 20px rgba(0,0,0,0.2);width:320px;text-align:center;">
     <h2 style="margin-bottom:20px;color:#2c3e50;">彩鮮 POS 系統 登入</h2>
     <input id="storeInput" placeholder="門市編號" style="width:100%;padding:10px;margin:10px 0;border-radius:6px;border:1px solid #ccc;font-size:1em;">
-    <input id="passwordInput" placeholder="密碼" type="password" style="width:100%;padding:10px;margin:10px 0;border-radius:6px;border:1px solid #ccc;font-size:1em;">
+    <!-- 密碼輸入 -->
+<input 
+  id="passwordInput" 
+  placeholder="密碼" 
+  readonly
+  style="width:100%;padding:12px;font-size:1.2em;border-radius:6px;border:1px solid #ccc;margin-bottom:10px;"
+  onclick="showKeyboard()">
+
+<!-- 自訂鍵盤 -->
+<div id="keyboard" style="
+  display:none;
+  position:fixed;
+  bottom:0;
+  left:0;
+  width:100%;
+  background:#2c3e50;
+  padding:10px;
+  box-shadow:0 -3px 10px rgba(0,0,0,0.3);
+">
+
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+    <!-- 數字鍵 -->
+    <button onclick="press(1)">1</button>
+    <button onclick="press(2)">2</button>
+    <button onclick="press(3)">3</button>
+    <button onclick="press(4)">4</button>
+    <button onclick="press(5)">5</button>
+    <button onclick="press(6)">6</button>
+    <button onclick="press(7)">7</button>
+    <button onclick="press(8)">8</button>
+    <button onclick="press(9)">9</button>
+
+    <!-- 功能鍵 -->
+    <button onclick="clearInput()" style="background:#e67e22;">清除</button>
+    <button onclick="press(0)">0</button>
+    <button onclick="backspace()" style="background:#c0392b;">⌫</button>
+  </div>
+
+  <button onclick="hideKeyboard()" style="
+    width:100%;
+    margin-top:10px;
+    padding:12px;
+    background:#27ae60;
+    color:white;
+    font-size:1.2em;
+    border:none;
+    border-radius:6px;
+  ">完成</button>
+</div>
+
+<script>
+let realPassword = "";
+
+function showKeyboard() {
+  document.getElementById("keyboard").style.display = "block";
+}
+
+function hideKeyboard() {
+  document.getElementById("keyboard").style.display = "none";
+}
+
+function press(num) {
+  realPassword += num;
+  updateDisplay();
+}
+
+function backspace() {
+  realPassword = realPassword.slice(0, -1);
+  updateDisplay();
+}
+
+function clearInput() {
+  realPassword = "";
+  updateDisplay();
+}
+
+function updateDisplay() {
+  document.getElementById("passwordInput").value = "●".repeat(realPassword.length);
+}
+</script>
+
+<style>
+#keyboard button {
+  padding:15px;
+  font-size:1.5em;
+  border:none;
+  border-radius:8px;
+  background:#34495e;
+  color:white;
+}
+#keyboard button:active {
+  background:#1abc9c;
+}
+</style>
     <button id="loginBtn" style="width:100%;padding:12px;margin-top:15px;border:none;border-radius:6px;background:#27ae60;color:white;font-size:1em;cursor:pointer;transition:0.2s;">登入</button>
     <p id="loginMsg" style="color:red;margin-top:10px;font-size:0.9em;"></p>
   </div>
@@ -938,6 +1043,35 @@ function updateLoginTime() {
   document.getElementById("loginTime").innerText = `登入時間：${now.toLocaleString("zh-TW",{hour12:false})}`;
 }
 
+let realPassword = "";
+
+function showKeyboard() {
+  document.getElementById("keyboard").style.display = "block";
+}
+
+function hideKeyboard() {
+  document.getElementById("keyboard").style.display = "none";
+}
+
+function press(num) {
+  realPassword += num;
+  updateDisplay();
+}
+
+function backspace() {
+  realPassword = realPassword.slice(0, -1);
+  updateDisplay();
+}
+
+function clearInput() {
+  realPassword = "";
+  updateDisplay();
+}
+
+function updateDisplay() {
+  document.getElementById("passwordInput").value = "●".repeat(realPassword.length);
+}
+    
 async function login() {
   const loginBtn = document.getElementById("loginBtn");
   loginBtn.innerText = "登入中...";
