@@ -1026,8 +1026,16 @@ async function login() {
   loginBtn.innerText = "登入中...";
   loginBtn.disabled = true;
 
-  const store = document.getElementById("storeInput").value;
-  const pwd = document.getElementById("passwordInput").value;
+  document.getElementById("loginBtn").onclick = function () {
+    const store = document.getElementById("storeInput").value;
+    const password = realPassword; // ✅ 正確
+
+    if (store === "123" && password === "456") {
+        alert("登入成功");
+    } else {
+        document.getElementById("loginMsg").innerText = "門市編號或密碼錯誤";
+    }
+};
   const userIP = await getIP();
 
   try {
