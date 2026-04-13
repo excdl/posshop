@@ -728,17 +728,6 @@ button {
     background:#d70015;
     transform:scale(1.1);
 }
-    #keypad button {
-    padding:12px;
-    font-size:1.1em;
-    border:none;
-    border-radius:6px;
-    background:#ecf0f1;
-    cursor:pointer;
-}
-#keypad button:active {
-    background:#bdc3c7;
-}
 </style>
 </head>
 
@@ -750,41 +739,7 @@ button {
   <div style="background:white;padding:40px 30px;border-radius:12px;box-shadow:0 5px 20px rgba(0,0,0,0.2);width:320px;text-align:center;">
     <h2 style="margin-bottom:20px;color:#2c3e50;">彩鮮 POS 系統 登入</h2>
     <input id="storeInput" placeholder="門市編號" style="width:100%;padding:10px;margin:10px 0;border-radius:6px;border:1px solid #ccc;font-size:1em;">
-    <!-- 密碼輸入 -->
-<input id="passwordInput"
-       placeholder="密碼"
-       readonly
-       style="width:100%;padding:10px;margin:10px 0;border-radius:6px;border:1px solid #ccc;font-size:1em;">
-
-<!-- 數字鍵盤 -->
-<div id="keypad" style="
-    position:fixed;
-    bottom:10px;
-    left:50%;
-    transform:translateX(-50%);
-    width:260px;
-    background:#ffffff;
-    border-radius:12px;
-    box-shadow:0 5px 20px rgba(0,0,0,0.2);
-    padding:10px;
-    display:none;
-    z-index:999;
-">
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
-        <button onclick="press(1)">1</button>
-        <button onclick="press(2)">2</button>
-        <button onclick="press(3)">3</button>
-        <button onclick="press(4)">4</button>
-        <button onclick="press(5)">5</button>
-        <button onclick="press(6)">6</button>
-        <button onclick="press(7)">7</button>
-        <button onclick="press(8)">8</button>
-        <button onclick="press(9)">9</button>
-        <button onclick="clearInput()">C</button>
-        <button onclick="press(0)">0</button>
-        <button onclick="backspace()">⌫</button>
-    </div>
-</div>
+    <input id="passwordInput" placeholder="密碼" type="password" style="width:100%;padding:10px;margin:10px 0;border-radius:6px;border:1px solid #ccc;font-size:1em;">
     <button id="loginBtn" style="width:100%;padding:12px;margin-top:15px;border:none;border-radius:6px;background:#27ae60;color:white;font-size:1em;cursor:pointer;transition:0.2s;">登入</button>
     <p id="loginMsg" style="color:red;margin-top:10px;font-size:0.9em;"></p>
   </div>
@@ -939,44 +894,6 @@ button {
 </div>
     </div>
     </div>
-<script>
-let realPassword = "";
-
-const input = document.getElementById("passwordInput");
-const keypad = document.getElementById("keypad");
-
-// 顯示鍵盤
-input.addEventListener("click", () => {
-    keypad.style.display = "block";
-});
-
-// 點其他地方隱藏
-document.addEventListener("click", (e) => {
-    if (!keypad.contains(e.target) && e.target !== input) {
-        keypad.style.display = "none";
-    }
-});
-
-function press(num) {
-    realPassword += num;
-    updateDisplay();
-}
-
-function backspace() {
-    realPassword = realPassword.slice(0, -1);
-    updateDisplay();
-}
-
-function clearInput() {
-    realPassword = "";
-    updateDisplay();
-}
-
-function updateDisplay() {
-    input.value = "●".repeat(realPassword.length);
-}
-</script>
-  
 </body>
 
 <script>
@@ -1026,16 +943,8 @@ async function login() {
   loginBtn.innerText = "登入中...";
   loginBtn.disabled = true;
 
-  document.getElementById("loginBtn").onclick = function () {
-    const store = document.getElementById("storeInput").value;
-    const password = realPassword; // ✅ 正確
-
-    if (store === "123" && password === "456") {
-        alert("登入成功");
-    } else {
-        document.getElementById("loginMsg").innerText = "門市編號或密碼錯誤";
-    }
-};
+  const store = document.getElementById("storeInput").value;
+  const pwd = document.getElementById("passwordInput").value;
   const userIP = await getIP();
 
   try {
@@ -2001,6 +1910,461 @@ window.addEventListener("afterprint", () => {
 
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
