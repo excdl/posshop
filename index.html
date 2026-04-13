@@ -1961,33 +1961,38 @@ document.addEventListener("fullscreenchange", () => {
   }
 });
 
-// ===== 登入鍵盤 =====
 let currentInput = null;
 
+// 點擊密碼欄位 → 開啟鍵盤
 document.getElementById("passwordInput").addEventListener("focus", () => {
   currentInput = document.getElementById("passwordInput");
-  document.getElementById("loginKeypad").style.display = "block";
+  document.getElementById("loginKeypad").style.display = "block";  // 顯示鍵盤
 });
 
+// 點擊門市編號欄位 → 開啟鍵盤（可選）
 document.getElementById("storeInput").addEventListener("focus", () => {
   currentInput = document.getElementById("storeInput");
-  document.getElementById("loginKeypad").style.display = "block";
+  document.getElementById("loginKeypad").style.display = "block";  // 顯示鍵盤
 });
 
+// 按鍵輸入
 function kpPress(val) {
   if (!currentInput) return;
   currentInput.value += val;
 }
 
+// 清除
 function kpClear() {
   if (!currentInput) return;
   currentInput.value = "";
 }
 
+// 確認（收起鍵盤）
 function kpConfirm() {
   document.getElementById("loginKeypad").style.display = "none";
-  currentInput.blur();
+  currentInput.blur();  // 失去焦點，隱藏鍵盤
 }
+    
 window.addEventListener("afterprint", () => {
   setTimeout(() => {
     const success = document.fullscreenElement;
