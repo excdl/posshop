@@ -842,7 +842,7 @@ button {
 </body>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbyD27w9tW4x8MYJd0GW-xCT9bRNgpge5WOqGh_2cMexn8QX_M__rE0-h2L6sTLZyWPHOw/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycby6Ed1G7St1q6M8qhuueZiZocMY7DfeUEX1t4ft3kr-fmXUqAkVWsTgf3-I5l4KCyuS/exec";
 function formatNumber(num) { if (num === null || num === undefined || num === "") return "0"; let n = Number(num); if (isNaN(n)) return "0"; return n.toLocaleString('zh-TW'); }
 let POS_STORE = "";
 let posCart = [], currentTax = "應稅";
@@ -1576,10 +1576,15 @@ function calcDiscountedSubtotal(item) {
         })
     };
 
-    await fetch(API_URL, {
-        method: "POST",
-        body: JSON.stringify(payload)
-    });
+   const res = await fetch(API_URL, {
+    method: "POST",
+    body: JSON.stringify(payload)
+});
+
+const result = await res.json();
+
+if (result.status !== "success") {
+    throw new Error(result.message || "寫入失敗");
 }
 
   
