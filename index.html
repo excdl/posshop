@@ -730,53 +730,48 @@ button {
 }
 
 #numKeyboard {
-  position: fixed;
-  top: 100px;
-  right: 20px;
-  width: 220px;
+  width: 260px;
+  background: #222;
+  padding: 12px;
 
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-
-  background: #222;
-  padding: 10px;
+  gap: 10px;   /* ⭐ 重點：按鍵間距 */
   border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-
-  user-select: none;
-  touch-action: none; /* ⭐ 手機拖曳必備 */
 }
 
-/* 標題列（拖曳區） */
-.kb-header {
-  grid-column: 1 / 4;
-  background: #333;
-  color: white;
-  text-align: center;
-  padding: 8px;
-  border-radius: 8px;
-  cursor: grab;
-}
-
-/* 按鈕 */
+/* 一般按鍵 */
 #numKeyboard button {
-  padding: 18px;
-  font-size: 1.2em;
+  padding: 18px 0;
+  font-size: 1.4em;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   background: #444;
   color: white;
+  cursor: pointer;
 }
 
+/* 按下效果 */
 #numKeyboard button:active {
   background: #666;
 }
 
-/* OK */
+/* 功能鍵 */
+#numKeyboard .func {
+  background: #555;
+}
+
+/* OK 鍵 */
 #numKeyboard .ok {
   grid-column: 1 / 4;
   background: #27ae60;
+  font-size: 1.3em;
+  padding: 16px 0;
+}
+
+/* hover（可選，桌機更好看） */
+#numKeyboard button:hover {
+  filter: brightness(1.1);
 }
 </style>
 </head>
@@ -802,9 +797,7 @@ button {
   </div>
 </div>
 
-<!-- 🔢 自訂數字鍵盤 -->
-<div id="numKeyboard" class="draggable">
-  <div class="kb-header">☰ 鍵盤</div>
+<div id="numKeyboard">
 
   <button onclick="press(7)">7</button>
   <button onclick="press(8)">8</button>
@@ -818,25 +811,12 @@ button {
   <button onclick="press(2)">2</button>
   <button onclick="press(3)">3</button>
 
-  <button onclick="clearInput()">C</button>
+  <button class="func" onclick="clearInput()">C</button>
   <button onclick="press(0)">0</button>
-  <button onclick="backspace()">←</button>
+  <button class="func" onclick="backspace()">←</button>
 
-  <button class="ok" onclick="confirmInput()">OK</button>
-</div>
+  <button class="ok" onclick="confirmInput()">確認</button>
 
-  <button onclick="confirmInput()" style="
-    width:100%;
-    margin-top:10px;
-    padding:15px;
-    font-size:1.2em;
-    background:#27ae60;
-    color:white;
-    border:none;
-    border-radius:8px;
-  ">
-    確認
-  </button>
 </div>
 
 <!-- POS 主頁 -->
