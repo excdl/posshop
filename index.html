@@ -1842,53 +1842,83 @@ function renderOrderList() {
     box.innerHTML = "";
 
     orderList.forEach(order => {
-        const row = document.createElement("div");
-        row.className = "order-row";
 
         const isVoid = order.status === "VOID";
 
-        row.innerHTML = `
+        const row = document.createElement("div");
+        row.className = "order-row";
+        row.style.flexDirection = "column";
+
+        const main = document.createElement("div");
+        main.style.cssText = `
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            cursor:pointer;
+        `;
+
+        main.innerHTML = `
             <div>
                 <b>${order.orderId}</b><br>
-                ${order.payment} / ${order.totalAmount} 元
-                ${isVoid ? "<span style='color:red'>（已作廢）</span>" : ""}
+                <span class="order-info">${order.payment} / ${order.totalAmount} 元</span>
+                ${isVoid ? `<div class="void-tag">已作廢</div>` : ""}
             </div>
 
-            <div style="display:flex;gap:8px;">
-                ${!isVoid ? `
-                    <button onclick="voidOrder(${order.rowIndex})">作廢</button>
-                ` : ""}
-
-                ${isVoid ? `
-                    <button onclick="restoreOrder(${order.rowIndex})">還原</button>
-                ` : ""}
+            <div>
+                ${!isVoid
+                    ? `<button class="order-btn btn-void"
+                        onclick="event.stopPropagation(); voidOrder(${order.rowIndex})">
+                        作廢
+                    </button>`
+                    : `<span style="color:#999;font-size:12px;">不可操作</span>`
+                }
             </div>
         `;
 
+        const detailBox = document.createElement("div");
+        detailBox.style.display = "none";
+
+        let loaded = false;
+
+        main.onclick = async function () {
+
+            if (detailBox.style.display === "none") {
+                detailBox.style.display = "block";
+
+                if (!loaded) {
+                    const res = await fetch(`${API_URL}?action=orderDetail&orderId=${order.orderId}`);
+                    const data = await res.json();
+
+                    if (data.status === "success") {
+                        data.items.forEach(it => {
+                            const d = document.createElement("div");
+                            d.style.cssText = `
+                                display:flex;
+                                justify-content:space-between;
+                                padding:4px 10px;
+                                font-size:13px;
+                                color:#555;
+                            `;
+                            d.innerHTML = `
+                                <span>• ${it.name} x${it.quantity}</span>
+                                <span>${it.subtotal} 元</span>
+                            `;
+                            detailBox.appendChild(d);
+                        });
+                    }
+
+                    loaded = true;
+                }
+
+            } else {
+                detailBox.style.display = "none";
+            }
+        };
+
+        row.appendChild(main);
+        row.appendChild(detailBox);
         box.appendChild(row);
     });
-}
-async function voidOrder(rowIndex) {
-    if (!confirm("確定要作廢此訂單？")) return;
-
-    await fetch(`${API_URL}?action=voidOrder`, {
-        method: "POST",
-        body: JSON.stringify({ rowIndex })
-    });
-
-    await loadTodayOrders();
-    updateTodaySales();
-}    
-async function restoreOrder(rowIndex) {
-    if (!confirm("確定要還原此訂單？")) return;
-
-    await fetch(`${API_URL}?action=restoreOrder`, {
-        method: "POST",
-        body: JSON.stringify({ rowIndex })
-    });
-
-    await loadTodayOrders();
-    updateTodaySales();
 }
 window.addEventListener("afterprint", () => {
   setTimeout(() => {
