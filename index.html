@@ -735,13 +735,7 @@ button {
 <body>
 
 <!-- 登入頁面 -->
-<div id="loginPage" style="
-    display:flex;
-    justify-content:center;
-    align-items:flex-start;
-    padding-top:80px;
-    background:#3498db;
-">
+<div id="loginPage" style="display:flex;justify-content:center;align-items:center;height:100vh;background:#3498db;">
   <div style="background:white;padding:40px 30px;border-radius:12px;box-shadow:0 5px 20px rgba(0,0,0,0.2);width:320px;text-align:center;">
     <h2 style="margin-bottom:20px;color:#2c3e50;">彩鮮 POS 系統 登入</h2>
     <input id="storeInput" placeholder="門市編號" style="width:100%;padding:10px;margin:10px 0;border-radius:6px;border:1px solid #ccc;font-size:1em;">
@@ -1017,7 +1011,8 @@ async function logout() {
         // 隱藏 POS 主頁，顯示登入頁
         document.getElementById("posApp").style.display = "none";
         document.getElementById("loginPage").style.display = "flex";
-
+        // ⭐ 退出全螢幕（加這行）
+        exitFullscreen();
         // 清空登入欄位
         document.getElementById("storeInput").value = "";
         document.getElementById("passwordInput").value = "";
@@ -1052,6 +1047,17 @@ function enterFullscreen() {
     elem.webkitRequestFullscreen();
   } else if (elem.msRequestFullscreen) { // IE11
     elem.msRequestFullscreen();
+  }
+}
+
+/* ⭐ 放這裡最清楚（建議） */
+function exitFullscreen() {
+  if (document.exitFullscreen) {
+    document.exitFullscreen();
+  } else if (document.webkitExitFullscreen) {
+    document.webkitExitFullscreen();
+  } else if (document.msExitFullscreen) {
+    document.msExitFullscreen();
   }
 }
 // ===== 取得商品 =====
@@ -1899,7 +1905,16 @@ async function restoreOrder(rowIndex) {
     await loadTodayOrders();
     updateTodaySales();
 }
-
+document.addEventListener("fullscreenchange", () => {
+  if (!document.fullscreenElement) {
+    // 只有登入狀態才自動回全螢幕
+    if (POS_STORE) {
+      setTimeout(() => {
+        enterFullscreen();
+      }, 300);
+    }
+  }
+});
 window.addEventListener("afterprint", () => {
   setTimeout(() => {
     const success = document.fullscreenElement;
@@ -1916,6 +1931,461 @@ window.addEventListener("afterprint", () => {
 
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
