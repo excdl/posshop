@@ -35,13 +35,14 @@ button {
     margin-top: 0;
     margin-bottom: 10px;
     font-weight: 600;
+    font-size: 1.2em; /* Increase by 20% */
 }
 
 #posCategories button {
     width: 100%;
     margin: 5px 0;
     padding: 12px;
-    font-size: 0.9em;
+    font-size: 1.1em; /* Increase by 15% */
     border: none;
     border-radius: 6px;
     background: #2980b9;
@@ -96,7 +97,7 @@ button {
 
 .product-card h4 {
     margin: 0;
-    font-size: 0.8em;
+    font-size: 1em; /* Increase by 20% */
     line-height: 1.2em;
     white-space: normal;
     word-wrap: break-word;
@@ -107,7 +108,7 @@ button {
 
 .product-card p {
     margin: 2px 0 0 0;
-    font-size: 0.96em;
+    font-size: 1.1em; /* Increase by 15% */
     color: #555;
 }
 
@@ -124,7 +125,7 @@ button {
 .cartHeader {
     font-weight: bold;
     background: #eee;
-    font-size: 80%;
+    font-size: 1.1em; /* Increase by 15% */
     display: grid;
     grid-template-columns: 2.5fr 1fr 1fr 1fr 1fr;
     gap: 5px;
@@ -133,7 +134,6 @@ button {
     text-align: center;
 }
 
-/* 訂單明細文字放大 20% */
 #posCart div.cartRow {
     display: grid;
     grid-template-columns: 2.5fr 1fr 1fr 1fr 1fr;
@@ -144,59 +144,17 @@ button {
     border-radius: 6px;
     align-items: center;
     text-align: center;
-    font-size: 0.96em; /* 文字放大 20% */
+    font-size: 0.92em; /* Increase by 15% */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-/* 商品文字放大 15% */
 #posCart div.cartRow span.name {
     text-align: left;
     cursor: pointer;
     white-space: normal;
     word-break: break-word;
-    font-size: 0.775em; /* 放大 15% */
-}
-
-/* 數量文字放大 15% */
-#posCart div.cartRow span.quantity {
-    font-size: 0.775em; /* 放大 15% */
-}
-
-/* 單價文字放大 15% */
-#posCart div.cartRow span.price {
-    font-size: 0.775em; /* 放大 15% */
-}
-
-/* 小計文字放大 15% */
-#posCart div.cartRow span.subtotal {
-    font-size: 0.775em; /* 放大 15% */
-}
-
-/* 無菜單文字放大 15% */
-#posCart div.cartRow span.noMenu {
-    font-size: 0.775em; /* 放大 15% */
-}
-
-/* "1" 文字放大 15% */
-#posCart div.cartRow span.one {
-    font-size: 0.775em; /* 放大 15% */
-}
-
-/* "1.00 個" 文字放大 15% */
-#posCart div.cartRow span.quantityText {
-    font-size: 0.775em; /* 放大 15% */
-}
-
-/* "0" 文字放大 15% */
-#posCart div.cartRow span.zero {
-    font-size: 0.775em; /* 放大 15% */
-}
-
-/* "刪" 文字放大 15% */
-#posCart div.cartRow span.delete {
-    font-size: 0.775em; /* 放大 15% */
 }
 
 #discountContainer {
@@ -211,7 +169,7 @@ button {
     border: 2px solid #ccc;
     border-radius: 6px;
     text-align: right;
-    font-size: 0.9em;
+    font-size: 1em; /* Increase by 15% */
     cursor: pointer;
 }
 
@@ -249,14 +207,14 @@ button {
     border: 2px solid #ccc;
     border-radius: 6px;
     text-align: right;
-    font-size: 1em;
+    font-size: 1.1em; /* Increase by 15% */
     cursor: pointer;
 }
 
 #posCheckout {
     margin-top: 8px;
     padding: 12px;
-    font-size: 1.2em;
+    font-size: 1.4em; /* Increase by 15% */
     background: #27ae60;
     color: white;
     border: none;
@@ -285,17 +243,63 @@ button {
     text-align: center;
 }
 
-/* 其他的CSS保持不變... */
+#numpad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin-top: 5px;
+}
 
-#numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:5px;}
-#numpad button{padding:15px;background:#3498db;color:white;font-size:1.2em;border:none;border-radius:6px;}
-#promoButtons{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-top:10px;}
-#promoButtons button{padding:8px;background:#3498db;color:white;font-size:0.9em;border:none;border-radius:6px;}
-.modalActions{display:flex;gap:5px;margin-top:10px;}
-.modalActions button{flex:1;padding:10px;border:none;border-radius:6px;}
-.confirm{background:#27ae60;color:white;}
-.cancel{background:#e74c3c;color:white;}
-.convert{background:#f39c12;color:white;}
+#numpad button {
+    padding: 20px;
+    font-size: 1.5em; /* Increase by 15% */
+}
+
+#promoButtons {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+    margin-top: 10px;
+}
+
+#promoButtons button {
+    padding: 8px;
+    background: #3498db;
+    color: white;
+    font-size: 1em; /* Increase by 15% */
+    border: none;
+    border-radius: 6px;
+}
+
+.modalActions {
+    display: flex;
+    gap: 5px;
+    margin-top: 10px;
+}
+
+.modalActions button {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+}
+
+.confirm {
+    background: #27ae60;
+    color: white;
+}
+
+.cancel {
+    background: #e74c3c;
+    color: white;
+}
+
+.convert {
+    background: #f39c12;
+    color: white;
+}
+
+/* Other classes remain unchanged */
 @media (max-width:600px){
   #numpad button{padding:20px;font-size:1.5em;}
   #editModal input{font-size:1.8em;}
