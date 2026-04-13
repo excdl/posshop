@@ -692,7 +692,42 @@ button {
     0%, 50%, 100% { opacity: 0; }
     25%, 75% { opacity: 1; }
 }
+.modal-box{
+    position:relative;
+}
 
+/* ✕ 右上角固定 */
+.modal-close{
+    position:absolute;
+    top:10px;
+    right:10px;
+
+    width:36px;
+    height:36px;
+    border-radius:50%;
+
+    border:none;
+    background:#ff3b30;
+    color:#fff;
+
+    font-size:20px;
+    font-weight:bold;
+
+    cursor:pointer;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    box-shadow:0 2px 8px rgba(0,0,0,0.2);
+
+    transition:0.2s;
+}
+
+.modal-close:hover{
+    background:#d70015;
+    transform:scale(1.1);
+}
 </style>
 </head>
 
@@ -845,7 +880,7 @@ button {
 
   <div class="modal-box">
 
-    <!-- ✕ 關閉按鈕 -->
+    <!-- ✕ 關閉按鈕（右上角） -->
     <button class="modal-close"
       onclick="document.getElementById('orderModal').style.display='none'">
       ✕
@@ -857,6 +892,8 @@ button {
 
   </div>
 </div>
+    </div>
+    </div>
 </body>
 
 <script>
