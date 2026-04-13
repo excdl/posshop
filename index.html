@@ -766,46 +766,26 @@ button {
 </div>
 
 <!-- 🔢 自訂數字鍵盤 -->
-<div id="numKeyboard" style="
-  display:none;
-  position:fixed;
-  bottom:0;
-  left:0;
-  width:100%;
-  background:#222;
-  padding:10px;
-  box-shadow:0 -5px 15px rgba(0,0,0,0.3);
-">
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
-    <!-- 數字鍵 -->
-    <button onclick="press(1)">1</button>
-    <button onclick="press(2)">2</button>
-    <button onclick="press(3)">3</button>
-    <button onclick="press(4)">4</button>
-    <button onclick="press(5)">5</button>
-    <button onclick="press(6)">6</button>
-    <button onclick="press(7)">7</button>
-    <button onclick="press(8)">8</button>
-    <button onclick="press(9)">9</button>
+<div id="numKeyboard">
 
-    <!-- 功能鍵 -->
-    <button onclick="clearInput()">C</button>
-    <button onclick="press(0)">0</button>
-    <button onclick="backspace()">←</button>
-  </div>
+  <button onclick="press(7)">7</button>
+  <button onclick="press(8)">8</button>
+  <button onclick="press(9)">9</button>
 
-  <button onclick="confirmInput()" style="
-    width:100%;
-    margin-top:10px;
-    padding:15px;
-    font-size:1.2em;
-    background:#27ae60;
-    color:white;
-    border:none;
-    border-radius:8px;
-  ">
-    確認
-  </button>
+  <button onclick="press(4)">4</button>
+  <button onclick="press(5)">5</button>
+  <button onclick="press(6)">6</button>
+
+  <button onclick="press(1)">1</button>
+  <button onclick="press(2)">2</button>
+  <button onclick="press(3)">3</button>
+
+  <button class="func" onclick="clearInput()">C</button>
+  <button onclick="press(0)">0</button>
+  <button class="func" onclick="backspace()">←</button>
+
+  <button class="ok" onclick="confirmInput()">確認</button>
+
 </div>
 
 <!-- POS 主頁 -->
