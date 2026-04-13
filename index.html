@@ -692,7 +692,114 @@ button {
     0%, 50%, 100% { opacity: 0; }
     25%, 75% { opacity: 1; }
 }
+/* ===== 背景遮罩 ===== */
+.modal-overlay{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.55);
+    z-index:9999;
+    align-items:center;
+    justify-content:center;
+}
 
+/* ===== 主視窗 ===== */
+.modal-box{
+    width:520px;
+    height:80vh;
+    background:#fff;
+    border-radius:14px;
+    padding:15px;
+    overflow:auto;
+    position:relative;
+    box-shadow:0 10px 30px rgba(0,0,0,0.3);
+    font-family:"Noto Sans TC";
+}
+
+/* ===== 標題 ===== */
+.modal-title{
+    margin:5px 0 15px;
+    font-size:18px;
+    font-weight:600;
+}
+
+/* ===== 關閉 X ===== */
+.modal-close{
+    position:absolute;
+    top:10px;
+    right:10px;
+    width:34px;
+    height:34px;
+    border-radius:50%;
+    border:none;
+    background:#f44336;
+    color:#fff;
+    font-size:18px;
+    cursor:pointer;
+    transition:0.2s;
+}
+
+.modal-close:hover{
+    background:#d32f2f;
+    transform:scale(1.1);
+}
+
+/* ===== 訂單列 ===== */
+.order-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:12px;
+    margin-bottom:8px;
+    border-radius:10px;
+    background:#f7f7f7;
+    transition:0.2s;
+}
+
+.order-row:hover{
+    background:#e9f3ff;
+}
+
+/* ===== 作廢標示 ===== */
+.void-tag{
+    color:#e53935;
+    font-weight:bold;
+    margin-top:4px;
+}
+
+/* ===== 按鈕美化（作廢 / 還原） ===== */
+.order-btn{
+    border:none;
+    padding:6px 12px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:13px;
+    transition:0.2s;
+}
+
+/* 作廢 */
+.btn-void{
+    background:#ff5252;
+    color:#fff;
+}
+.btn-void:hover{
+    background:#e53935;
+}
+
+/* 還原 */
+.btn-restore{
+    background:#4caf50;
+    color:#fff;
+}
+.btn-restore:hover{
+    background:#388e3c;
+}
+
+/* ===== 小標價格 ===== */
+.order-info{
+    font-size:13px;
+    color:#333;
+}
 </style>
 </head>
 
@@ -1809,26 +1916,26 @@ function renderOrderList() {
     box.innerHTML = "";
 
     orderList.forEach(order => {
-        const row = document.createElement("div");
-        row.className = "order-row";
 
         const isVoid = order.status === "VOID";
 
+        const row = document.createElement("div");
+        row.className = "order-row";
+
         row.innerHTML = `
             <div>
-                <b>${order.orderId}</b><br>
-                ${order.payment} / ${order.totalAmount} 元
-                ${isVoid ? "<span style='color:red'>（已作廢）</span>" : ""}
+                <div><b>${order.orderId}</b></div>
+                <div class="order-info">${order.payment} / ${order.totalAmount} 元</div>
+                ${isVoid ? `<div class="void-tag">已作廢</div>` : ""}
             </div>
 
-            <div style="display:flex;gap:8px;">
-                ${!isVoid ? `
-                    <button onclick="voidOrder(${order.rowIndex})">作廢</button>
-                ` : ""}
-
-                ${isVoid ? `
-                    <button onclick="restoreOrder(${order.rowIndex})">還原</button>
-                ` : ""}
+            <div>
+                ${!isVoid
+                    ? `<button class="order-btn btn-void"
+                        onclick="voidOrder(${order.rowIndex})">作廢</button>`
+                    : `<button class="order-btn btn-restore"
+                        onclick="restoreOrder(${order.rowIndex})">還原</button>`
+                }
             </div>
         `;
 
