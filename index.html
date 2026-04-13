@@ -968,6 +968,38 @@ button {
 </div>
     </div>
     </div>
+      <!-- 你的 HTML 結束前 -->
+<script>
+let realPassword = "";
+
+function showKeyboard() {
+  document.getElementById("keyboard").style.display = "block";
+}
+
+function hideKeyboard() {
+  document.getElementById("keyboard").style.display = "none";
+}
+
+function press(num) {
+  realPassword += num;
+  updateDisplay();
+}
+
+function backspace() {
+  realPassword = realPassword.slice(0, -1);
+  updateDisplay();
+}
+
+function clearInput() {
+  realPassword = "";
+  updateDisplay();
+}
+
+function updateDisplay() {
+  document.getElementById("passwordInput").value = "●".repeat(realPassword.length);
+}
+</script>
+</body>
 </body>
 
 <script>
@@ -1005,35 +1037,6 @@ async function getIP() {
     } catch {
         return "";
     }
-}
-
-let realPassword = "";
-
-function showKeyboard() {
-  document.getElementById("keyboard").style.display = "block";
-}
-
-function hideKeyboard() {
-  document.getElementById("keyboard").style.display = "none";
-}
-
-function press(num) {
-  realPassword += num;
-  updateDisplay();
-}
-
-function backspace() {
-  realPassword = realPassword.slice(0, -1);
-  updateDisplay();
-}
-
-function clearInput() {
-  realPassword = "";
-  updateDisplay();
-}
-
-function updateDisplay() {
-  document.getElementById("passwordInput").value = "●".repeat(realPassword.length);
 }
 
 function updateLoginTime() {
