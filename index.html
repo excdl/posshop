@@ -840,14 +840,24 @@ button {
 <!-- 列印收據區 -->
 <div id="printArea"></div>
 <div id="orderModal" style="display:none;position:fixed;inset:0;background:#0008;">
-  <div style="width:500px;height:80vh;background:#fff;margin:auto;overflow:auto;padding:10px;">
+<div style="width:500px;height:80vh;background:#fff;margin:auto;overflow:auto;padding:10px;">
     
-    <h3>今日訂單</h3>
+    <div id="orderModal" class="modal-overlay">
+
+  <div class="modal-box">
+
+    <!-- ✕ 關閉按鈕 -->
+    <button class="modal-close"
+      onclick="document.getElementById('orderModal').style.display='none'">
+      ✕
+    </button>
+
+    <h3 class="modal-title">📋 今日訂單查詢</h3>
+
     <div id="orderListBox"></div>
 
-    <button onclick="document.getElementById('orderModal').style.display='none'">
-      關閉
-    </button>
+  </div>
+</div>
 
   </div>
 </div>
