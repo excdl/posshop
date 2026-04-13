@@ -906,9 +906,9 @@ let editingField = null;    // 正在編輯的欄位
 let modalType = null;
 let kpTarget = null;
 let orderList = [];
-/* ===== 金額進位規則（一定要最前面） ===== */
+const ENABLE_PRINT = false; // true = 開啟列印 / false = 停用列印
+    /* ===== 金額進位規則（一定要最前面） ===== */
 const MONEY_ROUND_MODE = "round";
-
 function roundMoney(v) {
     v = Number(v) || 0;
     switch (MONEY_ROUND_MODE) {
@@ -1796,13 +1796,19 @@ document.getElementById("posCheckout").onclick = async function () {
         }
 
         // STEP 3：列印
-        const receiptContent = formatReceipt();
-        const printWindow = window.open('', '', 'width=300,height=600');
-        printWindow.document.write(
-            `<pre style="font-family:monospace;font-size:12px;line-height:1.2;">${receiptContent}</pre>`
-        );
-        printWindow.document.write('<script>window.onload=function(){window.print();};<\/script>');
-        printWindow.document.close();
+        if (ENABLE_PRINT) {
+
+    const receiptContent = formatReceipt();
+    const printWindow = window.open('', '', 'width=300,height=600');
+
+    printWindow.document.write(
+        `<pre style="font-family:monospace;font-size:12px;line-height:1.2;">${receiptContent}</pre>`
+    );
+
+    printWindow.document.write('<script>window.onload=function(){window.print();};<\/script>');
+    printWindow.document.close();
+
+}
 
         // STEP 4：清空購物車
         posCart = [];
