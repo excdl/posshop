@@ -729,17 +729,28 @@ button {
     transform:scale(1.1);
 }
 
-#numKeyboard button {
-  padding:20px;
-  font-size:1.5em;
+.key {
+  padding:10px 0;
+  font-size:16px;
   border:none;
-  border-radius:10px;
-  background:#444;
+  border-radius:6px;
+  background:#34495e;
   color:white;
+  cursor:pointer;
 }
-#numKeyboard button:active {
-  background:#666;
+
+.key:active {
+  transform:scale(0.95);
 }
+
+.key.warn {
+  background:#c0392b;
+}
+
+.key.danger {
+  background:#e67e22;
+}
+
 
 </style>
 </head>
