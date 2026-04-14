@@ -729,19 +729,45 @@ button {
     transform:scale(1.1);
 }
 
-#loginKeypad button {
-  flex:1;
-  padding:15px;
-  font-size:18px;
+.proInput{
+  width:100%;
+  padding:18px;
+  margin:12px 0;
+  font-size:22px;
+  border-radius:10px;
   border:none;
-  border-radius:6px;
-  background:#444;
-  color:#fff;
-  cursor:pointer;
+  text-align:center;
+  background:#ecf0f1;
 }
 
-#loginKeypad button:hover {
-  background:#666;
+.grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+}
+
+.grid button{
+  padding:25px;
+  font-size:24px;
+  border:none;
+  border-radius:10px;
+  background:#2c3e50;
+  color:white;
+  transition:0.1s;
+}
+
+.grid button:active{
+  transform:scale(0.92);
+  background:#16a085;
+}
+
+.func{
+  padding:18px;
+  font-size:18px;
+  border:none;
+  border-radius:10px;
+  background:#7f8c8d;
+  color:white;
 }
 
 </style>
@@ -751,13 +777,24 @@ button {
 <body>
 
 <!-- 登入頁面 -->
-<div id="loginPage" style="display:flex;justify-content:center;align-items:center;height:100vh;background:#3498db;">
-  <div style="background:white;padding:40px 30px;border-radius:12px;box-shadow:0 5px 20px rgba(0,0,0,0.2);width:320px;text-align:center;">
-    <h2 style="margin-bottom:20px;color:#2c3e50;">彩鮮 POS 系統 登入</h2>
-    <input id="storeInput" placeholder="門市編號" style="width:100%;padding:10px;margin:10px 0;border-radius:6px;border:1px solid #ccc;font-size:1em;">
-    <input id="passwordInput" placeholder="密碼" type="password" style="width:100%;padding:10px;margin:10px 0;border-radius:6px;border:1px solid #ccc;font-size:1em;">
-    <button id="loginBtn" style="width:100%;padding:12px;margin-top:15px;border:none;border-radius:6px;background:#27ae60;color:white;font-size:1em;cursor:pointer;transition:0.2s;">登入</button>
-    <p id="loginMsg" style="color:red;margin-top:10px;font-size:0.9em;"></p>
+<div id="loginPage" style="
+height:100vh;
+background:linear-gradient(135deg,#1f2a36,#2c3e50);
+display:flex;
+justify-content:center;
+align-items:center;
+color:white;
+">
+
+  <div style="width:420px;text-align:center;">
+
+    <h1 style="margin-bottom:30px;font-size:28px;">彩鮮 POS 系統</h1>
+
+    <input id="storeInput" placeholder="門市編號" readonly class="proInput">
+    <input id="passwordInput" placeholder="輸入4碼密碼" readonly class="proInput">
+
+    <div id="loginMsg" style="height:24px;color:#ff6b6b;margin-top:10px;"></div>
+
   </div>
 </div>
 
@@ -910,34 +947,19 @@ button {
 </div>
     </div>
     </div>
-<!-- ===== 登入用數字鍵盤 ===== -->
-<div id="loginKeypad" style="
-  display:none;
-  position:fixed;
-  bottom:0;
-  left:0;
-  width:100%;
-  background:#222;
-  padding:10px;
-  z-index:9999;
-">
+<!-- 👉 放這裡（body 最底） -->
+<div id="loginKeypad" style="display:none;position:fixed;bottom:0;left:0;width:100%;background:#111;padding:20px;">
+  <div style="max-width:500px;margin:auto;">
+    <div id="keypadGrid" class="grid"></div>
 
-  <div style="display:flex;gap:10px;justify-content:center;">
-    <button onclick="kpPress('1')">1</button>
-    <button onclick="kpPress('2')">2</button>
-    <button onclick="kpPress('3')">3</button>
-    <button onclick="kpPress('4')">4</button>
-    <button onclick="kpPress('5')">5</button>
-    <button onclick="kpPress('6')">6</button>
-    <button onclick="kpPress('7')">7</button>
-    <button onclick="kpPress('8')">8</button>
-    <button onclick="kpPress('9')">9</button>
-    <button onclick="kpClear()">清除</button>
-    <button onclick="kpPress('0')">0</button>
-    <button onclick="kpConfirm()">確認</button>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
+      <button onclick="kpClear()" class="func">清除</button>
+      <button onclick="kpBack()" class="func">← 刪除</button>
+    </div>
   </div>
-
 </div>
+
+</body>
   
 </body>
 
@@ -1961,36 +1983,109 @@ document.addEventListener("fullscreenchange", () => {
   }
 });
 
-let currentInput = null;
+let currentField = null;
+let buffer = "";
 
-// 點擊密碼欄位 → 開啟鍵盤
-document.getElementById("passwordInput").addEventListener("focus", () => {
-  currentInput = document.getElementById("passwordInput");
-  document.getElementById("loginKeypad").style.display = "block";  // 顯示鍵盤
-});
-
-// 點擊門市編號欄位 → 開啟鍵盤（可選）
-document.getElementById("storeInput").addEventListener("focus", () => {
-  currentInput = document.getElementById("storeInput");
-  document.getElementById("loginKeypad").style.display = "block";  // 顯示鍵盤
-});
-
-// 按鍵輸入
-function kpPress(val) {
-  if (!currentInput) return;
-  currentInput.value += val;
+// 👉 音效（簡單 beep）
+function beep(){
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+  const osc = ctx.createOscillator();
+  osc.connect(ctx.destination);
+  osc.start();
+  osc.stop(ctx.currentTime + 0.05);
 }
 
-// 清除
-function kpClear() {
-  if (!currentInput) return;
-  currentInput.value = "";
+// 👉 開鍵盤
+document.getElementById("storeInput").onclick = ()=>openKeypad("store");
+document.getElementById("passwordInput").onclick = ()=>openKeypad("password");
+
+function openKeypad(type){
+  currentField = type;
+  buffer = "";
+  shuffleKeys();
+  document.getElementById("loginKeypad").style.display="block";
 }
 
-// 確認（收起鍵盤）
-function kpConfirm() {
-  document.getElementById("loginKeypad").style.display = "none";
-  currentInput.blur();  // 失去焦點，隱藏鍵盤
+// 👉 亂數鍵盤
+function shuffleKeys(){
+  const nums = ["1","2","3","4","5","6","7","8","9","0"];
+  nums.sort(()=>Math.random()-0.5);
+
+  const grid = document.getElementById("keypadGrid");
+  grid.innerHTML="";
+
+  nums.forEach(n=>{
+    const btn = document.createElement("button");
+    btn.innerText = n;
+    btn.onclick = ()=>{
+      kp(n);
+    };
+    grid.appendChild(btn);
+  });
+}
+
+// 👉 輸入
+function kp(v){
+  beep();
+  buffer += v;
+  updateView();
+
+  // 👉 密碼4碼自動登入
+  if(currentField==="password" && buffer.length===4){
+    submitLogin();
+  }
+}
+
+// 👉 顯示
+function updateView(){
+  if(currentField==="store"){
+    document.getElementById("storeInput").value = buffer;
+  }else{
+    document.getElementById("passwordInput").value = "●".repeat(buffer.length);
+  }
+}
+
+// 👉 刪除
+function kpBack(){
+  buffer = buffer.slice(0,-1);
+  updateView();
+}
+
+// 👉 清除
+function kpClear(){
+  buffer = "";
+  updateView();
+}
+
+// 👉 登入
+function submitLogin(){
+  const store = document.getElementById("storeInput").value;
+  const pwd = buffer;
+
+  if(!store || pwd.length<4){
+    showError("請輸入完整資料");
+    return;
+  }
+
+  document.getElementById("passwordInput").value = pwd;
+  closeKeypad();
+
+  login(); // 👉 用你原本的 login()
+}
+
+// 👉 錯誤效果（震動 + 紅字）
+function showError(msg){
+  document.getElementById("loginMsg").innerText = msg;
+
+  if(navigator.vibrate){
+    navigator.vibrate(200);
+  }
+}
+
+// 👉 關閉
+function closeKeypad(){
+  document.getElementById("loginKeypad").style.display="none";
+  buffer="";
 }
     
 window.addEventListener("afterprint", () => {
