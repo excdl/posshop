@@ -728,16 +728,6 @@ button {
     background:#d70015;
     transform:scale(1.1);
 }
-
-#pwdModal{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:#0008;
-  justify-content:center;
-  align-items:center;
-  z-index:99999;
-}
 </style>
 </head>
 
@@ -749,12 +739,7 @@ button {
   <div style="background:white;padding:40px 30px;border-radius:12px;box-shadow:0 5px 20px rgba(0,0,0,0.2);width:320px;text-align:center;">
     <h2 style="margin-bottom:20px;color:#2c3e50;">彩鮮 POS 系統 登入</h2>
     <input id="storeInput" placeholder="門市編號" style="width:100%;padding:10px;margin:10px 0;border-radius:6px;border:1px solid #ccc;font-size:1em;">
-    <input id="passwordInput"
-       placeholder="密碼"
-       type="password"
-       readonly
-       onclick="openPasswordKeypad()"
-       style="width:100%;padding:10px;margin:10px 0;border-radius:6px;border:1px solid #ccc;font-size:1em;">
+    <input id="passwordInput" placeholder="密碼" type="password" style="width:100%;padding:10px;margin:10px 0;border-radius:6px;border:1px solid #ccc;font-size:1em;">
     <button id="loginBtn" style="width:100%;padding:12px;margin-top:15px;border:none;border-radius:6px;background:#27ae60;color:white;font-size:1em;cursor:pointer;transition:0.2s;">登入</button>
     <p id="loginMsg" style="color:red;margin-top:10px;font-size:0.9em;"></p>
   </div>
@@ -909,37 +894,7 @@ button {
 </div>
     </div>
     </div>
-
- <div id="pwdModal"
-     style="display:none;position:fixed;inset:0;background:#0008;
-            display:none;justify-content:center;align-items:center;">
-  <div style="background:#222;padding:20px;border-radius:10px;">
-    
-    <input id="pwdDisplay" readonly style="width:100%;padding:10px;font-size:20px;text-align:center;margin-bottom:10px;">
-
-    <div style="display:grid;grid-template-columns:repeat(3,80px);gap:10px;">
-      <button onclick="pwdInput('1')">1</button>
-      <button onclick="pwdInput('2')">2</button>
-      <button onclick="pwdInput('3')">3</button>
-
-      <button onclick="pwdInput('4')">4</button>
-      <button onclick="pwdInput('5')">5</button>
-      <button onclick="pwdInput('6')">6</button>
-
-      <button onclick="pwdInput('7')">7</button>
-      <button onclick="pwdInput('8')">8</button>
-      <button onclick="pwdInput('9')">9</button>
-
-      <button onclick="pwdBack()">返回</button>
-      <button onclick="pwdInput('0')">0</button>
-      <button onclick="pwdClear()">刪除</button>
-    </div>
-
-    <button onclick="pwdConfirm()" style="margin-top:10px;width:100%;">確認</button>
-  </div>
-</div>
-  
-  </body>
+</body>
 
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbwn9Erku9iTY695IWlVe1JrpBiUYqao954qudsR7KQESgOSxITKodP88wE-KOei-tbeOA/exec";
@@ -982,35 +937,7 @@ function updateLoginTime() {
   const now = new Date();
   document.getElementById("loginTime").innerText = `登入時間：${now.toLocaleString("zh-TW",{hour12:false})}`;
 }
-let realPassword = ""; // ⭐ 真實密碼
 
-function openPasswordKeypad() {
-  realPassword = "";
-  document.getElementById("pwdDisplay").value = "";
-  document.getElementById("pwdModal").style.display = "flex";
-}
-
-function pwdInput(num) {
-  realPassword += num;
-  document.getElementById("pwdDisplay").value = "●".repeat(realPassword.length);
-}
-
-function pwdBack() {
-  document.getElementById("pwdModal").style.display = "none";
-}
-
-function pwdClear() {
-  realPassword = realPassword.slice(0, -1);
-  document.getElementById("pwdDisplay").value = "●".repeat(realPassword.length);
-}
-
-function pwdConfirm() {
-  document.getElementById("passwordInput").value = realPassword;
-  document.getElementById("pwdModal").style.display = "none";
-}
-function openPasswordKeypad() {
-  alert("有進來");
-}
 async function login() {
   const loginBtn = document.getElementById("loginBtn");
   loginBtn.innerText = "登入中...";
@@ -2004,6 +1931,7 @@ window.addEventListener("afterprint", () => {
 
 </body>
 </html>
+
 
 
 
