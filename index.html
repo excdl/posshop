@@ -728,28 +728,6 @@ button {
     background:#d70015;
     transform:scale(1.1);
 }
-
-.key {
-  padding:10px 0;
-  font-size:16px;
-  border:none;
-  border-radius:6px;
-  background:#34495e;
-  color:white;
-  cursor:pointer;
-}
-
-.key:active {
-  transform:scale(0.95);
-}
-
-.key.warn {
-  background:#c0392b;
-}
-
-.key.danger {
-  background:#e67e22;
-}
 </style>
 </head>
 
@@ -759,69 +737,11 @@ button {
 <!-- 登入頁面 -->
 <div id="loginPage" style="display:flex;justify-content:center;align-items:center;height:100vh;background:#3498db;">
   <div style="background:white;padding:40px 30px;border-radius:12px;box-shadow:0 5px 20px rgba(0,0,0,0.2);width:320px;text-align:center;">
-    
     <h2 style="margin-bottom:20px;color:#2c3e50;">彩鮮 POS 系統 登入</h2>
-    
-    <input id="storeInput" placeholder="門市編號"
-      style="width:100%;padding:10px;margin:10px 0;border-radius:6px;border:1px solid #ccc;font-size:1em;">
-
-    <input id="passwordInput" placeholder="密碼" type="password" readonly
-      onclick="showKeyboard()"
-      style="width:100%;padding:10px;margin:10px 0;border-radius:6px;border:1px solid #ccc;font-size:1em;">
-
-    <button id="loginBtn"
-      style="width:100%;padding:12px;margin-top:15px;border:none;border-radius:6px;background:#27ae60;color:white;font-size:1em;">
-      登入
-    </button>
-
-  </div>
-</div>
-
-<!-- 🔢 自訂數字鍵盤（新樣式） -->
-<div id="numKeyboard" style="
-  display:none;
-  position:fixed;
-  bottom:10px;
-  left:50%;
-  transform:translateX(-50%);
-  width:260px;
-  background:#2c3e50;
-  padding:10px;
-  border-radius:12px;
-  box-shadow:0 -3px 12px rgba(0,0,0,0.3);
-">
-
-  <div style="
-    display:grid;
-    grid-template-columns:repeat(4, 1fr);
-    gap:6px;
-  ">
-
-    <!-- 1~9 -->
-    <button class="key" onclick="press(1)">1</button>
-    <button class="key" onclick="press(2)">2</button>
-    <button class="key" onclick="press(3)">3</button>
-    <button class="key" onclick="press(4)">4</button>
-
-    <button class="key" onclick="press(5)">5</button>
-    <button class="key" onclick="press(6)">6</button>
-    <button class="key" onclick="press(7)">7</button>
-    <button class="key" onclick="press(8)">8</button>
-
-    <button class="key" onclick="press(9)">9</button>
-    <button class="key" onclick="press(0)">0</button>
-    <button class="key warn" onclick="backspace()">⌫</button>
-    <button class="key danger" onclick="clearInput()">清除</button>
-
-    <!-- 確認 -->
-    <button class="key confirm" onclick="confirmInput()" style="
-      grid-column: span 4;
-      background:#27ae60;
-      font-weight:bold;
-    ">
-      確認
-    </button>
-
+    <input id="storeInput" placeholder="門市編號" style="width:100%;padding:10px;margin:10px 0;border-radius:6px;border:1px solid #ccc;font-size:1em;">
+    <input id="passwordInput" placeholder="密碼" type="password" style="width:100%;padding:10px;margin:10px 0;border-radius:6px;border:1px solid #ccc;font-size:1em;">
+    <button id="loginBtn" style="width:100%;padding:12px;margin-top:15px;border:none;border-radius:6px;background:#27ae60;color:white;font-size:1em;cursor:pointer;transition:0.2s;">登入</button>
+    <p id="loginMsg" style="color:red;margin-top:10px;font-size:0.9em;"></p>
   </div>
 </div>
 
@@ -974,47 +894,7 @@ button {
 </div>
     </div>
     </div>
-
-
-<script>
-function showKeyboard() {
-  document.getElementById("numKeyboard").style.display = "block";
-}
-
-function hideKeyboard() {
-  document.getElementById("numKeyboard").style.display = "none";
-}
-
-function press(num) {
-  const input = document.getElementById("passwordInput");
-  input.value += num;
-}
-
-function clearInput() {
-  document.getElementById("passwordInput").value = "";
-}
-
-function backspace() {
-  const input = document.getElementById("passwordInput");
-  input.value = input.value.slice(0, -1);
-}
-
-function confirmInput() {
-  hideKeyboard();
-}
-
-// 點外面自動關閉（POS常用）
-document.addEventListener("click", function(e) {
-  const kb = document.getElementById("numKeyboard");
-  const input = document.getElementById("passwordInput");
-
-  if (!kb.contains(e.target) && e.target !== input) {
-    hideKeyboard();
-  }
-});
-</script>
-  
-  </body>
+</body>
 
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbwn9Erku9iTY695IWlVe1JrpBiUYqao954qudsR7KQESgOSxITKodP88wE-KOei-tbeOA/exec";
@@ -1131,7 +1011,8 @@ async function logout() {
         // 隱藏 POS 主頁，顯示登入頁
         document.getElementById("posApp").style.display = "none";
         document.getElementById("loginPage").style.display = "flex";
-
+        // ⭐ 退出全螢幕（加這行）
+        exitFullscreen();
         // 清空登入欄位
         document.getElementById("storeInput").value = "";
         document.getElementById("passwordInput").value = "";
@@ -1166,6 +1047,17 @@ function enterFullscreen() {
     elem.webkitRequestFullscreen();
   } else if (elem.msRequestFullscreen) { // IE11
     elem.msRequestFullscreen();
+  }
+}
+
+/* ⭐ 放這裡最清楚（建議） */
+function exitFullscreen() {
+  if (document.exitFullscreen) {
+    document.exitFullscreen();
+  } else if (document.webkitExitFullscreen) {
+    document.webkitExitFullscreen();
+  } else if (document.msExitFullscreen) {
+    document.msExitFullscreen();
   }
 }
 // ===== 取得商品 =====
@@ -2013,7 +1905,16 @@ async function restoreOrder(rowIndex) {
     await loadTodayOrders();
     updateTodaySales();
 }
-
+document.addEventListener("fullscreenchange", () => {
+  if (!document.fullscreenElement) {
+    // 只有登入狀態才自動回全螢幕
+    if (POS_STORE) {
+      setTimeout(() => {
+        enterFullscreen();
+      }, 300);
+    }
+  }
+});
 window.addEventListener("afterprint", () => {
   setTimeout(() => {
     const success = document.fullscreenElement;
@@ -2030,6 +1931,7 @@ window.addEventListener("afterprint", () => {
 
 </body>
 </html>
+
 
 
 
