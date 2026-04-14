@@ -765,47 +765,52 @@ button {
   </div>
 </div>
 
-<!-- 🔢 自訂數字鍵盤 -->
-<div id="numKeyboard" style="
+<!-- 自訂鍵盤 -->
+<div id="keyboard" style="
   display:none;
   position:fixed;
-  bottom:0;
-  left:0;
-  width:100%;
-  background:#222;
+  bottom:10px;
+  left:50%;
+  transform:translateX(-50%);
+  width:260px;
+  background:#2c3e50;
   padding:10px;
-  box-shadow:0 -5px 15px rgba(0,0,0,0.3);
+  border-radius:12px;
+  box-shadow:0 -3px 12px rgba(0,0,0,0.3);
 ">
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
-    <!-- 數字鍵 -->
-    <button onclick="press(1)">1</button>
-    <button onclick="press(2)">2</button>
-    <button onclick="press(3)">3</button>
-    <button onclick="press(4)">4</button>
-    <button onclick="press(5)">5</button>
-    <button onclick="press(6)">6</button>
-    <button onclick="press(7)">7</button>
-    <button onclick="press(8)">8</button>
-    <button onclick="press(9)">9</button>
 
-    <!-- 功能鍵 -->
-    <button onclick="clearInput()">C</button>
-    <button onclick="press(0)">0</button>
-    <button onclick="backspace()">←</button>
-  </div>
-
-  <button onclick="confirmInput()" style="
-    width:100%;
-    margin-top:10px;
-    padding:15px;
-    font-size:1.2em;
-    background:#27ae60;
-    color:white;
-    border:none;
-    border-radius:8px;
+  <div style="
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:6px;
   ">
-    確認
-  </button>
+
+    <!-- 1~9 + 0 -->
+    <button class="key" onclick="press(1)">1</button>
+    <button class="key" onclick="press(2)">2</button>
+    <button class="key" onclick="press(3)">3</button>
+    <button class="key" onclick="press(4)">4</button>
+
+    <button class="key" onclick="press(5)">5</button>
+    <button class="key" onclick="press(6)">6</button>
+    <button class="key" onclick="press(7)">7</button>
+    <button class="key" onclick="press(8)">8</button>
+
+    <button class="key" onclick="press(9)">9</button>
+    <button class="key" onclick="press(0)">0</button>
+    <button class="key warn" onclick="backspace()">⌫</button>
+    <button class="key danger" onclick="clearInput()">清除</button>
+
+    <!-- 確認（獨立一排會更好按） -->
+    <button class="key confirm" onclick="confirmInput()" style="
+      grid-column: span 4;
+      background:#27ae60;
+      font-weight:bold;
+    ">
+      確認
+    </button>
+
+  </div>
 </div>
 
 <!-- POS 主頁 -->
