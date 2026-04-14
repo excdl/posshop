@@ -728,6 +728,19 @@ button {
     background:#d70015;
     transform:scale(1.1);
 }
+
+#numKeyboard button {
+  padding:20px;
+  font-size:1.5em;
+  border:none;
+  border-radius:10px;
+  background:#444;
+  color:white;
+}
+#numKeyboard button:active {
+  background:#666;
+}
+
 </style>
 </head>
 
@@ -738,11 +751,61 @@ button {
 <div id="loginPage" style="display:flex;justify-content:center;align-items:center;height:100vh;background:#3498db;">
   <div style="background:white;padding:40px 30px;border-radius:12px;box-shadow:0 5px 20px rgba(0,0,0,0.2);width:320px;text-align:center;">
     <h2 style="margin-bottom:20px;color:#2c3e50;">彩鮮 POS 系統 登入</h2>
-    <input id="storeInput" placeholder="門市編號" style="width:100%;padding:10px;margin:10px 0;border-radius:6px;border:1px solid #ccc;font-size:1em;">
-    <input id="passwordInput" placeholder="密碼" type="password" style="width:100%;padding:10px;margin:10px 0;border-radius:6px;border:1px solid #ccc;font-size:1em;">
-    <button id="loginBtn" style="width:100%;padding:12px;margin-top:15px;border:none;border-radius:6px;background:#27ae60;color:white;font-size:1em;cursor:pointer;transition:0.2s;">登入</button>
-    <p id="loginMsg" style="color:red;margin-top:10px;font-size:0.9em;"></p>
+    
+    <input id="storeInput" placeholder="門市編號"
+      style="width:100%;padding:10px;margin:10px 0;border-radius:6px;border:1px solid #ccc;font-size:1em;">
+
+    <input id="passwordInput" placeholder="密碼" type="password" readonly
+      style="width:100%;padding:10px;margin:10px 0;border-radius:6px;border:1px solid #ccc;font-size:1em;">
+
+    <button id="loginBtn"
+      style="width:100%;padding:12px;margin-top:15px;border:none;border-radius:6px;background:#27ae60;color:white;font-size:1em;">
+      登入
+    </button>
   </div>
+</div>
+
+<!-- 🔢 自訂數字鍵盤 -->
+<div id="numKeyboard" style="
+  display:none;
+  position:fixed;
+  bottom:0;
+  left:0;
+  width:100%;
+  background:#222;
+  padding:10px;
+  box-shadow:0 -5px 15px rgba(0,0,0,0.3);
+">
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+    <!-- 數字鍵 -->
+    <button onclick="press(1)">1</button>
+    <button onclick="press(2)">2</button>
+    <button onclick="press(3)">3</button>
+    <button onclick="press(4)">4</button>
+    <button onclick="press(5)">5</button>
+    <button onclick="press(6)">6</button>
+    <button onclick="press(7)">7</button>
+    <button onclick="press(8)">8</button>
+    <button onclick="press(9)">9</button>
+
+    <!-- 功能鍵 -->
+    <button onclick="clearInput()">C</button>
+    <button onclick="press(0)">0</button>
+    <button onclick="backspace()">←</button>
+  </div>
+
+  <button onclick="confirmInput()" style="
+    width:100%;
+    margin-top:10px;
+    padding:15px;
+    font-size:1.2em;
+    background:#27ae60;
+    color:white;
+    border:none;
+    border-radius:8px;
+  ">
+    確認
+  </button>
 </div>
 
 <!-- POS 主頁 -->
@@ -894,7 +957,39 @@ button {
 </div>
     </div>
     </div>
-</body>
+
+
+<script>
+const passwordInput = document.getElementById("passwordInput");
+const keyboard = document.getElementById("numKeyboard");
+
+// 點擊輸入框 → 顯示鍵盤
+passwordInput.addEventListener("click", () => {
+  keyboard.style.display = "block";
+});
+
+// 按數字
+function press(num) {
+  passwordInput.value += num;
+}
+
+// 刪除
+function backspace() {
+  passwordInput.value = passwordInput.value.slice(0, -1);
+}
+
+// 清空
+function clearInput() {
+  passwordInput.value = "";
+}
+
+// 確認 → 收起鍵盤
+function confirmInput() {
+  keyboard.style.display = "none";
+}
+</script>
+  
+  </body>
 
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbwn9Erku9iTY695IWlVe1JrpBiUYqao954qudsR7KQESgOSxITKodP88wE-KOei-tbeOA/exec";
@@ -1011,8 +1106,7 @@ async function logout() {
         // 隱藏 POS 主頁，顯示登入頁
         document.getElementById("posApp").style.display = "none";
         document.getElementById("loginPage").style.display = "flex";
-        // ⭐ 退出全螢幕（加這行）
-        exitFullscreen();
+
         // 清空登入欄位
         document.getElementById("storeInput").value = "";
         document.getElementById("passwordInput").value = "";
@@ -1047,17 +1141,6 @@ function enterFullscreen() {
     elem.webkitRequestFullscreen();
   } else if (elem.msRequestFullscreen) { // IE11
     elem.msRequestFullscreen();
-  }
-}
-
-/* ⭐ 放這裡最清楚（建議） */
-function exitFullscreen() {
-  if (document.exitFullscreen) {
-    document.exitFullscreen();
-  } else if (document.webkitExitFullscreen) {
-    document.webkitExitFullscreen();
-  } else if (document.msExitFullscreen) {
-    document.msExitFullscreen();
   }
 }
 // ===== 取得商品 =====
@@ -1905,16 +1988,7 @@ async function restoreOrder(rowIndex) {
     await loadTodayOrders();
     updateTodaySales();
 }
-document.addEventListener("fullscreenchange", () => {
-  if (!document.fullscreenElement) {
-    // 只有登入狀態才自動回全螢幕
-    if (POS_STORE) {
-      setTimeout(() => {
-        enterFullscreen();
-      }, 300);
-    }
-  }
-});
+
 window.addEventListener("afterprint", () => {
   setTimeout(() => {
     const success = document.fullscreenElement;
@@ -1931,6 +2005,916 @@ window.addEventListener("afterprint", () => {
 
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
