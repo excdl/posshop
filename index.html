@@ -8,16 +8,24 @@
 * { box-sizing: border-box; }
 body { margin: 0; font-family: "Microsoft JhengHei", Arial, sans-serif; background: #f1f5f9; color: #1e293b; }
 button { cursor: pointer; outline: none; transition: 0.15s; font-family: inherit; }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
 input, select { font-family: inherit; }
 
 /* 頂部導覽列 */
-#topNav { height: 48px; background: #0f172a; color: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 12px; gap: 10px; flex-shrink: 0; }
-.nav-left { display: flex; align-items: center; gap: 12px; font-size: 13px; white-space: nowrap; }
+#topNav { height: 50px; background: #0f172a; color: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 12px; gap: 10px; flex-shrink: 0; }
+.nav-left { display: flex; align-items: center; gap: 10px; font-size: 13px; white-space: nowrap; }
+.role-pill { padding: 2px 8px; border-radius: 99px; font-size: 11px; font-weight: bold; }
+.role-pill.admin { background: #16a34a; color: #fff; }
+.role-pill.cashier { background: #f59e0b; color: #0f172a; }
 .nav-tabs { display: flex; gap: 6px; overflow-x: auto; }
-.nav-tab { background: #1e293b; color: #cbd5e1; border: none; padding: 7px 14px; border-radius: 8px; font-size: 14px; font-weight: bold; white-space: nowrap; }
+.nav-tab { background: #1e293b; color: #cbd5e1; border: none; padding: 7px 12px; border-radius: 8px; font-size: 13px; font-weight: bold; white-space: nowrap; }
 .nav-tab.active { background: #f1c40f; color: #0f172a; }
-.nav-tab:hover:not(.active) { background: #334155; color: #fff; }
-#logoutBtn { background: #d35400; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: bold; }
+.nav-tab:hover:not(.active):not(.locked) { background: #334155; color: #fff; }
+.nav-tab.locked { background: #0f172a; color: #64748b; border: 1px dashed #334155; cursor: not-allowed; }
+.nav-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+#refreshBtn { background: #0284c7; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: bold; white-space: nowrap; }
+#refreshBtn:hover:not(:disabled) { background: #0369a1; }
+#logoutBtn { background: #d35400; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: bold; white-space: nowrap; }
 #logoutBtn.active { opacity: 0.7; }
 
 /* 主容器 */
@@ -69,7 +77,7 @@ input, select { font-family: inherit; }
 #cashPanel { margin-top: 6px; font-size: 14px; }
 #cashInput { width: 100%; padding: 7px; margin: 4px 0; border: 2px solid #cbd5e1; border-radius: 6px; text-align: right; font-size: 16px; cursor: pointer; }
 #posCheckout { margin-top: 8px; padding: 12px; font-size: 1.25em; font-weight: bold; background: #16a34a; color: #fff; border: none; border-radius: 8px; }
-#posCheckout:hover { background: #15803d; }
+#posCheckout:hover:not(:disabled) { background: #15803d; }
 #shiftDailyContainer { display: flex; gap: 6px; margin-top: 10px; }
 #shiftDailyContainer button { flex: 1; border: none; border-radius: 6px; padding: 9px 4px; color: #fff; font-weight: bold; font-size: 13px; }
 #todaySalesDisplay { margin-top: 8px; padding: 10px 12px; border-radius: 8px; background: #e2e8f0; border-left: 5px solid #2563eb; font-size: 13px; line-height: 1.55em; white-space: pre-line; }
@@ -102,10 +110,15 @@ table.erp-tbl tr:nth-child(even) { background: #f8fafc; }
 .tag-ok { background: #dcfce7; color: #166534; }
 .tag-low { background: #fef3c7; color: #92400e; }
 .tag-bad { background: #fee2e2; color: #b91c1c; }
+.tag-info { background: #dbeafe; color: #1d4ed8; }
+
+.perm-box { border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px 12px; background: #f8fafc; margin-top: 8px; }
+.perm-checks { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 8px; }
+.perm-checks label { display: flex; align-items: center; gap: 5px; font-size: 13px; font-weight: bold; cursor: pointer; }
 
 /* Modals & Numpads */
 .modal-bg { display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.6); justify-content: center; align-items: center; z-index: 9999; padding: 14px; }
-.modal-box { background: #fff; border-radius: 12px; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; padding: 20px; position: relative; }
+.modal-box { background: #fff; border-radius: 12px; width: 100%; max-width: 580px; max-height: 90vh; overflow-y: auto; padding: 20px; position: relative; }
 .closeModal { position: absolute; top: 10px; right: 12px; width: 30px; height: 30px; line-height: 30px; text-align: center; border-radius: 50%; background: #e2e8f0; cursor: pointer; font-weight: bold; font-size: 18px; border: none; }
 .closeModal:hover { background: #ef4444; color: #fff; }
 .keypadBox, #editModal .modalContent { background: #1e293b; padding: 18px; width: 340px; border-radius: 14px; text-align: center; position: relative; color: #fff; }
@@ -132,12 +145,13 @@ table.erp-tbl tr:nth-child(even) { background: #f8fafc; }
 
 <!-- 登入頁 -->
 <div id="loginPage" style="display:flex;justify-content:center;align-items:center;height:100vh;background:#2563eb;">
-  <div style="background:#fff;padding:36px 28px;border-radius:14px;box-shadow:0 10px 25px rgba(0,0,0,0.25);width:330px;text-align:center;">
-    <h2 style="margin:0 0 18px;color:#0f172a;">彩鮮 POS 進銷存登入</h2>
-    <input id="storeInput" placeholder="門市編號" style="width:100%;padding:11px;margin:8px 0;border-radius:8px;border:1px solid #cbd5e1;font-size:15px;">
-    <input id="passwordInput" placeholder="密碼" type="password" style="width:100%;padding:11px;margin:8px 0;border-radius:8px;border:1px solid #cbd5e1;font-size:15px;" onkeydown="if(event.key==='Enter')login()">
+  <div style="background:#fff;padding:34px 28px;border-radius:14px;box-shadow:0 10px 25px rgba(0,0,0,0.25);width:345px;text-align:center;">
+    <h2 style="margin:0 0 16px;color:#0f172a;">彩鮮 POS 進銷存登入</h2>
+    <input id="storeInput" placeholder="門市編號（例如 001）" style="width:100%;padding:11px;margin:7px 0;border-radius:8px;border:1px solid #cbd5e1;font-size:15px;">
+    <input id="accountInput" placeholder="登入帳號（門市主帳號登入可留空）" style="width:100%;padding:11px;margin:7px 0;border-radius:8px;border:1px solid #cbd5e1;font-size:15px;">
+    <input id="passwordInput" placeholder="密碼" type="password" style="width:100%;padding:11px;margin:7px 0;border-radius:8px;border:1px solid #cbd5e1;font-size:15px;" onkeydown="if(event.key==='Enter')login()">
     <button id="loginBtn" onclick="login()" style="width:100%;padding:12px;margin-top:14px;border:none;border-radius:8px;background:#16a34a;color:#fff;font-size:16px;font-weight:bold;">登入系統</button>
-    <p id="loginMsg" style="color:#dc2626;margin-top:10px;font-size:14px;"></p>
+    <p id="loginMsg" style="color:#dc2626;margin-top:10px;font-size:14px;min-height:20px;"></p>
   </div>
 </div>
 
@@ -146,16 +160,21 @@ table.erp-tbl tr:nth-child(even) { background: #f8fafc; }
   <header id="topNav">
     <div class="nav-left">
       <b id="storeInfo" style="color:#f1c40f;"></b>
+      <span id="roleBadge" class="role-pill admin">後臺管理</span>
       <span id="loginTime" style="color:#94a3b8;font-size:12px;"></span>
     </div>
     <div class="nav-tabs">
-      <button class="nav-tab active" onclick="switchTab('pos', this)">🛒 前台收銀</button>
-      <button class="nav-tab" onclick="switchTab('purchase', this)">📦 進貨入庫</button>
-      <button class="nav-tab" onclick="switchTab('inventory', this)">📊 庫存與盤點</button>
-      <button class="nav-tab" onclick="switchTab('report', this)">💰 成本毛利</button>
-      <button class="nav-tab" onclick="switchTab('master', this)">🏷️ 商品與供應商</button>
+      <button class="nav-tab active" data-tab="pos" onclick="switchTab('pos', this)">🛒 前台收銀</button>
+      <button class="nav-tab" data-tab="purchase" onclick="switchTab('purchase', this)">📦 進貨入庫</button>
+      <button class="nav-tab" data-tab="inventory" onclick="switchTab('inventory', this)">📊 庫存與盤點</button>
+      <button class="nav-tab" data-tab="report" onclick="switchTab('report', this)">💰 成本毛利</button>
+      <button class="nav-tab" data-tab="master" onclick="switchTab('master', this)">🏷️ 商品與供應商</button>
+      <button class="nav-tab" data-tab="users" onclick="switchTab('users', this)">🔐 權限設定</button>
     </div>
-    <button id="logoutBtn" onclick="logout()">登出</button>
+    <div class="nav-right">
+      <button id="refreshBtn" onclick="refreshAllData()" title="重新同步商品、庫存、營業額與最新權限（不需重新登入）">🔄 更新資料</button>
+      <button id="logoutBtn" onclick="logout()">登出</button>
+    </div>
   </header>
 
   <!-- 1️⃣ 前台收銀 Tab -->
@@ -223,7 +242,7 @@ table.erp-tbl tr:nth-child(even) { background: #f8fafc; }
       </div>
       <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
         <input type="text" id="purSearchInput" placeholder="📷 掃條碼或輸入商品名稱/編號，按 Enter 加入進貨明細..." style="flex:1;min-width:240px;padding:9px;border:2px solid #2563eb;border-radius:8px;font-size:14px;" list="dlAllProducts" onkeydown="if(event.key==='Enter'){event.preventDefault();addPurProductFromInput();}">
-        <button class="btn-pri" onclick="addPurProductFromInput()">＋ 加入進貨明細</button>
+        <button class="btn-pri" data-perm="create" onclick="addPurProductFromInput()">＋ 加入進貨明細</button>
         <button class="btn-scan" onclick="openCameraScanner('purchase')">📷 相機掃碼</button>
       </div>
       <datalist id="dlAllProducts"></datalist>
@@ -235,7 +254,7 @@ table.erp-tbl tr:nth-child(even) { background: #f8fafc; }
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;">
         <div style="font-size:16px;font-weight:bold;">預估總進貨成本：<span id="purTotalCost" style="color:#dc2626;">0</span> 元</div>
-        <button class="btn-suc" id="submitPurBtn" onclick="submitPurchaseOrder()">💾 確認進貨並更新庫存與成本</button>
+        <button class="btn-suc" id="submitPurBtn" data-perm="create" onclick="submitPurchaseOrder()">💾 確認進貨並更新庫存與成本</button>
       </div>
     </div>
     <div class="erp-card">
@@ -298,14 +317,37 @@ table.erp-tbl tr:nth-child(even) { background: #f8fafc; }
         <h2>🏷️ 商品主檔（條碼 / 售價 / 安全庫存設定）</h2>
         <div style="display:flex;gap:8px;">
           <input type="text" id="masterProdSearch" placeholder="搜尋商品/條碼..." oninput="renderMasterProducts()" style="padding:7px;border:1px solid #cbd5e1;border-radius:6px;">
-          <button class="btn-pri" onclick="openProductModal()">＋ 新增商品</button>
+          <button class="btn-pri" data-perm="create" onclick="openProductModal()">＋ 新增商品</button>
         </div>
       </div>
-      <div class="table-wrap"><table class="erp-tbl"><thead><tr><th>商品編號/條碼</th><th>商品名稱</th><th>分類</th><th>單位</th><th>售價</th><th>安全庫存</th><th>平均成本</th><th>上架</th><th>操作</th></tr></thead><tbody id="masterProdBody"></tbody></table></div>
+      <div class="table-wrap"><table class="erp-tbl"><thead><tr><th>商品編號/條碼</th><th>商品名稱</th><th>分類</th><th>商品簡介</th><th>單位</th><th>售價</th><th>安全庫存</th><th>平均成本</th><th>上架</th><th>操作</th></tr></thead><tbody id="masterProdBody"></tbody></table></div>
     </div>
     <div class="erp-card">
-      <div class="erp-header"><h2>🚚 供應商管理</h2><button class="btn-pri" onclick="openSupplierModal()">＋ 新增供應商</button></div>
+      <div class="erp-header"><h2>🚚 供應商管理</h2><button class="btn-pri" data-perm="create" onclick="openSupplierModal()">＋ 新增供應商</button></div>
       <div class="table-wrap"><table class="erp-tbl"><thead><tr><th>編號</th><th>供應商名稱</th><th>聯絡人</th><th>電話</th><th>付款條件</th><th>備註</th><th>操作</th></tr></thead><tbody id="masterSupBody"></tbody></table></div>
+    </div>
+  </section>
+
+  <!-- 6️⃣ 登入者權限設定 Tab -->
+  <section id="tab-users" class="tab-page erp-page">
+    <div class="erp-card" style="border-left:5px solid #2563eb;">
+      <div class="erp-header">
+        <h2>🔐 登入者權限設定與帳號管理</h2>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <input type="text" id="userSearch" placeholder="搜尋帳號/姓名..." oninput="renderUsersTable()" style="padding:7px 10px;border:1px solid #cbd5e1;border-radius:6px;">
+          <button class="btn-sec" onclick="loadUsers()">🔄 重新整理</button>
+          <button class="btn-pri" data-perm="create" onclick="openUserModal()">＋ 新增登入者帳號</button>
+        </div>
+      </div>
+      <p style="margin:4px 0 12px;font-size:13px;color:#475569;">
+        權限說明：<b>1. 後臺管理</b>（可進入所有後臺模組，並可分別設定「新增 / 編輯 / 刪除」權限）；<b>2. 僅限收銀</b>（只能使用「前台收銀檯」，其他功能頁籤點選皆不能進入）。
+      </p>
+      <div class="table-wrap">
+        <table class="erp-tbl">
+          <thead><tr><th>門市編號</th><th>登入帳號</th><th>姓名 / 職稱</th><th>權限模式</th><th>細項權限 (新增 / 編輯 / 刪除)</th><th>狀態</th><th>備註</th><th>更新時間</th><th>操作</th></tr></thead>
+          <tbody id="usersTableBody"><tr><td colspan="9" style="text-align:center;color:#94a3b8;padding:20px;">載入帳號資料中...</td></tr></tbody>
+        </table>
+      </div>
     </div>
   </section>
 </div>
@@ -351,7 +393,7 @@ table.erp-tbl tr:nth-child(even) { background: #f8fafc; }
   </div>
 </div>
 
-<!-- 通用 ERP Modal（盤點 / 報廢 / 商品 / 供應商 / 相機掃碼） -->
+<!-- 通用 ERP Modal（盤點 / 報廢 / 商品 / 供應商 / 帳號權限 / 相機掃碼） -->
 <div id="erpModal" class="modal-bg">
   <div class="modal-box">
     <button class="closeModal" onclick="closeErpModal()">×</button>
@@ -361,14 +403,16 @@ table.erp-tbl tr:nth-child(even) { background: #f8fafc; }
 </div>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbw0cQuWznxYzq2GAjmbQTCoHogLo5cQzGv_4nSEaTMM6En5WmW0iUetWNVjhl-s4a5v/exec";
-const ENABLE_PRINT = false;
+const API_URL = "https://script.google.com/macros/s/AKfycbxoCrpQN6hvttlIHlK2ifOIlsJ4bgoYWmgeo32pSXvJEIWRacR-Lckg111cxS_z_f5Q/exec";
+const SESSION_KEY = "cx_pos_session_token";
 
-let POS_STORE = "", STORE_NAME = "";
-let products = [], allProducts = [], suppliers = [], purchases = [], stockLogs = [], lastReportData = null;
+let POS_STORE = "", STORE_NAME = "", SESSION_TOKEN = "";
+let currentUser = { userId: "", account: "", name: "", role: "後臺管理", canCreate: true, canEdit: true, canDelete: true };
+let products = [], allProducts = [], suppliers = [], purchases = [], stockLogs = [], usersList = [], lastReportData = null;
 let categories = [], posCart = [], purCart = [], currentTax = "免稅";
 let editIndex = null, editingField = null, kpTarget = null, orderList = [];
 let camStream = null, camRaf = null, camTarget = "pos";
+let clockTimer = null;
 
 const roundMoney = v => Math.round(Number(v) || 0);
 const roundQty = v => Math.round((Number(v) || 0) * 1000) / 1000;
@@ -380,7 +424,7 @@ const todayIso = () => new Date(Date.now() - new Date().getTimezoneOffset() * 60
 function showToast(msg, bg = "#0f172a") {
   const t = document.getElementById("toast");
   t.innerText = msg; t.style.background = bg; t.style.display = "block";
-  clearTimeout(window.__toastT); window.__toastT = setTimeout(() => t.style.display = "none", 2600);
+  clearTimeout(window.__toastT); window.__toastT = setTimeout(() => t.style.display = "none", 2800);
 }
 
 function playBeep(ok = true) {
@@ -404,30 +448,87 @@ function updateLoginTime() {
   document.getElementById("loginTime").innerText = new Date().toLocaleString("zh-TW", { hour12: false });
 }
 
-async function login() {
+function enterAppWithSession(data) {
+  POS_STORE = data.storeCode;
+  STORE_NAME = data.storeName;
+  SESSION_TOKEN = data.token || SESSION_TOKEN;
+  if (SESSION_TOKEN) localStorage.setItem(SESSION_KEY, SESSION_TOKEN);
+
+  currentUser = data.user || { userId: "", account: "", name: data.storeName, role: "後臺管理", canCreate: true, canEdit: true, canDelete: true };
+
+  document.getElementById("loginPage").style.display = "none";
+  document.getElementById("posApp").style.display = "flex";
+
+  const userDisplay = currentUser.name || currentUser.account || "主帳號";
+  document.getElementById("storeInfo").innerText = `${data.storeName}（${data.storeCode}）｜${userDisplay}`;
+
+  const badge = document.getElementById("roleBadge");
+  badge.innerText = currentUser.role || "後臺管理";
+  badge.className = "role-pill " + (currentUser.role === "僅限收銀" ? "cashier" : "admin");
+
+  updateLoginTime();
+  if (!clockTimer) clockTimer = setInterval(updateLoginTime, 1000);
+
+  applyProductsUpdate(data.products || []);
+  applyRolePermissions();
+  updateTodaySales(false);
+  if (!document.getElementById("purDate").value) document.getElementById("purDate").value = todayIso();
+  if (!document.getElementById("repStart").value) setReportRange("today", false);
+  setTimeout(() => document.getElementById("barcodeInput").focus(), 120);
+}
+
+// 網頁重新整理時自動恢復登入狀態（不需重打密碼）
+window.addEventListener("DOMContentLoaded", async () => {
+  const savedToken = localStorage.getItem(SESSION_KEY);
+  if (!savedToken) return;
+  const msgEl = document.getElementById("loginMsg");
   const btn = document.getElementById("loginBtn");
-  btn.innerText = "登入中..."; btn.disabled = true;
-  const store = document.getElementById("storeInput").value.trim(), pwd = document.getElementById("passwordInput").value.trim();
-  const ip = await getIP();
+  msgEl.style.color = "#2563eb";
+  msgEl.innerText = "🔄 偵測到登入狀態，正在恢復工作畫面...";
+  btn.disabled = true;
   try {
-    const res = await fetch(`${API_URL}?action=login&store=${encodeURIComponent(store)}&pwd=${encodeURIComponent(pwd)}&ip=${encodeURIComponent(ip)}`);
+    const res = await fetch(`${API_URL}?action=refreshSession&token=${encodeURIComponent(savedToken)}`);
     const data = await res.json();
     if (data.status === "success") {
-      POS_STORE = data.storeCode; STORE_NAME = data.storeName;
-      document.getElementById("loginPage").style.display = "none";
-      document.getElementById("posApp").style.display = "flex";
-      document.getElementById("storeInfo").innerText = `${data.storeName}（${data.storeCode}）`;
-      updateLoginTime(); setInterval(updateLoginTime, 1000);
-      applyProductsUpdate(data.products || []);
-      updateTodaySales(false);
-      document.getElementById("purDate").value = todayIso();
-      setReportRange("today", false);
-      setTimeout(() => document.getElementById("barcodeInput").focus(), 120);
+      msgEl.innerText = "";
+      msgEl.style.color = "#dc2626";
+      enterAppWithSession(data);
     } else {
-      document.getElementById("loginMsg").innerText = data.message || "登入失敗";
+      localStorage.removeItem(SESSION_KEY);
+      msgEl.style.color = "#dc2626";
+      msgEl.innerText = data.message || "";
     }
   } catch (e) {
-    document.getElementById("loginMsg").innerText = "連線失敗：" + e.message;
+    msgEl.style.color = "#dc2626";
+    msgEl.innerText = "";
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+async function login() {
+  const btn = document.getElementById("loginBtn");
+  const msgEl = document.getElementById("loginMsg");
+  msgEl.style.color = "#dc2626";
+  msgEl.innerText = "";
+  btn.innerText = "登入中..."; btn.disabled = true;
+
+  const store = document.getElementById("storeInput").value.trim();
+  const account = document.getElementById("accountInput").value.trim();
+  const pwd = document.getElementById("passwordInput").value.trim();
+  const ip = await getIP();
+
+  try {
+    const url = `${API_URL}?action=login&store=${encodeURIComponent(store)}&account=${encodeURIComponent(account)}&pwd=${encodeURIComponent(pwd)}&ip=${encodeURIComponent(ip)}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data.status === "success") {
+      enterAppWithSession(data);
+    } else {
+      msgEl.innerText = data.message || "登入失敗";
+    }
+  } catch (e) {
+    msgEl.innerText = "連線失敗：" + e.message;
   } finally {
     btn.innerText = "登入系統"; btn.disabled = false;
   }
@@ -436,22 +537,104 @@ async function login() {
 async function logout() {
   const btn = document.getElementById("logoutBtn");
   btn.disabled = true; btn.innerText = "登出中..."; btn.classList.add("active");
-  try { await fetch(`${API_URL}?action=logout&store=${encodeURIComponent(POS_STORE)}`); } catch (e) {}
-  POS_STORE = ""; STORE_NAME = ""; posCart = []; purCart = [];
+  try {
+    await fetch(`${API_URL}?action=logout&store=${encodeURIComponent(POS_STORE)}&token=${encodeURIComponent(SESSION_TOKEN)}`);
+  } catch (e) {}
+  localStorage.removeItem(SESSION_KEY);
+  SESSION_TOKEN = ""; POS_STORE = ""; STORE_NAME = ""; posCart = []; purCart = [];
   document.getElementById("posApp").style.display = "none";
   document.getElementById("loginPage").style.display = "flex";
   document.getElementById("passwordInput").value = "";
+  switchTab("pos", document.querySelector('.nav-tab[data-tab="pos"]'), true);
   btn.disabled = false; btn.innerText = "登出"; btn.classList.remove("active");
 }
 
-function switchTab(tabId, btnEl) {
+// 內建「重新整理更新資料」按鈕（無須登出、保留購物車）
+async function refreshAllData() {
+  if (!SESSION_TOKEN && !POS_STORE) return;
+  const btn = document.getElementById("refreshBtn");
+  const orig = btn.innerText;
+  btn.disabled = true; btn.innerText = "🔄 更新中...";
+  try {
+    const res = await fetch(`${API_URL}?action=refreshSession&token=${encodeURIComponent(SESSION_TOKEN)}`);
+    const data = await res.json();
+    if (data.status !== "success") {
+      showToast("⚠️ 登入狀態已變更，請重新登入", "#dc2626");
+      await logout();
+      return;
+    }
+
+    currentUser = data.user || currentUser;
+    const userDisplay = currentUser.name || currentUser.account || "主帳號";
+    document.getElementById("storeInfo").innerText = `${data.storeName}（${data.storeCode}）｜${userDisplay}`;
+    const badge = document.getElementById("roleBadge");
+    badge.innerText = currentUser.role || "後臺管理";
+    badge.className = "role-pill " + (currentUser.role === "僅限收銀" ? "cashier" : "admin");
+
+    applyProductsUpdate(data.products || []);
+    applyRolePermissions();
+    await updateTodaySales(false);
+
+    const activeTab = document.querySelector(".nav-tab.active")?.dataset.tab || "pos";
+    if (currentUser.role === "僅限收銀" && activeTab !== "pos") {
+      switchTab("pos", document.querySelector('.nav-tab[data-tab="pos"]'), true);
+      showToast("⚠️ 您的權限已調整為「僅限收銀」，已切回前台收銀", "#d97706");
+    } else {
+      if (activeTab === "purchase" || activeTab === "inventory" || activeTab === "master") await loadInventoryData();
+      if (activeTab === "report") await loadProfitReport();
+      if (activeTab === "users") await loadUsers();
+      showToast("✅ 商品、庫存、營業額與權限已更新", "#16a34a");
+    }
+  } catch (e) {
+    showToast("更新失敗：" + e.message, "#dc2626");
+  } finally {
+    btn.disabled = false; btn.innerText = orig;
+  }
+}
+
+function applyRolePermissions() {
+  const isCashierOnly = currentUser.role === "僅限收銀";
+  document.querySelectorAll(".nav-tab").forEach(btn => {
+    const tab = btn.dataset.tab;
+    if (tab !== "pos") {
+      btn.classList.toggle("locked", isCashierOnly);
+      btn.title = isCashierOnly ? "⛔ 僅限使用收銀檯，其他功能無法進入" : "";
+    }
+  });
+
+  document.querySelectorAll('[data-perm="create"]').forEach(el => {
+    el.style.display = (!isCashierOnly && currentUser.canCreate) ? "" : "none";
+  });
+  document.querySelectorAll('[data-perm="edit"]').forEach(el => {
+    el.style.display = (!isCashierOnly && currentUser.canEdit) ? "" : "none";
+  });
+  document.querySelectorAll('[data-perm="delete"]').forEach(el => {
+    el.style.display = (!isCashierOnly && currentUser.canDelete) ? "" : "none";
+  });
+
+  if (isCashierOnly) {
+    const activeTab = document.querySelector(".nav-tab.active")?.dataset.tab;
+    if (activeTab && activeTab !== "pos") {
+      switchTab("pos", document.querySelector('.nav-tab[data-tab="pos"]'), true);
+    }
+  }
+}
+
+function switchTab(tabId, btnEl, force = false) {
+  if (!force && currentUser && currentUser.role === "僅限收銀" && tabId !== "pos") {
+    playBeep(false);
+    showToast("⛔ 權限不足：目前登入僅限使用收銀檯，其他點選都不能進入！", "#dc2626");
+    return;
+  }
   document.querySelectorAll(".nav-tab").forEach(b => b.classList.remove("active"));
   if (btnEl) btnEl.classList.add("active");
   document.querySelectorAll(".tab-page").forEach(p => p.classList.remove("active"));
   document.getElementById("tab-" + tabId).classList.add("active");
+
   if (tabId === "pos") setTimeout(() => document.getElementById("barcodeInput").focus(), 80);
   if (tabId === "purchase" || tabId === "inventory" || tabId === "master") loadInventoryData();
   if (tabId === "report") loadProfitReport();
+  if (tabId === "users") loadUsers();
 }
 
 function applyProductsUpdate(newList) {
@@ -506,13 +689,14 @@ function renderProducts(category = null, search = "") {
     const badgeCls = stock <= 0 ? "out" : (stock <= safety ? "low" : "");
     const card = document.createElement("div");
     card.className = "product-card";
+    if (p["商品簡介"]) card.title = p["商品簡介"];
     card.innerHTML = `<img src="${esc(p["商品照片"])}" onerror="this.style.opacity=0.3"><h4>${esc(p["商品名稱"])}</h4><p class="p-price">${p["售價"]}元 / ${esc(p["單位"])}</p><span class="stock-badge ${badgeCls}">庫存 ${stock} ${esc(u)}</span>`;
     card.onclick = () => addPOSItem(p, 1);
     box.appendChild(card);
   });
 }
 
-// ===== 📷 條碼掃描引擎（支援 實體掃碼槍 / 手動輸入 / 數量*條碼 / 相機掃碼）=====
+// ===== 📷 條碼掃描引擎 =====
 function findProductByBarcode(code, pool = products) {
   const c = String(code || "").trim().toLowerCase();
   if (!c) return null;
@@ -554,7 +738,6 @@ document.getElementById("barcodeInput").addEventListener("keydown", e => {
   if (e.key === "Enter") { e.preventDefault(); handleBarcodeFromBox(); }
 });
 
-// 全域實體條碼槍監聽（不須游標對焦在輸入框也能直接掃描）
 let scanBuf = "", lastKeyTime = 0;
 document.addEventListener("keydown", e => {
   if (!POS_STORE) return;
@@ -580,7 +763,6 @@ document.addEventListener("keydown", e => {
   }
 });
 
-// 相機掃碼（支援 Chrome/Edge/Android BarcodeDetector）
 async function openCameraScanner(target) {
   camTarget = target;
   if (!("BarcodeDetector" in window)) {
@@ -696,7 +878,6 @@ document.querySelectorAll("#paymentButtons .payBtn").forEach(btn => {
 document.getElementById("discount").onclick = () => openPOSKeypad("discount", document.getElementById("discount").value);
 document.getElementById("cashInput").onclick = () => openPOSKeypad("cash", document.getElementById("cashInput").value);
 
-// 小鍵盤 & 優惠
 function openEditModal(index, field) {
   editIndex = index; editingField = field;
   document.getElementById("promoButtons").style.display = "none";
@@ -748,7 +929,6 @@ function kpConfirm() {
   closeModal();
 }
 
-// 送出結帳
 document.getElementById("posCheckout").onclick = async function () {
   if (!posCart.length) return alert("購物車是空的");
   const btn = this; btn.disabled = true; btn.innerText = "結帳寫入中...";
@@ -757,6 +937,7 @@ document.getElementById("posCheckout").onclick = async function () {
   const fmtT = d => `${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}:${String(d.getSeconds()).padStart(2,"0")}`;
 
   const payload = {
+    token: SESSION_TOKEN,
     orderDate: fmtD(now), orderTime: fmtT(now), checkoutDateTime: fmtD(now) + " " + fmtT(now),
     storeName: STORE_NAME, storeCode: POS_STORE, taxStatus: currentTax,
     totalAmount: parseNumber(document.getElementById("posTotal").innerText),
@@ -771,7 +952,7 @@ document.getElementById("posCheckout").onclick = async function () {
     })
   };
   try {
-    const res = await fetch(`${API_URL}?action=checkout`, { method: "POST", body: JSON.stringify(payload) });
+    const res = await fetch(`${API_URL}?action=checkout&token=${encodeURIComponent(SESSION_TOKEN)}`, { method: "POST", body: JSON.stringify(payload) });
     const data = await res.json();
     if (data.status !== "success") throw new Error(data.message);
     if (data.products) applyProductsUpdate(data.products);
@@ -785,10 +966,13 @@ document.getElementById("posCheckout").onclick = async function () {
 async function updateTodaySales(showAlert = false) {
   if (!POS_STORE) return;
   try {
-    const res = await fetch(`${API_URL}?action=todaySales&storeCode=${encodeURIComponent(POS_STORE)}`);
+    const res = await fetch(`${API_URL}?action=todaySales&storeCode=${encodeURIComponent(POS_STORE)}&token=${encodeURIComponent(SESSION_TOKEN)}`);
     const d = await res.json();
     if (d.status === "success") {
-      const txt = `今日實績 (${d.orderCount}筆) | 營業額：${formatNumber(d.total)} 元\n現金：${formatNumber(d.cash)}｜信用卡：${formatNumber(d.credit)}｜LinePay：${formatNumber(d.linePay)}\n銷貨成本：${formatNumber(d.costTotal)} 元｜營業毛利：${formatNumber(d.grossProfit)} 元 (${d.marginRate}%)`;
+      const isCashier = currentUser.role === "僅限收銀";
+      const txt = isCashier
+        ? `今日實績 (${d.orderCount}筆) | 營業額：${formatNumber(d.total)} 元\n現金：${formatNumber(d.cash)}｜信用卡：${formatNumber(d.credit)}｜LinePay：${formatNumber(d.linePay)}`
+        : `今日實績 (${d.orderCount}筆) | 營業額：${formatNumber(d.total)} 元\n現金：${formatNumber(d.cash)}｜信用卡：${formatNumber(d.credit)}｜LinePay：${formatNumber(d.linePay)}\n銷貨成本：${formatNumber(d.costTotal)} 元｜營業毛利：${formatNumber(d.grossProfit)} 元 (${d.marginRate}%)`;
       document.getElementById("todaySalesDisplay").innerText = txt;
       if (showAlert) alert(txt);
     }
@@ -799,9 +983,10 @@ document.getElementById("shiftEndBtn").onclick = async function () {
   if (posCart.length && !confirm("購物車尚有未結帳商品，確定仍要交班？")) return;
   const btn = this; btn.disabled = true; btn.innerText = "結算中...";
   try {
-    const res = await fetch(`${API_URL}?action=shiftEnd`, { method: "POST", body: JSON.stringify({ storeCode: POS_STORE, storeName: STORE_NAME }) });
+    const res = await fetch(`${API_URL}?action=shiftEnd&token=${encodeURIComponent(SESSION_TOKEN)}`, { method: "POST", body: JSON.stringify({ token: SESSION_TOKEN, storeCode: POS_STORE, storeName: STORE_NAME }) });
     const d = await res.json();
-    alert(`交班成功！\n營業額：${formatNumber(d.total)} 元（現金 ${formatNumber(d.cash)} / 刷卡 ${formatNumber(d.credit)} / LinePay ${formatNumber(d.linePay)}）\n銷貨成本：${formatNumber(d.totalCost)} 元\n本班毛利：${formatNumber(d.grossProfit)} 元`);
+    const extra = currentUser.role === "僅限收銀" ? "" : `\n銷貨成本：${formatNumber(d.totalCost)} 元\n本班毛利：${formatNumber(d.grossProfit)} 元`;
+    alert(`交班成功！\n營業額：${formatNumber(d.total)} 元（現金 ${formatNumber(d.cash)} / 刷卡 ${formatNumber(d.credit)} / LinePay ${formatNumber(d.linePay)}）${extra}`);
     clearCart(); updateTodaySales(false);
   } catch (e) { alert("交班失敗：" + e.message); }
   finally { btn.disabled = false; btn.innerText = "交班結算"; }
@@ -809,23 +994,29 @@ document.getElementById("shiftEndBtn").onclick = async function () {
 
 document.getElementById("orderQueryBtn").onclick = async function () { await loadTodayOrders(); document.getElementById("orderModal").style.display = "flex"; };
 async function loadTodayOrders() {
-  const res = await fetch(`${API_URL}?action=listOrders&storeCode=${encodeURIComponent(POS_STORE)}`);
+  const res = await fetch(`${API_URL}?action=listOrders&storeCode=${encodeURIComponent(POS_STORE)}&token=${encodeURIComponent(SESSION_TOKEN)}`);
   const d = await res.json();
-  if (d.status !== "success") return alert("查詢失敗");
+  if (d.status !== "success") return alert(d.message || "查詢失敗");
   orderList = d.data || [];
   const box = document.getElementById("orderListBox");
+  const isCashier = currentUser.role === "僅限收銀";
+  const fmtOrderTime = t => {
+    const m = String(t || "").match(/(\d{1,2}:\d{2}:\d{2})/);
+    return m ? m[1] : String(t || "");
+  };
   box.innerHTML = !orderList.length ? `<p style="color:#94a3b8;text-align:center;">今日尚無訂單</p>` : orderList.map(o => {
     const isV = o.status === "VOID";
     const itemsTxt = (o.items || []).map(it => `${it.name}×${it.quantity}`).join("、");
+    const profitInfo = isCashier ? "" : `｜毛利 <b>${formatNumber(o.grossProfit)}</b>`;
     return `<div style="border-bottom:1px solid #e2e8f0;padding:10px 0;display:flex;justify-content:space-between;align-items:center;gap:10px;">
-      <div><b>${esc(o.orderId)}</b> (${esc(o.time)}) ${isV?'<span class="tag tag-bad">已作廢</span>':'<span class="tag tag-ok">正常</span>'}<div style="font-size:13px;">${esc(o.payment)}｜金額 <b>${formatNumber(o.totalAmount)}</b>｜毛利 <b>${formatNumber(o.grossProfit)}</b></div><div style="font-size:12px;color:#64748b;">${esc(itemsTxt)}</div></div>
+      <div><b>${esc(o.orderId)}</b> (${esc(fmtOrderTime(o.time))}) ${isV?'<span class="tag tag-bad">已作廢</span>':'<span class="tag tag-ok">正常</span>'}<div style="font-size:13px;">${esc(o.payment)}｜金額 <b>${formatNumber(o.totalAmount)}</b>${profitInfo}</div><div style="font-size:12px;color:#64748b;">${esc(itemsTxt)}</div></div>
       <div>${isV?`<button class="btn-pri" onclick="toggleOrderVoid(${o.rowIndex},'restoreOrder')">還原扣庫</button>`:`<button class="btn-dan" onclick="toggleOrderVoid(${o.rowIndex},'voidOrder')">作廢回補</button>`}</div>
     </div>`;
   }).join("");
 }
 async function toggleOrderVoid(rowIndex, action) {
   if (!confirm(action === "voidOrder" ? "確定作廢此訂單並自動回補庫存？" : "確定還原此訂單並重新扣庫存？")) return;
-  const res = await fetch(`${API_URL}?action=${action}`, { method: "POST", body: JSON.stringify({ rowIndex }) });
+  const res = await fetch(`${API_URL}?action=${action}&token=${encodeURIComponent(SESSION_TOKEN)}`, { method: "POST", body: JSON.stringify({ token: SESSION_TOKEN, rowIndex }) });
   const d = await res.json();
   if (d.status === "success") { if (d.products) applyProductsUpdate(d.products); await loadTodayOrders(); updateTodaySales(false); showToast("訂單與庫存已同步更新", "#16a34a"); }
   else alert(d.message);
@@ -833,16 +1024,17 @@ async function toggleOrderVoid(rowIndex, action) {
 
 // ===== 📦 進貨、庫存、盤點、主檔載入 =====
 async function loadInventoryData() {
-  if (!POS_STORE) return;
-  const res = await fetch(`${API_URL}?action=inventoryData&storeCode=${encodeURIComponent(POS_STORE)}`);
+  if (!POS_STORE || currentUser.role === "僅限收銀") return;
+  const res = await fetch(`${API_URL}?action=inventoryData&storeCode=${encodeURIComponent(POS_STORE)}&token=${encodeURIComponent(SESSION_TOKEN)}`);
   const d = await res.json();
-  if (d.status !== "success") return;
+  if (d.status !== "success") return showToast(d.message || "載入失敗", "#dc2626");
   allProducts = d.products || []; suppliers = d.suppliers || []; purchases = d.purchases || []; stockLogs = d.stockLogs || [];
   applyProductsUpdate(allProducts.filter(p => p["是否上架"] === "是"));
 
   document.getElementById("purSupplier").innerHTML = `<option value="">-- 選擇供應商 --</option>` + suppliers.map(s => `<option value="${esc(s.name)}">${esc(s.name)}</option>`).join("");
   document.getElementById("dlAllProducts").innerHTML = allProducts.map(p => `<option value="${esc(p["商品名稱"])}">${esc(p["商品編號"]||"")} ${esc(p["商品名稱"])}</option>`).join("");
   renderPurchaseHistory(); renderInventoryTable(); renderStockLogs(); renderMasterProducts(); renderMasterSuppliers();
+  applyRolePermissions();
 }
 
 function addPurProductFromInput() {
@@ -872,10 +1064,11 @@ function renderPurchaseCart() {
   document.getElementById("purTotalCost").innerText = formatNumber(total);
 }
 async function submitPurchaseOrder() {
+  if (!currentUser.canCreate) return alert("您沒有「新增」權限");
   if (!purCart.length) return alert("進貨明細不可為空");
   const btn = document.getElementById("submitPurBtn"); btn.disabled = true; btn.innerText = "寫入中...";
   try {
-    const res = await fetch(`${API_URL}?action=createPurchase`, { method: "POST", body: JSON.stringify({ storeCode: POS_STORE, storeName: STORE_NAME, purchaseDate: document.getElementById("purDate").value, supplier: document.getElementById("purSupplier").value, taxStatus: document.getElementById("purTax").value, payStatus: document.getElementById("purPayStatus").value, note: document.getElementById("purNote").value, items: purCart }) });
+    const res = await fetch(`${API_URL}?action=createPurchase&token=${encodeURIComponent(SESSION_TOKEN)}`, { method: "POST", body: JSON.stringify({ token: SESSION_TOKEN, storeCode: POS_STORE, storeName: STORE_NAME, purchaseDate: document.getElementById("purDate").value, supplier: document.getElementById("purSupplier").value, taxStatus: document.getElementById("purTax").value, payStatus: document.getElementById("purPayStatus").value, note: document.getElementById("purNote").value, items: purCart }) });
     const d = await res.json();
     if (d.status !== "success") throw new Error(d.message);
     purCart = []; renderPurchaseCart(); await loadInventoryData();
@@ -904,11 +1097,14 @@ function renderInventoryTable() {
     if (kw && !`${p["商品名稱"]} ${p["商品編號"]} ${p["條碼"]||""}`.toLowerCase().includes(kw)) return false;
     return true;
   });
+  const canEdit = currentUser.canEdit;
   document.getElementById("invTableBody").innerHTML = rows.map(p => {
     const s = Number(p["庫存"]||0), sf = Number(p["安全庫存"]||0), val = roundMoney(Math.max(s,0) * Number(p["平均成本"]||0));
     const tag = s <= 0 ? `<span class="tag tag-bad">缺貨/負庫存</span>` : (s <= sf ? `<span class="tag tag-low">低庫存</span>` : `<span class="tag tag-ok">正常</span>`);
-    return `<tr><td>${esc(p["商品編號"]||"—")}</td><td><b>${esc(p["商品名稱"])}</b></td><td>${esc(p["類別"])}</td><td>${esc(p["庫存單位"]||p["單位"])}</td><td class="num">${s}</td><td class="num">${sf}</td><td class="num">${p["平均成本"]}</td><td class="num">${p["最新進價"]}</td><td class="num">${formatNumber(val)}</td><td>${tag}</td>
-      <td style="display:flex;gap:4px;"><button class="btn-pri" onclick="openAdjustModal('${esc(p["商品名稱"])}','stocktake',${s})">📝盤點</button><button class="btn-dan" onclick="openAdjustModal('${esc(p["商品名稱"])}','spoilage',${s})">🗑️報廢</button><button class="btn-sec" onclick="openAdjustModal('${esc(p["商品名稱"])}','setting',${sf},${p["平均成本"]})">⚙️</button></td></tr>`;
+    const ops = canEdit
+      ? `<button class="btn-pri" onclick="openAdjustModal('${esc(p["商品名稱"])}','stocktake',${s})">📝盤點</button><button class="btn-dan" onclick="openAdjustModal('${esc(p["商品名稱"])}','spoilage',${s})">🗑️報廢</button><button class="btn-sec" onclick="openAdjustModal('${esc(p["商品名稱"])}','setting',${sf},${p["平均成本"]})">⚙️</button>`
+      : `<span style="color:#94a3b8;font-size:12px;">無編輯權限</span>`;
+    return `<tr><td>${esc(p["商品編號"]||"—")}</td><td><b>${esc(p["商品名稱"])}</b></td><td>${esc(p["類別"])}</td><td>${esc(p["庫存單位"]||p["單位"])}</td><td class="num">${s}</td><td class="num">${sf}</td><td class="num">${p["平均成本"]}</td><td class="num">${p["最新進價"]}</td><td class="num">${formatNumber(val)}</td><td>${tag}</td><td style="display:flex;gap:4px;">${ops}</td></tr>`;
   }).join("");
 }
 function renderStockLogs() {
@@ -922,6 +1118,7 @@ function closeErpModal() {
 }
 
 function openAdjustModal(name, mode, val1, val2 = 0) {
+  if (!currentUser.canEdit) return alert("您沒有「編輯」權限");
   document.getElementById("erpModalTitle").innerText = (mode === "spoilage" ? "🗑️ 損耗報廢：" : mode === "setting" ? "⚙️ 庫存參數設定：" : "📝 實際盤點調整：") + name;
   document.getElementById("erpModalBody").innerHTML = mode === "setting"
     ? `<div class="form-grid"><div class="fld"><label>安全庫存警戒值</label><input type="number" id="adjVal1" value="${val1}"></div><div class="fld"><label>移動平均成本修正</label><input type="number" step="0.01" id="adjVal2" value="${val2}"></div></div><div style="text-align:right;margin-top:14px;"><button class="btn-suc" onclick="submitStockAdjust('${esc(name)}','setting')">💾 儲存設定</button></div>`
@@ -930,9 +1127,9 @@ function openAdjustModal(name, mode, val1, val2 = 0) {
 }
 async function submitStockAdjust(name, mode) {
   const body = mode === "setting"
-    ? { storeCode: POS_STORE, storeName: STORE_NAME, productName: name, mode, safetyStock: document.getElementById("adjVal1").value, avgCost: document.getElementById("adjVal2").value }
-    : { storeCode: POS_STORE, storeName: STORE_NAME, productName: name, mode, qty: document.getElementById("adjVal1").value, reason: document.getElementById("adjReason").value };
-  const res = await fetch(`${API_URL}?action=stockAdjust`, { method: "POST", body: JSON.stringify(body) });
+    ? { token: SESSION_TOKEN, storeCode: POS_STORE, storeName: STORE_NAME, productName: name, mode, safetyStock: document.getElementById("adjVal1").value, avgCost: document.getElementById("adjVal2").value }
+    : { token: SESSION_TOKEN, storeCode: POS_STORE, storeName: STORE_NAME, productName: name, mode, qty: document.getElementById("adjVal1").value, reason: document.getElementById("adjReason").value };
+  const res = await fetch(`${API_URL}?action=stockAdjust&token=${encodeURIComponent(SESSION_TOKEN)}`, { method: "POST", body: JSON.stringify(body) });
   const d = await res.json();
   if (d.status === "success") { closeErpModal(); await loadInventoryData(); showToast(d.message, "#16a34a"); } else alert(d.message);
 }
@@ -945,11 +1142,11 @@ function setReportRange(type, autoLoad = true) {
   if (autoLoad) loadProfitReport();
 }
 async function loadProfitReport() {
-  if (!POS_STORE) return;
+  if (!POS_STORE || currentUser.role === "僅限收銀") return;
   const s = document.getElementById("repStart").value.replace(/-/g,"/"), e = document.getElementById("repEnd").value.replace(/-/g,"/");
-  const res = await fetch(`${API_URL}?action=profitReport&storeCode=${encodeURIComponent(POS_STORE)}&startDate=${s}&endDate=${e}`);
+  const res = await fetch(`${API_URL}?action=profitReport&storeCode=${encodeURIComponent(POS_STORE)}&startDate=${s}&endDate=${e}&token=${encodeURIComponent(SESSION_TOKEN)}`);
   const d = await res.json();
-  if (d.status !== "success") return;
+  if (d.status !== "success") return showToast(d.message || "查詢失敗", "#dc2626");
   lastReportData = d; const sm = d.summary;
   document.getElementById("repKpiGrid").innerHTML = `
     <div class="kpi-box"><div class="lbl">營業收入 (${sm.orderCount}筆)</div><div class="val">${formatNumber(sm.totalRevenue)} 元</div></div>
@@ -970,10 +1167,17 @@ function exportProfitCSV() {
 // ===== 🏷️ 商品與供應商主檔 =====
 function renderMasterProducts() {
   const kw = document.getElementById("masterProdSearch").value.trim().toLowerCase();
-  const rows = allProducts.filter(p => !kw || `${p["商品名稱"]} ${p["商品編號"]} ${p["分類"]}`.toLowerCase().includes(kw));
-  document.getElementById("masterProdBody").innerHTML = rows.map(p => `<tr><td><b>${esc(p["商品編號"]||"—")}</b></td><td>${esc(p["商品名稱"])}</td><td>${esc(p["類別"])}</td><td>${esc(p["單位"])}</td><td class="num">${p["售價"]}</td><td class="num">${p["安全庫存"]}</td><td class="num">${p["平均成本"]}</td><td>${esc(p["是否上架"])}</td><td><button class="btn-pri" onclick='openProductModal(${JSON.stringify(p)})'>編輯</button></td></tr>`).join("");
+  const rows = allProducts.filter(p => !kw || `${p["商品名稱"]} ${p["商品編號"]} ${p["類別"]} ${p["商品簡介"]||""}`.toLowerCase().includes(kw));
+  document.getElementById("masterProdBody").innerHTML = rows.map(p => {
+    const editBtn = currentUser.canEdit ? `<button class="btn-pri" onclick="openProductModal(${p.rowIndex})">編輯</button>` : "";
+    const delBtn = currentUser.canDelete ? `<button class="btn-dan" onclick="deleteProduct(${p.rowIndex})">刪除</button>` : "";
+    return `<tr><td><b>${esc(p["商品編號"]||"—")}</b></td><td>${esc(p["商品名稱"])}</td><td>${esc(p["類別"])}</td><td>${esc(p["商品簡介"]||"")}</td><td>${esc(p["單位"])}</td><td class="num">${p["售價"]}</td><td class="num">${p["安全庫存"]}</td><td class="num">${p["平均成本"]}</td><td>${esc(p["是否上架"])}</td><td style="display:flex;gap:4px;">${editBtn}${delBtn}${(!editBtn&&!delBtn)?'<span style="color:#94a3b8;font-size:12px;">唯讀</span>':''}</td></tr>`;
+  }).join("");
 }
-function openProductModal(p = null) {
+function openProductModal(rowIndex = 0) {
+  const p = rowIndex ? allProducts.find(x => x.rowIndex === rowIndex) : null;
+  if (p && !currentUser.canEdit) return alert("您沒有「編輯」權限");
+  if (!p && !currentUser.canCreate) return alert("您沒有「新增」權限");
   document.getElementById("erpModalTitle").innerText = p ? `✏️ 編輯商品：${p["商品名稱"]}` : "＋ 新增商品（可刷入條碼）";
   document.getElementById("erpModalBody").innerHTML = `<div class="form-grid">
     <div class="fld"><label>商品編號 / 條碼 (SKU)</label><input id="mpSku" value="${esc(p?.["商品編號"]||"")}" placeholder="刷入商品條碼..."></div>
@@ -986,20 +1190,37 @@ function openProductModal(p = null) {
     ${p?"":`<div class="fld"><label>期初庫存數量</label><input type="number" step="0.01" id="mpInitStock" value="0"></div>`}
     <div class="fld"><label>是否上架</label><select id="mpListed"><option value="是" ${p?.["是否上架"]!=="否"?"selected":""}>是</option><option value="否" ${p?.["是否上架"]==="否"?"selected":""}>否</option></select></div>
     <div class="fld"><label>圖片連結</label><input id="mpImg" value="${esc(p?.["商品照片"]||"")}"></div>
+    <div class="fld" style="grid-column:1/-1;"><label>商品簡介</label><input id="mpDesc" value="${esc(p?.["商品簡介"]||"")}" placeholder="商品特色或產地說明..."></div>
   </div><div style="text-align:right;margin-top:14px;"><button class="btn-suc" onclick="submitProduct(${p?.rowIndex||0})">💾 儲存商品</button></div>`;
   document.getElementById("erpModal").style.display = "flex";
 }
 async function submitProduct(rowIndex) {
-  const payload = { rowIndex, storeCode: POS_STORE, storeName: STORE_NAME, sku: document.getElementById("mpSku").value, name: document.getElementById("mpName").value, category: document.getElementById("mpCat").value, unit: document.getElementById("mpUnit").value, price: document.getElementById("mpPrice").value, safetyStock: document.getElementById("mpSafety").value, avgCost: document.getElementById("mpCost").value, initStock: document.getElementById("mpInitStock")?.value, listed: document.getElementById("mpListed").value, image: document.getElementById("mpImg").value };
-  const res = await fetch(`${API_URL}?action=saveProduct`, { method: "POST", body: JSON.stringify(payload) });
+  const payload = { token: SESSION_TOKEN, rowIndex, storeCode: POS_STORE, storeName: STORE_NAME, sku: document.getElementById("mpSku").value, name: document.getElementById("mpName").value, category: document.getElementById("mpCat").value, description: document.getElementById("mpDesc").value, unit: document.getElementById("mpUnit").value, price: document.getElementById("mpPrice").value, safetyStock: document.getElementById("mpSafety").value, avgCost: document.getElementById("mpCost").value, initStock: document.getElementById("mpInitStock")?.value, listed: document.getElementById("mpListed").value, image: document.getElementById("mpImg").value };
+  const res = await fetch(`${API_URL}?action=saveProduct&token=${encodeURIComponent(SESSION_TOKEN)}`, { method: "POST", body: JSON.stringify(payload) });
   const d = await res.json();
   if (d.status === "success") { closeErpModal(); await loadInventoryData(); showToast(d.message, "#16a34a"); } else alert(d.message);
 }
+async function deleteProduct(rowIndex) {
+  if (!currentUser.canDelete) return alert("您沒有「刪除」權限");
+  const p = allProducts.find(x => x.rowIndex === rowIndex);
+  if (!p || !confirm(`確定要刪除商品「${p["商品名稱"]}」嗎？`)) return;
+  const res = await fetch(`${API_URL}?action=deleteProduct&token=${encodeURIComponent(SESSION_TOKEN)}`, { method: "POST", body: JSON.stringify({ token: SESSION_TOKEN, rowIndex, name: p["商品名稱"], storeCode: POS_STORE }) });
+  const d = await res.json();
+  if (d.status === "success") { await loadInventoryData(); showToast(d.message, "#16a34a"); } else alert(d.message);
+}
+
 function renderMasterSuppliers() {
   document.getElementById("masterSupBody").innerHTML = !suppliers.length ? `<tr><td colspan="7" style="text-align:center;color:#94a3b8;">尚無供應商</td></tr>`
-    : suppliers.map(s => `<tr><td>${esc(s.code)}</td><td><b>${esc(s.name)}</b></td><td>${esc(s.contact)}</td><td>${esc(s.phone)}</td><td>${esc(s.terms)}</td><td>${esc(s.note)}</td><td><button class="btn-pri" onclick='openSupplierModal(${JSON.stringify(s)})'>編輯</button></td></tr>`).join("");
+    : suppliers.map(s => {
+      const editBtn = currentUser.canEdit ? `<button class="btn-pri" onclick="openSupplierModal(${s.rowIndex})">編輯</button>` : "";
+      const delBtn = currentUser.canDelete ? `<button class="btn-dan" onclick="deleteSupplier(${s.rowIndex})">刪除</button>` : "";
+      return `<tr><td>${esc(s.code)}</td><td><b>${esc(s.name)}</b></td><td>${esc(s.contact)}</td><td>${esc(s.phone)}</td><td>${esc(s.terms)}</td><td>${esc(s.note)}</td><td style="display:flex;gap:4px;">${editBtn}${delBtn}${(!editBtn&&!delBtn)?'<span style="color:#94a3b8;font-size:12px;">唯讀</span>':''}</td></tr>`;
+    }).join("");
 }
-function openSupplierModal(s = null) {
+function openSupplierModal(rowIndex = 0) {
+  const s = rowIndex ? suppliers.find(x => x.rowIndex === rowIndex) : null;
+  if (s && !currentUser.canEdit) return alert("您沒有「編輯」權限");
+  if (!s && !currentUser.canCreate) return alert("您沒有「新增」權限");
   document.getElementById("erpModalTitle").innerText = s ? "✏️ 編輯供應商" : "＋ 新增供應商";
   document.getElementById("erpModalBody").innerHTML = `<div class="form-grid">
     <div class="fld"><label>供應商名稱 *</label><input id="msName" value="${esc(s?.name||"")}"></div>
@@ -1011,10 +1232,149 @@ function openSupplierModal(s = null) {
   document.getElementById("erpModal").style.display = "flex";
 }
 async function submitSupplier(rowIndex, code) {
-  const payload = { rowIndex, code, name: document.getElementById("msName").value, contact: document.getElementById("msContact").value, phone: document.getElementById("msPhone").value, terms: document.getElementById("msTerms").value, note: document.getElementById("msNote").value };
-  const res = await fetch(`${API_URL}?action=saveSupplier`, { method: "POST", body: JSON.stringify(payload) });
+  const payload = { token: SESSION_TOKEN, rowIndex, code, name: document.getElementById("msName").value, contact: document.getElementById("msContact").value, phone: document.getElementById("msPhone").value, terms: document.getElementById("msTerms").value, note: document.getElementById("msNote").value };
+  const res = await fetch(`${API_URL}?action=saveSupplier&token=${encodeURIComponent(SESSION_TOKEN)}`, { method: "POST", body: JSON.stringify(payload) });
   const d = await res.json();
   if (d.status === "success") { closeErpModal(); await loadInventoryData(); showToast(d.message, "#16a34a"); } else alert(d.message);
+}
+async function deleteSupplier(rowIndex) {
+  if (!currentUser.canDelete) return alert("您沒有「刪除」權限");
+  const s = suppliers.find(x => x.rowIndex === rowIndex);
+  if (!s || !confirm(`確定要刪除供應商「${s.name}」嗎？`)) return;
+  const res = await fetch(`${API_URL}?action=deleteSupplier&token=${encodeURIComponent(SESSION_TOKEN)}`, { method: "POST", body: JSON.stringify({ token: SESSION_TOKEN, rowIndex, name: s.name }) });
+  const d = await res.json();
+  if (d.status === "success") { await loadInventoryData(); showToast(d.message, "#16a34a"); } else alert(d.message);
+}
+
+// ===== 🔐 登入者權限設定與帳號管理 =====
+async function loadUsers() {
+  if (!POS_STORE || currentUser.role === "僅限收銀") return;
+  const res = await fetch(`${API_URL}?action=listUsers&storeCode=${encodeURIComponent(POS_STORE)}&token=${encodeURIComponent(SESSION_TOKEN)}`);
+  const d = await res.json();
+  if (d.status !== "success") return showToast(d.message || "載入帳號失敗", "#dc2626");
+  usersList = d.users || [];
+  renderUsersTable();
+}
+
+function renderUsersTable() {
+  const kw = (document.getElementById("userSearch").value || "").trim().toLowerCase();
+  const rows = usersList.filter(u => !kw || `${u.account} ${u.name} ${u.role} ${u.storeCode}`.toLowerCase().includes(kw));
+  const tb = document.getElementById("usersTableBody");
+  if (!rows.length) {
+    tb.innerHTML = `<tr><td colspan="9" style="text-align:center;color:#94a3b8;padding:20px;">尚無自訂登入帳號（可使用上方「＋ 新增登入者帳號」建立收銀員或管理員帳號）</td></tr>`;
+    return;
+  }
+  tb.innerHTML = rows.map(u => {
+    const isCashier = u.role === "僅限收銀";
+    const roleTag = isCashier ? `<span class="tag tag-low">僅限收銀</span>` : `<span class="tag tag-ok">後臺管理</span>`;
+    const permsHtml = isCashier
+      ? `<span style="color:#92400e;font-size:12px;">🔒 只能使用收銀檯，其餘皆鎖定</span>`
+      : [
+          u.canCreate ? `<span class="tag tag-info">新增</span>` : "",
+          u.canEdit ? `<span class="tag tag-ok">編輯</span>` : "",
+          u.canDelete ? `<span class="tag tag-bad">刪除</span>` : ""
+        ].filter(Boolean).join(" ") || `<span style="color:#64748b;font-size:12px;">僅供瀏覽</span>`;
+    const statusTag = u.status === "停用" ? `<span class="tag tag-bad">停用</span>` : `<span class="tag tag-ok">啟用</span>`;
+    const editBtn = currentUser.canEdit ? `<button class="btn-pri" onclick="openUserModal(${u.rowIndex})">✏️ 編輯權限</button>` : "";
+    const delBtn = currentUser.canDelete ? `<button class="btn-dan" onclick="deleteUser(${u.rowIndex})">🗑️ 刪除</button>` : "";
+    return `<tr>
+      <td>${esc(u.storeCode)}</td>
+      <td><b>${esc(u.account)}</b></td>
+      <td>${esc(u.name || "—")}</td>
+      <td>${roleTag}</td>
+      <td>${permsHtml}</td>
+      <td>${statusTag}</td>
+      <td>${esc(u.note || "")}</td>
+      <td style="font-size:12px;color:#64748b;">${esc(u.updatedAt || "")}</td>
+      <td style="display:flex;gap:4px;">${editBtn}${delBtn}${(!editBtn&&!delBtn)?'<span style="color:#94a3b8;font-size:12px;">唯讀</span>':''}</td>
+    </tr>`;
+  }).join("");
+}
+
+function togglePermCheckboxes() {
+  const role = document.getElementById("muRole").value;
+  const isCashier = role === "僅限收銀";
+  const box = document.getElementById("muPermBox");
+  box.style.opacity = isCashier ? "0.45" : "1";
+  ["muCanCreate", "muCanEdit", "muCanDelete"].forEach(id => {
+    const el = document.getElementById(id);
+    el.disabled = isCashier;
+    if (isCashier) el.checked = false;
+  });
+}
+
+function openUserModal(rowIndex = 0) {
+  const u = rowIndex ? usersList.find(x => x.rowIndex === rowIndex) : null;
+  if (u && !currentUser.canEdit) return alert("您沒有「編輯」權限");
+  if (!u && !currentUser.canCreate) return alert("您沒有「新增」權限");
+
+  const isCashier = u?.role === "僅限收銀";
+  document.getElementById("erpModalTitle").innerText = u ? `✏️ 編輯帳號權限：${u.account}` : "＋ 新增登入者帳號與權限";
+  document.getElementById("erpModalBody").innerHTML = `
+    <div class="form-grid">
+      <div class="fld"><label>所屬門市編號 *</label><input id="muStore" value="${esc(u?.storeCode || POS_STORE)}"></div>
+      <div class="fld"><label>登入帳號 *</label><input id="muAccount" value="${esc(u?.account || "")}" placeholder="例如 cashier01"></div>
+      <div class="fld"><label>登入密碼 ${u?"(留空不修改)":"*"}</label><input id="muPwd" type="text" value="" placeholder="${u?"若需改密碼再填寫":"請輸入登入密碼"}"></div>
+      <div class="fld"><label>姓名 / 職稱</label><input id="muName" value="${esc(u?.name || "")}" placeholder="例如 早班收銀員"></div>
+      <div class="fld"><label>權限設定 *</label>
+        <select id="muRole" onchange="togglePermCheckboxes()">
+          <option value="後臺管理" ${!isCashier?"selected":""}>1. 後臺管理（可進入所有後臺＋設定增/編/刪權限）</option>
+          <option value="僅限收銀" ${isCashier?"selected":""}>2. 僅限收銀（只能使用收銀檯，其他點選皆不能進入）</option>
+        </select>
+      </div>
+      <div class="fld"><label>帳號狀態</label>
+        <select id="muStatus">
+          <option value="啟用" ${u?.status!=="停用"?"selected":""}>啟用</option>
+          <option value="停用" ${u?.status==="停用"?"selected":""}>停用</option>
+        </select>
+      </div>
+    </div>
+    <div id="muPermBox" class="perm-box">
+      <div style="font-size:12px;font-weight:bold;color:#334155;">後臺管理細項權限（選擇「僅限收銀」時自動停用）：</div>
+      <div class="perm-checks">
+        <label><input type="checkbox" id="muCanCreate" ${(!u || (!isCashier && u.canCreate)) ? "checked" : ""}> 允許「新增」（商品/進貨/供應商/帳號）</label>
+        <label><input type="checkbox" id="muCanEdit" ${(!u || (!isCashier && u.canEdit)) ? "checked" : ""}> 允許「編輯」（修改主檔/盤點/調成本/權限）</label>
+        <label><input type="checkbox" id="muCanDelete" ${(!u || (!isCashier && u.canDelete)) ? "checked" : ""}> 允許「刪除」（刪除商品/供應商/帳號）</label>
+      </div>
+    </div>
+    <div class="fld" style="margin-top:10px;"><label>備註</label><input id="muNote" value="${esc(u?.note || "")}"></div>
+    <div style="text-align:right;margin-top:14px;">
+      <button class="btn-suc" onclick="submitUser(${u?.rowIndex || 0}, '${esc(u?.userId || "")}')">💾 儲存帳號與權限</button>
+    </div>`;
+  togglePermCheckboxes();
+  document.getElementById("erpModal").style.display = "flex";
+}
+
+async function submitUser(rowIndex, userId) {
+  const payload = {
+    token: SESSION_TOKEN,
+    rowIndex,
+    userId,
+    storeCode: document.getElementById("muStore").value.trim(),
+    account: document.getElementById("muAccount").value.trim(),
+    password: document.getElementById("muPwd").value.trim(),
+    name: document.getElementById("muName").value.trim(),
+    role: document.getElementById("muRole").value,
+    canCreate: document.getElementById("muCanCreate").checked,
+    canEdit: document.getElementById("muCanEdit").checked,
+    canDelete: document.getElementById("muCanDelete").checked,
+    status: document.getElementById("muStatus").value,
+    note: document.getElementById("muNote").value.trim()
+  };
+  const res = await fetch(`${API_URL}?action=saveUser&token=${encodeURIComponent(SESSION_TOKEN)}`, { method: "POST", body: JSON.stringify(payload) });
+  const d = await res.json();
+  if (d.status === "success") { closeErpModal(); await loadUsers(); showToast(d.message, "#16a34a"); }
+  else alert(d.message);
+}
+
+async function deleteUser(rowIndex) {
+  if (!currentUser.canDelete) return alert("您沒有「刪除」權限");
+  const u = usersList.find(x => x.rowIndex === rowIndex);
+  if (!u || !confirm(`確定要刪除登入帳號「${u.account} (${u.name})」嗎？`)) return;
+  const res = await fetch(`${API_URL}?action=deleteUser&token=${encodeURIComponent(SESSION_TOKEN)}`, { method: "POST", body: JSON.stringify({ token: SESSION_TOKEN, rowIndex, userId: u.userId, account: u.account }) });
+  const d = await res.json();
+  if (d.status === "success") { await loadUsers(); showToast(d.message, "#16a34a"); }
+  else alert(d.message);
 }
 </script>
 </body>
