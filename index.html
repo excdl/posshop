@@ -189,7 +189,7 @@ table.erp-tbl tr:nth-child(even) { background: #f8fafc; }
     </div>
     <div id="posCenter">
       <div id="barcodeBar">
-        <input type="text" id="barcodeInput" lang="en" placeholder="📷 請掃描條碼 或 輸入商品名稱 / 數量*條碼（Enter 加入）" autocomplete="off">
+        <input type="text" id="barcodeInput" lang="en" placeholder="📷 請掃描條碼 或 輸入 條碼 / 數量*條碼（Enter 加入購物車）" autocomplete="off">
         <button class="btn-scan" onclick="handleBarcodeFromBox()">加入</button>
         <button class="btn-scan" style="background:#2563eb;" onclick="openCameraScanner('pos')">📷 相機掃碼</button>
       </div>
@@ -245,7 +245,7 @@ table.erp-tbl tr:nth-child(even) { background: #f8fafc; }
         <div class="fld"><label>備註</label><input type="text" id="purNote" placeholder="發票號或批號..."></div>
       </div>
       <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
-        <input type="text" id="purSearchInput" lang="en" placeholder="📷 掃條碼或輸入商品名稱，按 Enter 加入進貨明細..." style="flex:1;min-width:240px;padding:9px;border:2px solid #2563eb;border-radius:8px;font-size:14px;" list="dlAllProducts">
+        <input type="text" id="purSearchInput" lang="en" placeholder="📷 掃條碼或輸入商品名稱/編號，按 Enter 加入進貨明細..." style="flex:1;min-width:240px;padding:9px;border:2px solid #2563eb;border-radius:8px;font-size:14px;" list="dlAllProducts">
         <button class="btn-pri" data-perm="create" onclick="addPurProductFromInput()">＋ 加入進貨明細</button>
         <button class="btn-scan" onclick="openCameraScanner('purchase')">📷 相機掃碼</button>
       </div>
@@ -274,12 +274,12 @@ table.erp-tbl tr:nth-child(even) { background: #f8fafc; }
       <div class="erp-header">
         <h2>📊 即時門市庫存與成本明細</h2>
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-          <input type="text" id="invSearch" placeholder="搜尋商品/分類..." oninput="renderInventoryTable()" style="padding:7px 10px;border:1px solid #cbd5e1;border-radius:6px;">
+          <input type="text" id="invSearch" placeholder="搜尋商品/條碼..." oninput="renderInventoryTable()" style="padding:7px 10px;border:1px solid #cbd5e1;border-radius:6px;">
           <label style="font-size:13px;font-weight:bold;"><input type="checkbox" id="invOnlyLow" onchange="renderInventoryTable()"> 只看低庫存/負庫存</label>
           <button class="btn-sec" onclick="loadInventoryData()">🔄 同步庫存</button>
         </div>
       </div>
-      <div class="table-wrap"><table class="erp-tbl"><thead><tr><th>商品名稱</th><th>分類</th><th>單位</th><th>可用庫存</th><th>目前庫存</th><th>安全庫存</th><th>移動平均成本</th><th>最新進價</th><th>庫存總成本</th><th>狀態</th><th>盤點 / 報廢 / 設定</th></tr></thead><tbody id="invTableBody"></tbody></table></div>
+      <div class="table-wrap"><table class="erp-tbl"><thead><tr><th>商品編號/條碼</th><th>商品名稱</th><th>分類</th><th>單位</th><th>目前庫存</th><th>安全庫存</th><th>移動平均成本</th><th>最新進價</th><th>庫存總成本</th><th>狀態</th><th>盤點 / 報廢 / 設定</th></tr></thead><tbody id="invTableBody"></tbody></table></div>
     </div>
     <div class="erp-card">
       <div class="erp-header"><h2>📜 庫存異動流水帳（最近 100 筆）</h2></div>
@@ -318,13 +318,13 @@ table.erp-tbl tr:nth-child(even) { background: #f8fafc; }
   <section id="tab-master" class="tab-page erp-page">
     <div class="erp-card">
       <div class="erp-header">
-        <h2>🏷️ 商品主檔（售價 / 庫存 / 安全庫存設定）</h2>
+        <h2>🏷️ 商品主檔（條碼 / 售價 / 庫存 / 安全庫存設定）</h2>
         <div style="display:flex;gap:8px;">
-          <input type="text" id="masterProdSearch" placeholder="搜尋商品/分類/簡介..." oninput="renderMasterProducts()" style="padding:7px;border:1px solid #cbd5e1;border-radius:6px;">
+          <input type="text" id="masterProdSearch" placeholder="搜尋商品/條碼/簡介..." oninput="renderMasterProducts()" style="padding:7px;border:1px solid #cbd5e1;border-radius:6px;">
           <button class="btn-pri" data-perm="create" onclick="openProductModal()">＋ 新增商品</button>
         </div>
       </div>
-      <div class="table-wrap"><table class="erp-tbl"><thead><tr><th>商品名稱</th><th>售價</th><th>可用庫存</th><th>庫存</th><th>分類</th><th>商品簡介</th><th>單位</th><th>上架</th><th>安全庫存</th><th>平均成本</th><th>最新進價</th><th>主供應商</th><th>操作</th></tr></thead><tbody id="masterProdBody"></tbody></table></div>
+      <div class="table-wrap"><table class="erp-tbl"><thead><tr><th>商品編號/條碼</th><th>商品名稱</th><th>售價</th><th>目前庫存</th><th>分類</th><th>商品簡介</th><th>單位</th><th>上架</th><th>安全庫存</th><th>平均成本</th><th>最新進價</th><th>主供應商</th><th>操作</th></tr></thead><tbody id="masterProdBody"></tbody></table></div>
     </div>
     <div class="erp-card">
       <div class="erp-header"><h2>🚚 供應商管理</h2><button class="btn-pri" data-perm="create" onclick="openSupplierModal()">＋ 新增供應商</button></div>
@@ -407,7 +407,7 @@ table.erp-tbl tr:nth-child(even) { background: #f8fafc; }
 </div>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbznXH7lfhWgSUTS7hP1yckhCZCZNoiZYwphOQ39DzKq68Z4TUF37oeHArFoX-Q2wJnI/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbyId-FV_7GWfGJUmKjw8_ltHcvFNNbX5t-qKNibiHkZmbw5eTldo6Sk1qhRXCWFPAQK/exec";
 const SESSION_KEY = "cx_pos_session_token";
 
 let POS_STORE = "", STORE_NAME = "", SESSION_TOKEN = "";
@@ -703,13 +703,12 @@ function renderProducts(category = null, search = "") {
     }
     return true;
   }).forEach(p => {
-    const stock = Number(p["可用庫存"] !== undefined ? p["可用庫存"] : (p["庫存"] || 0));
-    const safety = Number(p["安全庫存"] || 0), u = p["庫存單位"] || p["單位"];
+    const stock = Number(p["庫存"] || 0), safety = Number(p["安全庫存"] || 0), u = p["庫存單位"] || p["單位"];
     const badgeCls = stock <= 0 ? "out" : (stock <= safety ? "low" : "");
     const card = document.createElement("div");
     card.className = "product-card";
     if (p["商品簡介"]) card.title = p["商品簡介"];
-    card.innerHTML = `<img src="${esc(p["商品照片"])}" onerror="this.style.opacity=0.3"><h4>${esc(p["商品名稱"])}</h4><p class="p-price">${p["售價"]}元 / ${esc(p["單位"])}</p><span class="stock-badge ${badgeCls}">可用 ${stock} ${esc(u)}</span>`;
+    card.innerHTML = `<img src="${esc(p["商品照片"])}" onerror="this.style.opacity=0.3"><h4>${esc(p["商品名稱"])}</h4><p class="p-price">${p["售價"]}元 / ${esc(p["單位"])}</p><span class="stock-badge ${badgeCls}">庫存 ${stock} ${esc(u)}</span>`;
     card.onclick = () => addPOSItem(p, 1);
     box.appendChild(card);
   });
@@ -1121,7 +1120,7 @@ async function loadInventoryData() {
   applyProductsUpdate(allProducts.filter(p => p["是否上架"] === "是"));
 
   document.getElementById("purSupplier").innerHTML = `<option value="">-- 選擇供應商 --</option>` + suppliers.map(s => `<option value="${esc(s.name)}">${esc(s.name)}</option>`).join("");
-  document.getElementById("dlAllProducts").innerHTML = allProducts.map(p => `<option value="${esc(p["商品名稱"])}">${esc(p["商品名稱"])} (${esc(p["類別"])})</option>`).join("");
+  document.getElementById("dlAllProducts").innerHTML = allProducts.map(p => `<option value="${esc(p["商品名稱"])}">${esc(p["商品編號"]||"")} ${esc(p["商品名稱"])}</option>`).join("");
   renderPurchaseHistory(); renderInventoryTable(); renderStockLogs(); renderMasterProducts(); renderMasterSuppliers();
   applyRolePermissions();
 }
@@ -1183,18 +1182,17 @@ function renderInventoryTable() {
   const rows = allProducts.filter(p => {
     const s = Number(p["庫存"]||0);
     if (onlyLow && s > Number(p["安全庫存"]||0)) return false;
-    if (kw && !`${p["商品名稱"]} ${p["類別"]} ${p["商品簡介"]||""}`.toLowerCase().includes(kw)) return false;
+    if (kw && !`${p["商品名稱"]} ${p["商品編號"]} ${p["條碼"]||""}`.toLowerCase().includes(kw)) return false;
     return true;
   });
   const canEdit = currentUser.canEdit;
   document.getElementById("invTableBody").innerHTML = rows.map(p => {
-    const avail = Number(p["可用庫存"] !== undefined ? p["可用庫存"] : (p["庫存"] || 0));
     const s = Number(p["庫存"]||0), sf = Number(p["安全庫存"]||0), val = roundMoney(Math.max(s,0) * Number(p["平均成本"]||0));
     const tag = s <= 0 ? `<span class="tag tag-bad">缺貨/負庫存</span>` : (s <= sf ? `<span class="tag tag-low">低庫存</span>` : `<span class="tag tag-ok">正常</span>`);
     const ops = canEdit
       ? `<button class="btn-pri" onclick="openAdjustModal('${esc(p["商品名稱"])}','stocktake',${s})">📝盤點</button><button class="btn-dan" onclick="openAdjustModal('${esc(p["商品名稱"])}','spoilage',${s})">🗑️報廢</button><button class="btn-sec" onclick="openAdjustModal('${esc(p["商品名稱"])}','setting',${sf},${p["平均成本"]})">⚙️</button>`
       : `<span style="color:#94a3b8;font-size:12px;">無編輯權限</span>`;
-    return `<tr><td><b>${esc(p["商品名稱"])}</b></td><td>${esc(p["類別"])}</td><td>${esc(p["庫存單位"]||p["單位"])}</td><td class="num" style="color:#2563eb;">${avail}</td><td class="num">${s}</td><td class="num">${sf}</td><td class="num">${p["平均成本"]}</td><td class="num">${p["最新進價"]}</td><td class="num">${formatNumber(val)}</td><td>${tag}</td><td style="display:flex;gap:4px;">${ops}</td></tr>`;
+    return `<tr><td>${esc(p["商品編號"]||p["條碼"]||"—")}</td><td><b>${esc(p["商品名稱"])}</b></td><td>${esc(p["類別"])}</td><td>${esc(p["庫存單位"]||p["單位"])}</td><td class="num">${s}</td><td class="num">${sf}</td><td class="num">${p["平均成本"]}</td><td class="num">${p["最新進價"]}</td><td class="num">${formatNumber(val)}</td><td>${tag}</td><td style="display:flex;gap:4px;">${ops}</td></tr>`;
   }).join("");
 }
 function renderStockLogs() {
@@ -1257,12 +1255,11 @@ function exportProfitCSV() {
 // ===== 🏷️ 商品與供應商主檔 =====
 function renderMasterProducts() {
   const kw = document.getElementById("masterProdSearch").value.trim().toLowerCase();
-  const rows = allProducts.filter(p => !kw || `${p["商品名稱"]} ${p["類別"]} ${p["商品簡介"]||""} ${p["主供應商"]||""}`.toLowerCase().includes(kw));
+  const rows = allProducts.filter(p => !kw || `${p["商品名稱"]} ${p["商品編號"]} ${p["條碼"]||""} ${p["類別"]} ${p["商品簡介"]||""} ${p["主供應商"]||""}`.toLowerCase().includes(kw));
   document.getElementById("masterProdBody").innerHTML = rows.map(p => {
-    const avail = p["可用庫存"] !== undefined ? p["可用庫存"] : p["庫存"];
     const editBtn = currentUser.canEdit ? `<button class="btn-pri" onclick="openProductModal(${p.rowIndex})">編輯</button>` : "";
     const delBtn = currentUser.canDelete ? `<button class="btn-dan" onclick="deleteProduct(${p.rowIndex})">刪除</button>` : "";
-    return `<tr><td><b>${esc(p["商品名稱"])}</b></td><td class="num">${p["售價"]}</td><td class="num" style="color:#2563eb;">${avail}</td><td class="num">${p["庫存"]}</td><td>${esc(p["類別"])}</td><td>${esc(p["商品簡介"]||"")}</td><td>${esc(p["單位"])}</td><td>${esc(p["是否上架"])}</td><td class="num">${p["安全庫存"]}</td><td class="num">${p["平均成本"]}</td><td class="num">${p["最新進價"]}</td><td>${esc(p["主供應商"]||"")}</td><td style="display:flex;gap:4px;">${editBtn}${delBtn}${(!editBtn&&!delBtn)?'<span style="color:#94a3b8;font-size:12px;">唯讀</span>':''}</td></tr>`;
+    return `<tr><td><b>${esc(p["商品編號"]||p["條碼"]||"—")}</b></td><td><b>${esc(p["商品名稱"])}</b></td><td class="num">${p["售價"]}</td><td class="num">${p["庫存"]}</td><td>${esc(p["類別"])}</td><td>${esc(p["商品簡介"]||"")}</td><td>${esc(p["單位"])}</td><td>${esc(p["是否上架"])}</td><td class="num">${p["安全庫存"]}</td><td class="num">${p["平均成本"]}</td><td class="num">${p["最新進價"]}</td><td>${esc(p["主供應商"]||"")}</td><td style="display:flex;gap:4px;">${editBtn}${delBtn}${(!editBtn&&!delBtn)?'<span style="color:#94a3b8;font-size:12px;">唯讀</span>':''}</td></tr>`;
   }).join("");
 }
 
@@ -1270,8 +1267,9 @@ function openProductModal(rowIndex = 0) {
   const p = rowIndex ? allProducts.find(x => x.rowIndex === rowIndex) : null;
   if (p && !currentUser.canEdit) return alert("您沒有「編輯」權限");
   if (!p && !currentUser.canCreate) return alert("您沒有「新增」權限");
-  document.getElementById("erpModalTitle").innerText = p ? `✏️ 編輯商品：${p["商品名稱"]}` : "＋ 新增商品";
+  document.getElementById("erpModalTitle").innerText = p ? `✏️ 編輯商品：${p["商品名稱"]}` : "＋ 新增商品（可刷入條碼）";
   document.getElementById("erpModalBody").innerHTML = `<div class="form-grid">
+    <div class="fld"><label>商品編號 / 條碼 (可用條碼槍掃入)</label><input id="mpSku" lang="en" value="${esc(p?.["商品編號"]||p?.["條碼"]||"")}" placeholder="掃描或輸入條碼號..."></div>
     <div class="fld"><label>商品名稱 *</label><input id="mpName" value="${esc(p?.["商品名稱"]||"")}"></div>
     <div class="fld"><label>售價</label><input type="number" id="mpPrice" value="${p?.["售價"]||0}"></div>
     <div class="fld"><label>分類</label><input id="mpCat" value="${esc(p?.["類別"]||"生鮮")}"></div>
@@ -1285,11 +1283,58 @@ function openProductModal(rowIndex = 0) {
     <div class="fld" style="grid-column:1/-1;"><label>商品簡介</label><input id="mpDesc" value="${esc(p?.["商品簡介"]||"")}" placeholder="商品特色或產地說明..."></div>
   </div><div style="text-align:right;margin-top:14px;"><button class="btn-suc" onclick="submitProduct(${p?.rowIndex||0})">💾 儲存商品</button></div>`;
   document.getElementById("erpModal").style.display = "flex";
+
+  // 讓新增/編輯商品的條碼框支援中文輸入法下直接刷條碼，刷完自動跳下一格
+  const skuEl = document.getElementById("mpSku");
+  let sBuf = "", sLast = 0, sFast = 0, sLockUntil = 0, resolvedSku = "";
+  skuEl.addEventListener("keydown", e => {
+    const now = Date.now();
+    if (e.code === "Enter" || e.code === "NumpadEnter") {
+      e.preventDefault();
+      const raw = skuEl.value.trim();
+      const hasZhuyin = /[\u3105-\u3129\u02CA\u02C7\u02CB\u02D9]/.test(raw);
+      if (sBuf && (sFast >= 3 || hasZhuyin || e.isComposing || e.key === "Process")) {
+        resolvedSku = sBuf;
+        skuEl.value = resolvedSku;
+        sLockUntil = Date.now() + 150;
+      } else {
+        resolvedSku = raw;
+      }
+      sBuf = ""; sFast = 0;
+      setTimeout(() => {
+        if (Date.now() < sLockUntil && resolvedSku) skuEl.value = resolvedSku;
+        document.getElementById("mpName").focus();
+      }, 25);
+      return;
+    }
+    if (e.code === "Backspace") { sBuf = sBuf.slice(0, -1); return; }
+    if (["ShiftLeft", "ShiftRight", "ControlLeft", "ControlRight", "AltLeft", "AltRight"].includes(e.code)) return;
+    const ch = codeToAscii(e);
+    if (ch) {
+      const gap = now - sLast;
+      if (gap > 1200) { sBuf = ""; sFast = 0; }
+      else if (gap <= 65) { sFast++; }
+      sLast = now;
+      sBuf += ch;
+    }
+  });
+  skuEl.addEventListener("compositionend", () => {
+    if (Date.now() < sLockUntil && resolvedSku) skuEl.value = resolvedSku;
+  });
+  skuEl.addEventListener("input", () => {
+    if (Date.now() < sLockUntil && resolvedSku && /[\u3105-\u3129\u02CA\u02C7\u02CB\u02D9]/.test(skuEl.value)) {
+      skuEl.value = resolvedSku;
+    } else if (skuEl.value === "" && Date.now() >= sLockUntil) {
+      sBuf = ""; sFast = 0; resolvedSku = "";
+    }
+  });
 }
 
 async function submitProduct(rowIndex) {
+  const bc = document.getElementById("mpSku").value.trim();
   const payload = {
     token: SESSION_TOKEN, rowIndex, storeCode: POS_STORE, storeName: STORE_NAME,
+    sku: bc, barcode: bc,
     name: document.getElementById("mpName").value,
     price: document.getElementById("mpPrice").value,
     category: document.getElementById("mpCat").value,
