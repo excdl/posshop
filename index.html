@@ -10,6 +10,7 @@ body { margin: 0; font-family: "Microsoft JhengHei", Arial, sans-serif; backgrou
 button { cursor: pointer; outline: none; transition: 0.15s; font-family: inherit; }
 button:disabled { opacity: 0.5; cursor: not-allowed; }
 input, select { font-family: inherit; }
+.masked-pin { -webkit-text-security: disc; text-security: disc; }
 
 /* 頂部導覽列 */
 #topNav { height: 50px; background: #0f172a; color: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 12px; gap: 10px; flex-shrink: 0; }
@@ -42,7 +43,7 @@ input, select { font-family: inherit; }
 
 #posCenter { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: #f1f5f9; }
 #barcodeBar { display: flex; gap: 8px; padding: 10px 15px; background: #fff; border-bottom: 1px solid #e2e8f0; align-items: center; }
-#barcodeInput { flex: 1; padding: 9px 12px; border: 2px solid #2563eb; border-radius: 8px; font-size: 15px; font-weight: bold; background: #eff6ff; }
+#barcodeInput { flex: 1; padding: 9px 12px; border: 2px solid #2563eb; border-radius: 8px; font-size: 15px; font-weight: bold; background: #eff6ff; ime-mode: disabled; }
 #barcodeInput:focus { outline: none; background: #fff; box-shadow: 0 0 0 3px rgba(37,99,235,0.2); }
 .btn-scan { padding: 9px 14px; border: none; border-radius: 8px; background: #0f172a; color: #fff; font-weight: bold; font-size: 13px; white-space: nowrap; }
 .btn-scan:hover { background: #334155; }
@@ -143,13 +144,16 @@ table.erp-tbl tr:nth-child(even) { background: #f8fafc; }
 
 <div id="toast"></div>
 
-<!-- 登入頁 -->
+<!-- 登入頁（採遮罩輸入避免 Chrome 誤觸發密碼外洩警告） -->
 <div id="loginPage" style="display:flex;justify-content:center;align-items:center;height:100vh;background:#2563eb;">
   <div style="background:#fff;padding:34px 28px;border-radius:14px;box-shadow:0 10px 25px rgba(0,0,0,0.25);width:345px;text-align:center;">
     <h2 style="margin:0 0 16px;color:#0f172a;">彩鮮 POS 進銷存登入</h2>
-    <input id="storeInput" placeholder="門市編號（例如 001）" style="width:100%;padding:11px;margin:7px 0;border-radius:8px;border:1px solid #cbd5e1;font-size:15px;">
-    <input id="accountInput" placeholder="登入帳號（門市主帳號登入可留空）" style="width:100%;padding:11px;margin:7px 0;border-radius:8px;border:1px solid #cbd5e1;font-size:15px;">
-    <input id="passwordInput" placeholder="密碼" type="password" style="width:100%;padding:11px;margin:7px 0;border-radius:8px;border:1px solid #cbd5e1;font-size:15px;" onkeydown="if(event.key==='Enter')login()">
+    <input id="storeInput" type="text" autocomplete="off" placeholder="門市編號（例如 001）" style="width:100%;padding:11px;margin:7px 0;border-radius:8px;border:1px solid #cbd5e1;font-size:15px;">
+    <input id="accountInput" type="text" autocomplete="off" placeholder="登入帳號（門市主帳號登入可留空）" style="width:100%;padding:11px;margin:7px 0;border-radius:8px;border:1px solid #cbd5e1;font-size:15px;">
+    <div style="position:relative;margin:7px 0;">
+      <input id="passwordInput" type="text" autocomplete="off" spellcheck="false" class="masked-pin" placeholder="密碼" style="width:100%;padding:11px 40px 11px 11px;border-radius:8px;border:1px solid #cbd5e1;font-size:15px;" onkeydown="if(event.key==='Enter')login()">
+      <button type="button" id="togglePwdBtn" onclick="toggleLoginPwdMask()" title="顯示/隱藏密碼" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:16px;padding:4px;color:#64748b;">👁️</button>
+    </div>
     <button id="loginBtn" onclick="login()" style="width:100%;padding:12px;margin-top:14px;border:none;border-radius:8px;background:#16a34a;color:#fff;font-size:16px;font-weight:bold;">登入系統</button>
     <p id="loginMsg" style="color:#dc2626;margin-top:10px;font-size:14px;min-height:20px;"></p>
   </div>
@@ -185,7 +189,7 @@ table.erp-tbl tr:nth-child(even) { background: #f8fafc; }
     </div>
     <div id="posCenter">
       <div id="barcodeBar">
-        <input type="text" id="barcodeInput" placeholder="📷 請掃描條碼 或 輸入 條碼 / 數量*條碼（Enter 加入購物車）" autocomplete="off">
+        <input type="text" id="barcodeInput" lang="en" placeholder="📷 請掃描條碼 或 輸入商品名稱 / 數量*條碼（Enter 加入）" autocomplete="off">
         <button class="btn-scan" onclick="handleBarcodeFromBox()">加入</button>
         <button class="btn-scan" style="background:#2563eb;" onclick="openCameraScanner('pos')">📷 相機掃碼</button>
       </div>
@@ -241,7 +245,7 @@ table.erp-tbl tr:nth-child(even) { background: #f8fafc; }
         <div class="fld"><label>備註</label><input type="text" id="purNote" placeholder="發票號或批號..."></div>
       </div>
       <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
-        <input type="text" id="purSearchInput" placeholder="📷 掃條碼或輸入商品名稱/編號，按 Enter 加入進貨明細..." style="flex:1;min-width:240px;padding:9px;border:2px solid #2563eb;border-radius:8px;font-size:14px;" list="dlAllProducts" onkeydown="if(event.key==='Enter'){event.preventDefault();addPurProductFromInput();}">
+        <input type="text" id="purSearchInput" lang="en" placeholder="📷 掃條碼或輸入商品名稱，按 Enter 加入進貨明細..." style="flex:1;min-width:240px;padding:9px;border:2px solid #2563eb;border-radius:8px;font-size:14px;" list="dlAllProducts">
         <button class="btn-pri" data-perm="create" onclick="addPurProductFromInput()">＋ 加入進貨明細</button>
         <button class="btn-scan" onclick="openCameraScanner('purchase')">📷 相機掃碼</button>
       </div>
@@ -270,12 +274,12 @@ table.erp-tbl tr:nth-child(even) { background: #f8fafc; }
       <div class="erp-header">
         <h2>📊 即時門市庫存與成本明細</h2>
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-          <input type="text" id="invSearch" placeholder="搜尋商品/條碼..." oninput="renderInventoryTable()" style="padding:7px 10px;border:1px solid #cbd5e1;border-radius:6px;">
+          <input type="text" id="invSearch" placeholder="搜尋商品/分類..." oninput="renderInventoryTable()" style="padding:7px 10px;border:1px solid #cbd5e1;border-radius:6px;">
           <label style="font-size:13px;font-weight:bold;"><input type="checkbox" id="invOnlyLow" onchange="renderInventoryTable()"> 只看低庫存/負庫存</label>
           <button class="btn-sec" onclick="loadInventoryData()">🔄 同步庫存</button>
         </div>
       </div>
-      <div class="table-wrap"><table class="erp-tbl"><thead><tr><th>商品編號/條碼</th><th>商品名稱</th><th>分類</th><th>單位</th><th>目前庫存</th><th>安全庫存</th><th>移動平均成本</th><th>最新進價</th><th>庫存總成本</th><th>狀態</th><th>盤點 / 報廢 / 設定</th></tr></thead><tbody id="invTableBody"></tbody></table></div>
+      <div class="table-wrap"><table class="erp-tbl"><thead><tr><th>商品名稱</th><th>分類</th><th>單位</th><th>可用庫存</th><th>目前庫存</th><th>安全庫存</th><th>移動平均成本</th><th>最新進價</th><th>庫存總成本</th><th>狀態</th><th>盤點 / 報廢 / 設定</th></tr></thead><tbody id="invTableBody"></tbody></table></div>
     </div>
     <div class="erp-card">
       <div class="erp-header"><h2>📜 庫存異動流水帳（最近 100 筆）</h2></div>
@@ -314,13 +318,13 @@ table.erp-tbl tr:nth-child(even) { background: #f8fafc; }
   <section id="tab-master" class="tab-page erp-page">
     <div class="erp-card">
       <div class="erp-header">
-        <h2>🏷️ 商品主檔（條碼 / 售價 / 安全庫存設定）</h2>
+        <h2>🏷️ 商品主檔（售價 / 庫存 / 安全庫存設定）</h2>
         <div style="display:flex;gap:8px;">
-          <input type="text" id="masterProdSearch" placeholder="搜尋商品/條碼..." oninput="renderMasterProducts()" style="padding:7px;border:1px solid #cbd5e1;border-radius:6px;">
+          <input type="text" id="masterProdSearch" placeholder="搜尋商品/分類/簡介..." oninput="renderMasterProducts()" style="padding:7px;border:1px solid #cbd5e1;border-radius:6px;">
           <button class="btn-pri" data-perm="create" onclick="openProductModal()">＋ 新增商品</button>
         </div>
       </div>
-      <div class="table-wrap"><table class="erp-tbl"><thead><tr><th>商品編號/條碼</th><th>商品名稱</th><th>分類</th><th>商品簡介</th><th>單位</th><th>售價</th><th>安全庫存</th><th>平均成本</th><th>上架</th><th>操作</th></tr></thead><tbody id="masterProdBody"></tbody></table></div>
+      <div class="table-wrap"><table class="erp-tbl"><thead><tr><th>商品名稱</th><th>售價</th><th>可用庫存</th><th>庫存</th><th>分類</th><th>商品簡介</th><th>單位</th><th>上架</th><th>安全庫存</th><th>平均成本</th><th>最新進價</th><th>主供應商</th><th>操作</th></tr></thead><tbody id="masterProdBody"></tbody></table></div>
     </div>
     <div class="erp-card">
       <div class="erp-header"><h2>🚚 供應商管理</h2><button class="btn-pri" data-perm="create" onclick="openSupplierModal()">＋ 新增供應商</button></div>
@@ -403,7 +407,7 @@ table.erp-tbl tr:nth-child(even) { background: #f8fafc; }
 </div>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbxoCrpQN6hvttlIHlK2ifOIlsJ4bgoYWmgeo32pSXvJEIWRacR-Lckg111cxS_z_f5Q/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbznXH7lfhWgSUTS7hP1yckhCZCZNoiZYwphOQ39DzKq68Z4TUF37oeHArFoX-Q2wJnI/exec";
 const SESSION_KEY = "cx_pos_session_token";
 
 let POS_STORE = "", STORE_NAME = "", SESSION_TOKEN = "";
@@ -448,6 +452,13 @@ function updateLoginTime() {
   document.getElementById("loginTime").innerText = new Date().toLocaleString("zh-TW", { hour12: false });
 }
 
+function toggleLoginPwdMask() {
+  const inp = document.getElementById("passwordInput");
+  const btn = document.getElementById("togglePwdBtn");
+  const isMasked = inp.classList.toggle("masked-pin");
+  btn.innerText = isMasked ? "👁️" : "🙈";
+}
+
 function enterAppWithSession(data) {
   POS_STORE = data.storeCode;
   STORE_NAME = data.storeName;
@@ -455,6 +466,11 @@ function enterAppWithSession(data) {
   if (SESSION_TOKEN) localStorage.setItem(SESSION_KEY, SESSION_TOKEN);
 
   currentUser = data.user || { userId: "", account: "", name: data.storeName, role: "後臺管理", canCreate: true, canEdit: true, canDelete: true };
+
+  const pwdEl = document.getElementById("passwordInput");
+  pwdEl.value = "";
+  pwdEl.classList.add("masked-pin");
+  document.getElementById("togglePwdBtn").innerText = "👁️";
 
   document.getElementById("loginPage").style.display = "none";
   document.getElementById("posApp").style.display = "flex";
@@ -544,7 +560,9 @@ async function logout() {
   SESSION_TOKEN = ""; POS_STORE = ""; STORE_NAME = ""; posCart = []; purCart = [];
   document.getElementById("posApp").style.display = "none";
   document.getElementById("loginPage").style.display = "flex";
-  document.getElementById("passwordInput").value = "";
+  const pwdEl = document.getElementById("passwordInput");
+  pwdEl.value = ""; pwdEl.classList.add("masked-pin");
+  document.getElementById("togglePwdBtn").innerText = "👁️";
   switchTab("pos", document.querySelector('.nav-tab[data-tab="pos"]'), true);
   btn.disabled = false; btn.innerText = "登出"; btn.classList.remove("active");
 }
@@ -685,18 +703,19 @@ function renderProducts(category = null, search = "") {
     }
     return true;
   }).forEach(p => {
-    const stock = Number(p["庫存"] || 0), safety = Number(p["安全庫存"] || 0), u = p["庫存單位"] || p["單位"];
+    const stock = Number(p["可用庫存"] !== undefined ? p["可用庫存"] : (p["庫存"] || 0));
+    const safety = Number(p["安全庫存"] || 0), u = p["庫存單位"] || p["單位"];
     const badgeCls = stock <= 0 ? "out" : (stock <= safety ? "low" : "");
     const card = document.createElement("div");
     card.className = "product-card";
     if (p["商品簡介"]) card.title = p["商品簡介"];
-    card.innerHTML = `<img src="${esc(p["商品照片"])}" onerror="this.style.opacity=0.3"><h4>${esc(p["商品名稱"])}</h4><p class="p-price">${p["售價"]}元 / ${esc(p["單位"])}</p><span class="stock-badge ${badgeCls}">庫存 ${stock} ${esc(u)}</span>`;
+    card.innerHTML = `<img src="${esc(p["商品照片"])}" onerror="this.style.opacity=0.3"><h4>${esc(p["商品名稱"])}</h4><p class="p-price">${p["售價"]}元 / ${esc(p["單位"])}</p><span class="stock-badge ${badgeCls}">可用 ${stock} ${esc(u)}</span>`;
     card.onclick = () => addPOSItem(p, 1);
     box.appendChild(card);
   });
 }
 
-// ===== 📷 條碼掃描引擎 =====
+// ===== 📷 條碼掃描引擎（支援中文注音輸入法下自動還原實體掃碼）=====
 function findProductByBarcode(code, pool = products) {
   const c = String(code || "").trim().toLowerCase();
   if (!c) return null;
@@ -729,15 +748,84 @@ function handleBarcodeScan(rawInput, target = "pos") {
   }
 }
 
+function codeToAscii(e) {
+  const code = e.code || "";
+  if (code.startsWith("Digit") && code.length === 6) {
+    const d = code[5];
+    if (e.shiftKey && d === "8") return "*";
+    if (!e.shiftKey) return d;
+    return "";
+  }
+  if (code.startsWith("Numpad") && code.length === 7 && code[6] >= "0" && code[6] <= "9") return code[6];
+  if (code.startsWith("Key") && code.length === 4) return e.shiftKey ? code[3] : code[3].toLowerCase();
+  if (code === "NumpadMultiply") return "*";
+  if (code === "Minus") return e.shiftKey ? "_" : "-";
+  if (code === "NumpadSubtract") return "-";
+  if (code === "Period" && !e.shiftKey) return ".";
+  if (code === "NumpadDecimal") return ".";
+  if (code === "Slash" && !e.shiftKey) return "/";
+  if (code === "NumpadDivide") return "/";
+  return "";
+}
+
+function attachImeSafeBarcodeInput(inputEl, target) {
+  let buf = "", lastAt = 0, fastCount = 0, clearUntil = 0;
+
+  inputEl.addEventListener("keydown", e => {
+    const now = Date.now();
+    if (e.code === "Enter" || e.code === "NumpadEnter") {
+      e.preventDefault();
+      const rawVal = inputEl.value.trim();
+      const hasZhuyin = /[\u3105-\u3129\u02CA\u02C7\u02CB\u02D9]/.test(rawVal);
+      const isFastScan = fastCount >= 3;
+      const pool = target === "purchase" ? (allProducts.length ? allProducts : products) : products;
+
+      let finalCode = rawVal;
+      if (buf && (isFastScan || hasZhuyin || e.isComposing || e.key === "Process")) {
+        if (!(rawVal && !hasZhuyin && !isFastScan && findProductByBarcode(rawVal, pool))) {
+          finalCode = buf;
+        }
+      }
+
+      buf = ""; fastCount = 0;
+      clearUntil = Date.now() + 150;
+      inputEl.value = "";
+      if (finalCode) handleBarcodeScan(finalCode, target);
+      setTimeout(() => { inputEl.value = ""; inputEl.focus(); }, 25);
+      return;
+    }
+
+    if (e.code === "Backspace") { buf = buf.slice(0, -1); return; }
+    if (["ShiftLeft", "ShiftRight", "ControlLeft", "ControlRight", "AltLeft", "AltRight"].includes(e.code)) return;
+
+    const ch = codeToAscii(e);
+    if (ch) {
+      const gap = now - lastAt;
+      if (gap > 1200) { buf = ""; fastCount = 0; }
+      else if (gap <= 65) { fastCount++; }
+      lastAt = now;
+      buf += ch;
+    }
+  });
+
+  const clearIfJustScanned = () => {
+    if (Date.now() < clearUntil) inputEl.value = "";
+    else if (inputEl.value === "") { buf = ""; fastCount = 0; }
+  };
+  inputEl.addEventListener("compositionend", clearIfJustScanned);
+  inputEl.addEventListener("input", clearIfJustScanned);
+}
+
 function handleBarcodeFromBox() {
   const inp = document.getElementById("barcodeInput");
   handleBarcodeScan(inp.value, "pos");
   inp.value = ""; inp.focus();
 }
-document.getElementById("barcodeInput").addEventListener("keydown", e => {
-  if (e.key === "Enter") { e.preventDefault(); handleBarcodeFromBox(); }
-});
 
+attachImeSafeBarcodeInput(document.getElementById("barcodeInput"), "pos");
+attachImeSafeBarcodeInput(document.getElementById("purSearchInput"), "purchase");
+
+// 全域實體條碼槍監聽（游標不在輸入框內也能掃描，且相容中文輸入法）
 let scanBuf = "", lastKeyTime = 0;
 document.addEventListener("keydown", e => {
   if (!POS_STORE) return;
@@ -752,14 +840,15 @@ document.addEventListener("keydown", e => {
   if (now - lastKeyTime > 80) scanBuf = "";
   lastKeyTime = now;
 
-  if (e.key === "Enter") {
+  if (e.code === "Enter" || e.code === "NumpadEnter") {
     if (scanBuf.length >= 3) {
       e.preventDefault();
       handleBarcodeScan(scanBuf, purTabActive ? "purchase" : "pos");
     }
     scanBuf = "";
-  } else if (e.key.length === 1) {
-    scanBuf += e.key;
+  } else {
+    const ch = codeToAscii(e) || (e.key.length === 1 ? e.key : "");
+    if (ch) scanBuf += ch;
   }
 });
 
@@ -1032,7 +1121,7 @@ async function loadInventoryData() {
   applyProductsUpdate(allProducts.filter(p => p["是否上架"] === "是"));
 
   document.getElementById("purSupplier").innerHTML = `<option value="">-- 選擇供應商 --</option>` + suppliers.map(s => `<option value="${esc(s.name)}">${esc(s.name)}</option>`).join("");
-  document.getElementById("dlAllProducts").innerHTML = allProducts.map(p => `<option value="${esc(p["商品名稱"])}">${esc(p["商品編號"]||"")} ${esc(p["商品名稱"])}</option>`).join("");
+  document.getElementById("dlAllProducts").innerHTML = allProducts.map(p => `<option value="${esc(p["商品名稱"])}">${esc(p["商品名稱"])} (${esc(p["類別"])})</option>`).join("");
   renderPurchaseHistory(); renderInventoryTable(); renderStockLogs(); renderMasterProducts(); renderMasterSuppliers();
   applyRolePermissions();
 }
@@ -1094,17 +1183,18 @@ function renderInventoryTable() {
   const rows = allProducts.filter(p => {
     const s = Number(p["庫存"]||0);
     if (onlyLow && s > Number(p["安全庫存"]||0)) return false;
-    if (kw && !`${p["商品名稱"]} ${p["商品編號"]} ${p["條碼"]||""}`.toLowerCase().includes(kw)) return false;
+    if (kw && !`${p["商品名稱"]} ${p["類別"]} ${p["商品簡介"]||""}`.toLowerCase().includes(kw)) return false;
     return true;
   });
   const canEdit = currentUser.canEdit;
   document.getElementById("invTableBody").innerHTML = rows.map(p => {
+    const avail = Number(p["可用庫存"] !== undefined ? p["可用庫存"] : (p["庫存"] || 0));
     const s = Number(p["庫存"]||0), sf = Number(p["安全庫存"]||0), val = roundMoney(Math.max(s,0) * Number(p["平均成本"]||0));
     const tag = s <= 0 ? `<span class="tag tag-bad">缺貨/負庫存</span>` : (s <= sf ? `<span class="tag tag-low">低庫存</span>` : `<span class="tag tag-ok">正常</span>`);
     const ops = canEdit
       ? `<button class="btn-pri" onclick="openAdjustModal('${esc(p["商品名稱"])}','stocktake',${s})">📝盤點</button><button class="btn-dan" onclick="openAdjustModal('${esc(p["商品名稱"])}','spoilage',${s})">🗑️報廢</button><button class="btn-sec" onclick="openAdjustModal('${esc(p["商品名稱"])}','setting',${sf},${p["平均成本"]})">⚙️</button>`
       : `<span style="color:#94a3b8;font-size:12px;">無編輯權限</span>`;
-    return `<tr><td>${esc(p["商品編號"]||"—")}</td><td><b>${esc(p["商品名稱"])}</b></td><td>${esc(p["類別"])}</td><td>${esc(p["庫存單位"]||p["單位"])}</td><td class="num">${s}</td><td class="num">${sf}</td><td class="num">${p["平均成本"]}</td><td class="num">${p["最新進價"]}</td><td class="num">${formatNumber(val)}</td><td>${tag}</td><td style="display:flex;gap:4px;">${ops}</td></tr>`;
+    return `<tr><td><b>${esc(p["商品名稱"])}</b></td><td>${esc(p["類別"])}</td><td>${esc(p["庫存單位"]||p["單位"])}</td><td class="num" style="color:#2563eb;">${avail}</td><td class="num">${s}</td><td class="num">${sf}</td><td class="num">${p["平均成本"]}</td><td class="num">${p["最新進價"]}</td><td class="num">${formatNumber(val)}</td><td>${tag}</td><td style="display:flex;gap:4px;">${ops}</td></tr>`;
   }).join("");
 }
 function renderStockLogs() {
@@ -1167,39 +1257,56 @@ function exportProfitCSV() {
 // ===== 🏷️ 商品與供應商主檔 =====
 function renderMasterProducts() {
   const kw = document.getElementById("masterProdSearch").value.trim().toLowerCase();
-  const rows = allProducts.filter(p => !kw || `${p["商品名稱"]} ${p["商品編號"]} ${p["類別"]} ${p["商品簡介"]||""}`.toLowerCase().includes(kw));
+  const rows = allProducts.filter(p => !kw || `${p["商品名稱"]} ${p["類別"]} ${p["商品簡介"]||""} ${p["主供應商"]||""}`.toLowerCase().includes(kw));
   document.getElementById("masterProdBody").innerHTML = rows.map(p => {
+    const avail = p["可用庫存"] !== undefined ? p["可用庫存"] : p["庫存"];
     const editBtn = currentUser.canEdit ? `<button class="btn-pri" onclick="openProductModal(${p.rowIndex})">編輯</button>` : "";
     const delBtn = currentUser.canDelete ? `<button class="btn-dan" onclick="deleteProduct(${p.rowIndex})">刪除</button>` : "";
-    return `<tr><td><b>${esc(p["商品編號"]||"—")}</b></td><td>${esc(p["商品名稱"])}</td><td>${esc(p["類別"])}</td><td>${esc(p["商品簡介"]||"")}</td><td>${esc(p["單位"])}</td><td class="num">${p["售價"]}</td><td class="num">${p["安全庫存"]}</td><td class="num">${p["平均成本"]}</td><td>${esc(p["是否上架"])}</td><td style="display:flex;gap:4px;">${editBtn}${delBtn}${(!editBtn&&!delBtn)?'<span style="color:#94a3b8;font-size:12px;">唯讀</span>':''}</td></tr>`;
+    return `<tr><td><b>${esc(p["商品名稱"])}</b></td><td class="num">${p["售價"]}</td><td class="num" style="color:#2563eb;">${avail}</td><td class="num">${p["庫存"]}</td><td>${esc(p["類別"])}</td><td>${esc(p["商品簡介"]||"")}</td><td>${esc(p["單位"])}</td><td>${esc(p["是否上架"])}</td><td class="num">${p["安全庫存"]}</td><td class="num">${p["平均成本"]}</td><td class="num">${p["最新進價"]}</td><td>${esc(p["主供應商"]||"")}</td><td style="display:flex;gap:4px;">${editBtn}${delBtn}${(!editBtn&&!delBtn)?'<span style="color:#94a3b8;font-size:12px;">唯讀</span>':''}</td></tr>`;
   }).join("");
 }
+
 function openProductModal(rowIndex = 0) {
   const p = rowIndex ? allProducts.find(x => x.rowIndex === rowIndex) : null;
   if (p && !currentUser.canEdit) return alert("您沒有「編輯」權限");
   if (!p && !currentUser.canCreate) return alert("您沒有「新增」權限");
-  document.getElementById("erpModalTitle").innerText = p ? `✏️ 編輯商品：${p["商品名稱"]}` : "＋ 新增商品（可刷入條碼）";
+  document.getElementById("erpModalTitle").innerText = p ? `✏️ 編輯商品：${p["商品名稱"]}` : "＋ 新增商品";
   document.getElementById("erpModalBody").innerHTML = `<div class="form-grid">
-    <div class="fld"><label>商品編號 / 條碼 (SKU)</label><input id="mpSku" value="${esc(p?.["商品編號"]||"")}" placeholder="刷入商品條碼..."></div>
     <div class="fld"><label>商品名稱 *</label><input id="mpName" value="${esc(p?.["商品名稱"]||"")}"></div>
+    <div class="fld"><label>售價</label><input type="number" id="mpPrice" value="${p?.["售價"]||0}"></div>
     <div class="fld"><label>分類</label><input id="mpCat" value="${esc(p?.["類別"]||"生鮮")}"></div>
     <div class="fld"><label>計價單位</label><input id="mpUnit" value="${esc(p?.["單位"]||"斤")}" placeholder="斤 / 半斤 / 盒 / 包"></div>
-    <div class="fld"><label>售價</label><input type="number" id="mpPrice" value="${p?.["售價"]||0}"></div>
-    <div class="fld"><label>安全庫存</label><input type="number" id="mpSafety" value="${p?.["安全庫存"]??5}"></div>
-    <div class="fld"><label>初始/平均成本</label><input type="number" step="0.01" id="mpCost" value="${p?.["平均成本"]||0}"></div>
-    ${p?"":`<div class="fld"><label>期初庫存數量</label><input type="number" step="0.01" id="mpInitStock" value="0"></div>`}
     <div class="fld"><label>是否上架</label><select id="mpListed"><option value="是" ${p?.["是否上架"]!=="否"?"selected":""}>是</option><option value="否" ${p?.["是否上架"]==="否"?"selected":""}>否</option></select></div>
+    <div class="fld"><label>安全庫存</label><input type="number" id="mpSafety" value="${p?.["安全庫存"]??5}"></div>
+    <div class="fld"><label>移動平均成本</label><input type="number" step="0.01" id="mpCost" value="${p?.["平均成本"]||0}"></div>
+    ${p?"":`<div class="fld"><label>期初庫存數量</label><input type="number" step="0.01" id="mpInitStock" value="0"></div>`}
+    <div class="fld"><label>主供應商</label><input id="mpSupplier" value="${esc(p?.["主供應商"]||"")}"></div>
     <div class="fld"><label>圖片連結</label><input id="mpImg" value="${esc(p?.["商品照片"]||"")}"></div>
     <div class="fld" style="grid-column:1/-1;"><label>商品簡介</label><input id="mpDesc" value="${esc(p?.["商品簡介"]||"")}" placeholder="商品特色或產地說明..."></div>
   </div><div style="text-align:right;margin-top:14px;"><button class="btn-suc" onclick="submitProduct(${p?.rowIndex||0})">💾 儲存商品</button></div>`;
   document.getElementById("erpModal").style.display = "flex";
 }
+
 async function submitProduct(rowIndex) {
-  const payload = { token: SESSION_TOKEN, rowIndex, storeCode: POS_STORE, storeName: STORE_NAME, sku: document.getElementById("mpSku").value, name: document.getElementById("mpName").value, category: document.getElementById("mpCat").value, description: document.getElementById("mpDesc").value, unit: document.getElementById("mpUnit").value, price: document.getElementById("mpPrice").value, safetyStock: document.getElementById("mpSafety").value, avgCost: document.getElementById("mpCost").value, initStock: document.getElementById("mpInitStock")?.value, listed: document.getElementById("mpListed").value, image: document.getElementById("mpImg").value };
+  const payload = {
+    token: SESSION_TOKEN, rowIndex, storeCode: POS_STORE, storeName: STORE_NAME,
+    name: document.getElementById("mpName").value,
+    price: document.getElementById("mpPrice").value,
+    category: document.getElementById("mpCat").value,
+    description: document.getElementById("mpDesc").value,
+    unit: document.getElementById("mpUnit").value,
+    listed: document.getElementById("mpListed").value,
+    image: document.getElementById("mpImg").value,
+    safetyStock: document.getElementById("mpSafety").value,
+    avgCost: document.getElementById("mpCost").value,
+    initStock: document.getElementById("mpInitStock")?.value,
+    supplier: document.getElementById("mpSupplier").value
+  };
   const res = await fetch(`${API_URL}?action=saveProduct&token=${encodeURIComponent(SESSION_TOKEN)}`, { method: "POST", body: JSON.stringify(payload) });
   const d = await res.json();
   if (d.status === "success") { closeErpModal(); await loadInventoryData(); showToast(d.message, "#16a34a"); } else alert(d.message);
 }
+
 async function deleteProduct(rowIndex) {
   if (!currentUser.canDelete) return alert("您沒有「刪除」權限");
   const p = allProducts.find(x => x.rowIndex === rowIndex);
@@ -1217,6 +1324,7 @@ function renderMasterSuppliers() {
       return `<tr><td>${esc(s.code)}</td><td><b>${esc(s.name)}</b></td><td>${esc(s.contact)}</td><td>${esc(s.phone)}</td><td>${esc(s.terms)}</td><td>${esc(s.note)}</td><td style="display:flex;gap:4px;">${editBtn}${delBtn}${(!editBtn&&!delBtn)?'<span style="color:#94a3b8;font-size:12px;">唯讀</span>':''}</td></tr>`;
     }).join("");
 }
+
 function openSupplierModal(rowIndex = 0) {
   const s = rowIndex ? suppliers.find(x => x.rowIndex === rowIndex) : null;
   if (s && !currentUser.canEdit) return alert("您沒有「編輯」權限");
@@ -1231,12 +1339,14 @@ function openSupplierModal(rowIndex = 0) {
   </div><div style="text-align:right;margin-top:14px;"><button class="btn-suc" onclick="submitSupplier(${s?.rowIndex||0},'${esc(s?.code||"")}')">💾 儲存供應商</button></div>`;
   document.getElementById("erpModal").style.display = "flex";
 }
+
 async function submitSupplier(rowIndex, code) {
   const payload = { token: SESSION_TOKEN, rowIndex, code, name: document.getElementById("msName").value, contact: document.getElementById("msContact").value, phone: document.getElementById("msPhone").value, terms: document.getElementById("msTerms").value, note: document.getElementById("msNote").value };
   const res = await fetch(`${API_URL}?action=saveSupplier&token=${encodeURIComponent(SESSION_TOKEN)}`, { method: "POST", body: JSON.stringify(payload) });
   const d = await res.json();
   if (d.status === "success") { closeErpModal(); await loadInventoryData(); showToast(d.message, "#16a34a"); } else alert(d.message);
 }
+
 async function deleteSupplier(rowIndex) {
   if (!currentUser.canDelete) return alert("您沒有「刪除」權限");
   const s = suppliers.find(x => x.rowIndex === rowIndex);
@@ -1314,7 +1424,7 @@ function openUserModal(rowIndex = 0) {
     <div class="form-grid">
       <div class="fld"><label>所屬門市編號 *</label><input id="muStore" value="${esc(u?.storeCode || POS_STORE)}"></div>
       <div class="fld"><label>登入帳號 *</label><input id="muAccount" value="${esc(u?.account || "")}" placeholder="例如 cashier01"></div>
-      <div class="fld"><label>登入密碼 ${u?"(留空不修改)":"*"}</label><input id="muPwd" type="text" value="" placeholder="${u?"若需改密碼再填寫":"請輸入登入密碼"}"></div>
+      <div class="fld"><label>登入密碼 ${u?"(留空不修改)":"*"}</label><input id="muPwd" type="text" autocomplete="off" value="" placeholder="${u?"若需改密碼再填寫":"請輸入登入密碼"}"></div>
       <div class="fld"><label>姓名 / 職稱</label><input id="muName" value="${esc(u?.name || "")}" placeholder="例如 早班收銀員"></div>
       <div class="fld"><label>權限設定 *</label>
         <select id="muRole" onchange="togglePermCheckboxes()">
@@ -1379,7 +1489,6 @@ async function deleteUser(rowIndex) {
 </script>
 </body>
 </html>
-
 
 
 
