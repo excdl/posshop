@@ -38,54 +38,336 @@ input, select { font-family: inherit; }
 .tab-page { display: none; flex: 1; overflow: hidden; }
 .tab-page.active { display: flex; }
 
-/* 前台 POS 區 */
-#posCategories { width: 16%; min-width: 140px; background: #2563eb; padding: 12px; color: #fff; overflow-y: auto; }
-#posCategories h3 { margin: 10px 0 8px; font-size: 1.05em; }
-#posCategories button.cat-btn { width: 100%; margin: 4px 0; padding: 11px 8px; font-size: 1em; border: none; border-radius: 8px; background: #1d4ed8; color: #fff; font-weight: 600; }
-#posCategories button.cat-btn.active { background: #f1c40f; color: #1e293b; font-weight: bold; }
-#searchBox { width: 100%; padding: 8px; border-radius: 6px; border: none; font-size: 14px; margin-bottom: 6px; }
+/* 前台 POS 區：左邊分類 9 宮格 */
+#posCategories {
+  width: 24%;
+  min-width: 240px;
+  max-width: 320px;
+  background: #2563eb;
+  padding: 12px;
+  color: #fff;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  align-content: start;
+}
+#posCategories h3 {
+  grid-column: 1 / -1;
+  margin: 4px 0 2px;
+  font-size: 18px;
+  font-weight: 800;
+  border-bottom: 2px solid rgba(255,255,255,0.28);
+  padding-bottom: 6px;
+}
+#searchBox {
+  grid-column: 1 / -1;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: none;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+#posCategories button.cat-btn {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  margin: 0;
+  padding: 6px 4px;
+  font-size: clamp(15px, 1.25vw, 19px);
+  border: 2px solid rgba(255,255,255,0.22);
+  border-radius: 12px;
+  background: #1d4ed8;
+  color: #fff;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 1.22;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.16);
+}
+#posCategories button.cat-btn:hover { background: #1e40af; }
+#posCategories button.cat-btn.active {
+  background: #f1c40f;
+  color: #0f172a;
+  font-weight: 900;
+  border: 3px solid #fff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+}
 
 #posCenter { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: #f1f5f9; }
 #barcodeBar { display: flex; gap: 8px; padding: 10px 15px; background: #fff; border-bottom: 1px solid #e2e8f0; align-items: center; }
-#barcodeInput { flex: 1; padding: 9px 12px; border: 2px solid #2563eb; border-radius: 8px; font-size: 15px; font-weight: bold; background: #eff6ff; ime-mode: disabled; }
+#barcodeInput { flex: 1; padding: 10px 12px; border: 2px solid #2563eb; border-radius: 8px; font-size: 16px; font-weight: bold; background: #eff6ff; ime-mode: disabled; }
 #barcodeInput:focus { outline: none; background: #fff; box-shadow: 0 0 0 3px rgba(37,99,235,0.2); }
-.btn-scan { padding: 9px 14px; border: none; border-radius: 8px; background: #0f172a; color: #fff; font-weight: bold; font-size: 13px; white-space: nowrap; }
+.btn-scan { padding: 10px 14px; border: none; border-radius: 8px; background: #0f172a; color: #fff; font-weight: bold; font-size: 14px; white-space: nowrap; }
 .btn-scan:hover { background: #334155; }
 
 #posProducts { flex: 1; padding: 14px; display: flex; flex-wrap: wrap; gap: 12px; justify-content: flex-start; align-content: flex-start; overflow-y: auto; }
 .product-card { position: relative; background: #fff; border-radius: 12px; padding: 7px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); display: flex; flex-direction: column; text-align: center; cursor: pointer; width: 126px; height: 205px; flex-shrink: 0; border: 2px solid transparent; }
 .product-card:hover { transform: translateY(-3px); border-color: #3b82f6; box-shadow: 0 6px 12px rgba(0,0,0,0.12); }
 .product-card img { width: 100%; height: 96px; object-fit: cover; border-radius: 8px; margin-bottom: 5px; background: #e2e8f0; }
-.product-card h4 { margin: 0; font-size: 13px; line-height: 1.25em; max-height: 2.5em; overflow: hidden; }
-.product-card .p-price { margin: 4px 0 2px; font-size: 14px; font-weight: bold; color: #1d4ed8; }
+.product-card h4 { margin: 0; font-size: 14px; line-height: 1.25em; max-height: 2.5em; overflow: hidden; }
+.product-card .p-price { margin: 4px 0 2px; font-size: 15px; font-weight: bold; color: #1d4ed8; }
 .stock-badge { font-size: 11px; padding: 2px 6px; border-radius: 10px; background: #dcfce7; color: #166534; font-weight: bold; margin-top: auto; }
 .stock-badge.low { background: #fef3c7; color: #92400e; }
 .stock-badge.out { background: #fee2e2; color: #b91c1c; }
 
-#posCartContainer { width: 32%; min-width: 310px; background: #f8fafc; padding: 10px; display: flex; flex-direction: column; overflow-y: auto; border-left: 2px solid #cbd5e1; }
-.cartHeader, .cartRow { display: grid; grid-template-columns: 2.4fr 1.1fr 0.9fr 1fr 0.7fr; gap: 4px; padding: 6px; border-radius: 6px; align-items: center; text-align: center; }
-.cartHeader { font-weight: bold; background: #e2e8f0; font-size: 13px; }
-.cartRow { background: #fff; margin-top: 5px; font-size: 13px; border: 1px solid #e2e8f0; }
-.cartRow .name { text-align: left; cursor: pointer; font-weight: 600; color: #0f172a; word-break: break-word; }
-.cartRow .qty, .cartRow .price { cursor: pointer; color: #2563eb; text-decoration: underline; }
-.cartRow .remove button { background: #fee2e2; color: #dc2626; border: none; border-radius: 4px; padding: 3px 6px; font-weight: bold; }
+/* 右側結帳購物車：中高齡友善加大字體＋高對比 */
+#posCartContainer {
+  width: 35%;
+  min-width: 345px;
+  background: #f8fafc;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  border-left: 2px solid #cbd5e1;
+}
+.cart-top-title { font-size: 20px; font-weight: 800; color: #0f172a; margin: 0; }
+.cart-clear-btn { padding: 7px 14px; font-size: 15px; font-weight: 800; border-radius: 8px; }
+.cartHeader, .cartRow {
+  display: grid;
+  grid-template-columns: 2.3fr 1.1fr 0.9fr 1fr 0.75fr;
+  gap: 6px;
+  padding: 9px 8px;
+  border-radius: 8px;
+  align-items: center;
+  text-align: center;
+}
+.cartHeader {
+  font-weight: 800;
+  background: #1e293b;
+  color: #fff;
+  font-size: 16px;
+}
+.cartRow {
+  background: #fff;
+  margin-top: 6px;
+  font-size: 17px;
+  font-weight: 700;
+  border: 1.5px solid #cbd5e1;
+}
+.cartRow:nth-child(even) { background: #eff6ff; }
+.cartRow .name {
+  text-align: left;
+  cursor: pointer;
+  font-weight: 800;
+  font-size: 17px;
+  line-height: 1.3;
+  color: #0f172a;
+  word-break: break-word;
+}
+.cartRow .qty, .cartRow .price {
+  cursor: pointer;
+  color: #1d4ed8;
+  font-size: 17px;
+  font-weight: 800;
+  text-decoration: underline;
+}
+.cartRow .remove button {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fca5a5;
+  border-radius: 6px;
+  padding: 6px 10px;
+  min-width: 40px;
+  min-height: 38px;
+  font-size: 15px;
+  font-weight: 900;
+}
 
-#taxContainer, #paymentButtons { display: flex; gap: 6px; margin: 8px 0; }
-#taxContainer button, #paymentButtons .payBtn { flex: 1; padding: 8px; border: none; border-radius: 6px; background: #cbd5e1; color: #334155; font-weight: 600; font-size: 13px; }
-#taxContainer button.active, #paymentButtons .payBtn.active { background: #f1c40f; color: #0f172a; font-weight: bold; }
-#taxSummary { padding: 10px 12px; background: #fff; border-radius: 8px; border-left: 5px solid #f1c40f; font-size: 14px; }
-.taxRow { display: flex; justify-content: space-between; margin: 4px 0; }
-.taxRow .value { font-family: 'Courier New', monospace; font-weight: bold; }
-.taxRow.total .value { color: #dc2626; font-size: 1.15em; }
-#discountContainer { display: flex; gap: 6px; margin: 6px 0; align-items: center; }
-#discount { flex: 1; padding: 7px; border: 2px solid #cbd5e1; border-radius: 6px; text-align: right; font-size: 14px; cursor: pointer; background: #fff; }
-#cashPanel { margin-top: 6px; font-size: 14px; }
-#cashInput { width: 100%; padding: 7px; margin: 4px 0; border: 2px solid #cbd5e1; border-radius: 6px; text-align: right; font-size: 16px; cursor: pointer; }
-#posCheckout { margin-top: 8px; padding: 12px; font-size: 1.25em; font-weight: bold; background: #16a34a; color: #fff; border: none; border-radius: 8px; }
+#taxContainer, #paymentButtons { display: flex; gap: 8px; margin: 10px 0; }
+#taxContainer button, #paymentButtons .payBtn {
+  flex: 1;
+  padding: 10px 8px;
+  min-height: 46px;
+  border: 2px solid #cbd5e1;
+  border-radius: 8px;
+  background: #fff;
+  color: #1e293b;
+  font-weight: 800;
+  font-size: 17px;
+}
+#taxContainer button.active, #paymentButtons .payBtn.active {
+  background: #f1c40f;
+  color: #0f172a;
+  border-color: #0f172a;
+  font-weight: 900;
+}
+#taxSummary {
+  padding: 12px 14px;
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  border-left: 6px solid #f1c40f;
+  font-size: 17px;
+  font-weight: 700;
+}
+.taxRow { display: flex; justify-content: space-between; align-items: center; margin: 5px 0; }
+.taxRow .value { font-family: 'Courier New', monospace; font-weight: 800; font-size: 18px; }
+.taxRow.total {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed #cbd5e1;
+  font-size: 20px;
+  font-weight: 900;
+}
+.taxRow.total .value { color: #dc2626; font-size: 24px; font-weight: 900; }
+#discountContainer { display: flex; gap: 8px; margin: 8px 0; align-items: center; font-size: 17px; font-weight: 800; }
+#discount {
+  flex: 1;
+  padding: 8px 12px;
+  min-height: 42px;
+  border: 2px solid #94a3b8;
+  border-radius: 8px;
+  text-align: right;
+  font-size: 19px;
+  font-weight: 800;
+  cursor: pointer;
+  background: #fff;
+}
+#cashPanel {
+  margin-top: 4px;
+  margin-bottom: 6px;
+  padding: 10px 12px;
+  background: #fffbeb;
+  border: 2px solid #f59e0b;
+  border-radius: 8px;
+  font-size: 17px;
+  font-weight: 800;
+}
+#cashInput {
+  width: 100%;
+  padding: 8px 12px;
+  margin: 6px 0;
+  border: 2px solid #2563eb;
+  border-radius: 8px;
+  text-align: right;
+  font-size: 20px;
+  font-weight: 900;
+  cursor: pointer;
+  background: #fff;
+}
+#posCheckout {
+  margin-top: 8px;
+  padding: 14px;
+  min-height: 56px;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  background: #16a34a;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(22,163,74,0.28);
+}
 #posCheckout:hover:not(:disabled) { background: #15803d; }
-#shiftDailyContainer { display: flex; gap: 6px; margin-top: 10px; }
-#shiftDailyContainer button { flex: 1; border: none; border-radius: 6px; padding: 9px 4px; color: #fff; font-weight: bold; font-size: 13px; }
-#todaySalesDisplay { margin-top: 8px; padding: 10px 12px; border-radius: 8px; background: #e2e8f0; border-left: 5px solid #2563eb; font-size: 13px; line-height: 1.55em; white-space: pre-line; }
+#shiftDailyContainer { display: flex; gap: 8px; margin-top: 10px; }
+#shiftDailyContainer button {
+  flex: 1;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 6px;
+  min-height: 44px;
+  color: #fff;
+  font-weight: 800;
+  font-size: 16px;
+}
+
+/* 今日營業額 Dashboard 顯示樣式 */
+#todaySalesDisplay {
+  margin-top: 10px;
+  font-size: 14px;
+}
+.sales-dash {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 12px;
+  background: #e2e8f0;
+  border: 1.5px solid #cbd5e1;
+}
+.sales-dash-top {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 8px;
+}
+.dash-chip {
+  background: #0f172a;
+  color: #fff;
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.dash-chip-main {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%);
+  border: 1.5px solid #93c5fd;
+}
+.dash-chip .dash-lbl {
+  font-size: 12px;
+  color: #cbd5e1;
+  font-weight: 700;
+}
+.dash-chip .dash-val {
+  font-size: 19px;
+  font-weight: 900;
+  color: #fde047;
+  margin-top: 2px;
+  font-family: 'Courier New', monospace;
+}
+.sales-dash-pay {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+.sales-dash-profit {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+.dash-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 8px 6px;
+  border-top: 4px solid #2563eb;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.dash-card .dash-lbl {
+  font-size: 13px;
+  font-weight: 800;
+  color: #475569;
+}
+.dash-card .dash-val {
+  font-size: 17px;
+  font-weight: 900;
+  color: #0f172a;
+  font-family: 'Courier New', monospace;
+  word-break: break-word;
+}
+.dash-card.dash-cost { border-top-color: #d97706; }
+.dash-card.dash-margin { border-top-color: #16a34a; background: #f0fdf4; }
+.dash-card.dash-margin .dash-val { color: #15803d; }
+.dash-offline {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #f59e0b;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 13px;
+  font-weight: 800;
+  text-align: center;
+}
 
 /* ERP 模組頁面共用樣式 */
 .erp-page { flex-direction: column; padding: 16px; overflow-y: auto; gap: 14px; width: 100%; }
@@ -124,24 +406,38 @@ table.erp-tbl tr:nth-child(even) { background: #f8fafc; }
 /* Modals & Numpads */
 .modal-bg { display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.6); justify-content: center; align-items: center; z-index: 9999; padding: 14px; }
 .modal-box { background: #fff; border-radius: 12px; width: 100%; max-width: 580px; max-height: 90vh; overflow-y: auto; padding: 20px; position: relative; }
-.closeModal { position: absolute; top: 10px; right: 12px; width: 30px; height: 30px; line-height: 30px; text-align: center; border-radius: 50%; background: #e2e8f0; cursor: pointer; font-weight: bold; font-size: 18px; border: none; }
+.closeModal { position: absolute; top: 10px; right: 12px; width: 34px; height: 34px; line-height: 34px; text-align: center; border-radius: 50%; background: #e2e8f0; cursor: pointer; font-weight: bold; font-size: 20px; border: none; }
 .closeModal:hover { background: #ef4444; color: #fff; }
-.keypadBox, #editModal .modalContent { background: #1e293b; padding: 18px; width: 340px; border-radius: 14px; text-align: center; position: relative; color: #fff; }
-#modalInput, #posKeypadInput { width: 100%; font-size: 28px; padding: 10px; margin: 10px 0; text-align: right; border: none; border-radius: 8px; background: #0f172a; color: #22c55e; }
+.keypadBox, #editModal .modalContent { background: #1e293b; padding: 20px; width: 360px; max-width: 95vw; border-radius: 14px; text-align: center; position: relative; color: #fff; }
+#modalInput, #posKeypadInput { width: 100%; font-size: 32px; font-weight: bold; padding: 10px; margin: 10px 0; text-align: right; border: none; border-radius: 8px; background: #0f172a; color: #22c55e; }
 #numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-#numpad button, .posKeypadGrid button { height: 54px; font-size: 20px; border: none; border-radius: 8px; background: #334155; color: #fff; font-weight: bold; }
+#numpad button, .posKeypadGrid button { height: 58px; font-size: 22px; border: none; border-radius: 8px; background: #334155; color: #fff; font-weight: bold; }
 .posKeypadGrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
 .posKeypadGrid button.big { background: #0284c7; }
 .posKeypadGrid button.confirm { background: #16a34a; }
 #promoButtons { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-top: 10px; }
-#promoButtons button { padding: 10px; background: #2563eb; color: #fff; border: none; border-radius: 6px; font-weight: bold; }
+#promoButtons button { padding: 12px; font-size: 16px; background: #2563eb; color: #fff; border: none; border-radius: 6px; font-weight: bold; }
 .modalActions { display: flex; gap: 8px; margin-top: 12px; }
-.modalActions button { flex: 1; padding: 11px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; color: #fff; }
+.modalActions button { flex: 1; padding: 12px; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; color: #fff; }
 .modalActions .cancel { background: #dc2626; }
 .modalActions .confirm { background: #16a34a; }
 
 /* Toast 提示 */
-#toast { position: fixed; top: 58px; right: 16px; z-index: 99999; display: none; padding: 10px 16px; border-radius: 8px; color: #fff; font-weight: bold; font-size: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+#toast { position: fixed; top: 58px; right: 16px; z-index: 99999; display: none; padding: 10px 16px; border-radius: 8px; color: #fff; font-weight: bold; font-size: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+
+/* 響應式：平板與手機自適應 */
+@media (max-width: 1024px) {
+  #posCategories { width: 26%; min-width: 210px; }
+  #posCartContainer { width: 38%; min-width: 320px; }
+}
+@media (max-width: 768px) {
+  #posApp { height: auto; min-height: 100vh; overflow-y: auto; }
+  .tab-page.active { flex-direction: column; overflow: visible; }
+  #posCategories { width: 100%; max-width: none; min-width: 0; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  #posCenter { overflow: visible; }
+  #posProducts { overflow-y: visible; justify-content: center; }
+  #posCartContainer { width: 100%; min-width: 0; border-left: none; border-top: 2px solid #cbd5e1; overflow-y: visible; }
+}
 </style>
 </head>
 <body>
@@ -201,9 +497,9 @@ table.erp-tbl tr:nth-child(even) { background: #f8fafc; }
       <div id="posProducts"></div>
     </div>
     <div id="posCartContainer">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-        <h3 style="margin:0;font-size:16px;">訂單明細</h3>
-        <button class="btn-sec" onclick="clearCart()">清空</button>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <h3 class="cart-top-title">訂單明細</h3>
+        <button class="btn-sec cart-clear-btn" onclick="clearCart()">清空</button>
       </div>
       <div class="cartHeader"><span>商品</span><span>數量</span><span>單價</span><span>小計</span><span>刪除</span></div>
       <div id="posCart"></div>
@@ -225,7 +521,7 @@ table.erp-tbl tr:nth-child(even) { background: #f8fafc; }
       </div>
       <div id="cashPanel">
         收現金：<input type="number" id="cashInput" value="0" readonly>
-        找零：<b id="changeOut" style="color:#16a34a;font-size:16px;">0</b> 元
+        找零：<b id="changeOut" style="color:#16a34a;font-size:21px;">0</b> 元
       </div>
       <input type="hidden" id="posPayment" value="現金">
       <button id="posCheckout">結帳扣庫存</button>
@@ -574,7 +870,6 @@ function enterAppWithSession(data, isOfflineMode = false) {
   }
 }
 
-// 網頁重新整理時自動恢復登入狀態（支援無網路時自動啟用離線快取進入收銀）
 window.addEventListener("DOMContentLoaded", async () => {
   const savedToken = localStorage.getItem(SESSION_KEY);
   const cachedSessRaw = localStorage.getItem(CACHE_SESSION_KEY);
@@ -690,7 +985,6 @@ async function logout() {
   btn.disabled = false; btn.innerText = "登出"; btn.classList.remove("active");
 }
 
-// 同步離線暫存佇列到後台
 async function syncOfflineQueue(manualClick = false) {
   const queue = getOfflineQueue();
   if (!queue.length) {
@@ -748,7 +1042,6 @@ async function syncOfflineQueue(manualClick = false) {
   }
 }
 
-// 內建「重新整理更新資料」按鈕（無須登出、保留購物車）
 async function refreshAllData() {
   if (!SESSION_TOKEN && !POS_STORE) return;
   if (!navigator.onLine) {
@@ -906,7 +1199,7 @@ function renderProducts(category = null, search = "") {
   });
 }
 
-// ===== 📷 條碼掃描引擎（支援中文注音輸入法下自動還原實體掃碼）=====
+// ===== 📷 條碼掃描引擎 =====
 function findProductByBarcode(code, pool = products) {
   const c = String(code || "").trim().toLowerCase();
   if (!c) return null;
@@ -1016,7 +1309,6 @@ function handleBarcodeFromBox() {
 attachImeSafeBarcodeInput(document.getElementById("barcodeInput"), "pos");
 attachImeSafeBarcodeInput(document.getElementById("purSearchInput"), "purchase");
 
-// 全域實體條碼槍監聽（游標不在輸入框內也能掃描，且相容中文輸入法）
 let scanBuf = "", lastKeyTime = 0;
 document.addEventListener("keydown", e => {
   if (!POS_STORE) return;
@@ -1080,7 +1372,7 @@ async function openCameraScanner(target) {
   }
 }
 
-// ===== 購物車與結帳（含離線暫存）=====
+// ===== 購物車與結帳 =====
 function addPOSItem(p, mult = 1) {
   let qtyAdd = 1 * mult, pricePerUnit = Number(p["售價"]), unit = p["單位"];
   if (p["單位"] === "半斤") { qtyAdd = 0.5 * mult; pricePerUnit *= 2; unit = "斤"; }
@@ -1219,7 +1511,6 @@ function queueOfflineCheckout(payload) {
   });
   saveOfflineQueue(queue);
 
-  // 本地預扣商品庫存
   const updated = products.map(p => {
     const clone = { ...p };
     payload.items.forEach(it => {
@@ -1281,7 +1572,6 @@ document.getElementById("posCheckout").onclick = async function () {
       document.getElementById("barcodeInput").focus();
     }
   } catch (e) {
-    // 網路超時或斷線時，自動轉入離線暫存
     queueOfflineCheckout(payload);
   } finally {
     btn.disabled = false; btn.innerText = "結帳扣庫存";
@@ -1314,7 +1604,48 @@ function renderSalesBoxFromCache(showAlert = false) {
   const txt = isCashier
     ? `今日實績 (${d.orderCount}筆) | 營業額：${formatNumber(d.total)} 元\n現金：${formatNumber(d.cash)}｜信用卡：${formatNumber(d.credit)}｜LinePay：${formatNumber(d.linePay)}${offNote}`
     : `今日實績 (${d.orderCount}筆) | 營業額：${formatNumber(d.total)} 元\n現金：${formatNumber(d.cash)}｜信用卡：${formatNumber(d.credit)}｜LinePay：${formatNumber(d.linePay)}\n銷貨成本：${formatNumber(d.costTotal)} 元｜營業毛利：${formatNumber(d.grossProfit)} 元 (${d.marginRate}%)${offNote}`;
-  document.getElementById("todaySalesDisplay").innerText = txt;
+
+  const dashHtml = `
+    <div class="sales-dash">
+      <div class="sales-dash-top">
+        <div class="dash-chip">
+          <span class="dash-lbl">今日訂單數</span>
+          <span class="dash-val">${formatNumber(d.orderCount)} 筆</span>
+        </div>
+        <div class="dash-chip dash-chip-main">
+          <span class="dash-lbl">今日營業額</span>
+          <span class="dash-val">${formatNumber(d.total)} 元</span>
+        </div>
+      </div>
+      <div class="sales-dash-pay">
+        <div class="dash-card">
+          <span class="dash-lbl">💵 現金</span>
+          <span class="dash-val">${formatNumber(d.cash)}</span>
+        </div>
+        <div class="dash-card">
+          <span class="dash-lbl">💳 信用卡</span>
+          <span class="dash-val">${formatNumber(d.credit)}</span>
+        </div>
+        <div class="dash-card">
+          <span class="dash-lbl">📱 LinePay</span>
+          <span class="dash-val">${formatNumber(d.linePay)}</span>
+        </div>
+      </div>
+      ${isCashier ? "" : `
+      <div class="sales-dash-profit">
+        <div class="dash-card dash-cost">
+          <span class="dash-lbl">📦 銷貨成本</span>
+          <span class="dash-val">${formatNumber(d.costTotal)} 元</span>
+        </div>
+        <div class="dash-card dash-margin">
+          <span class="dash-lbl">📈 營業毛利</span>
+          <span class="dash-val">${formatNumber(d.grossProfit)} 元 <small>(${esc(d.marginRate)}%)</small></span>
+        </div>
+      </div>`}
+      ${pendingToday.length ? `<div class="dash-offline">⏳ 含離線待上傳：${pendingToday.length} 筆（${formatNumber(offAmt)} 元）</div>` : ""}
+    </div>`;
+
+  document.getElementById("todaySalesDisplay").innerHTML = dashHtml;
   if (showAlert) alert(txt);
 }
 
