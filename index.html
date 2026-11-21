@@ -1,3 +1,7 @@
+
+以下是已整合所有優化項目的**完整單檔程式碼**（包含：左欄方形九宮格＋分類文字防超出自動縮放、今日營業紀錄 Dashboard 卡片、結帳購物車中高齡友善大字、平板與手機響應式排版）：
+
+```html
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -38,7 +42,7 @@ input, select { font-family: inherit; }
 .tab-page { display: none; flex: 1; overflow: hidden; }
 .tab-page.active { display: flex; }
 
-/* 前台 POS 區：左邊分類 9 宮格 */
+/* 前台 POS 區：左邊分類 9 宮格（防文字超出方框） */
 #posCategories {
   width: 24%;
   min-width: 240px;
@@ -72,10 +76,12 @@ input, select { font-family: inherit; }
 }
 #posCategories button.cat-btn {
   width: 100%;
+  min-width: 0;
+  min-height: 0;
   aspect-ratio: 1 / 1;
   margin: 0;
-  padding: 6px 4px;
-  font-size: clamp(15px, 1.25vw, 19px);
+  padding: 5px 4px;
+  font-size: clamp(14px, 1.2vw, 18px);
   border: 2px solid rgba(255,255,255,0.22);
   border-radius: 12px;
   background: #1d4ed8;
@@ -85,9 +91,10 @@ input, select { font-family: inherit; }
   align-items: center;
   justify-content: center;
   text-align: center;
-  line-height: 1.22;
-  word-break: keep-all;
-  overflow-wrap: break-word;
+  line-height: 1.18;
+  word-break: normal;
+  overflow-wrap: anywhere;
+  overflow: hidden;
   box-shadow: 0 2px 5px rgba(0,0,0,0.16);
 }
 #posCategories button.cat-btn:hover { background: #1e40af; }
@@ -1133,7 +1140,10 @@ function switchTab(tabId, btnEl, force = false) {
   document.querySelectorAll(".tab-page").forEach(p => p.classList.remove("active"));
   document.getElementById("tab-" + tabId).classList.add("active");
 
-  if (tabId === "pos") setTimeout(() => document.getElementById("barcodeInput").focus(), 80);
+  if (tabId === "pos") {
+    requestAnimationFrame(fitCategoryButtons);
+    setTimeout(() => document.getElementById("barcodeInput").focus(), 80);
+  }
   if (tabId === "purchase" || tabId === "inventory" || tabId === "master") loadInventoryData();
   if (tabId === "report") loadProfitReport();
   if (tabId === "users") loadUsers();
@@ -1148,6 +1158,20 @@ function applyProductsUpdate(newList) {
   const curCat = activeCatBtn ? activeCatBtn.textContent : (categories.includes("無菜單") ? "無菜單" : (categories[0] || null));
   renderProducts(curCat, document.getElementById("searchBox").value.trim().toLowerCase());
 }
+
+function fitCategoryButtons() {
+  const btns = document.querySelectorAll("#posCategories button.cat-btn");
+  btns.forEach(btn => {
+    btn.style.fontSize = "";
+    if (btn.clientWidth <= 0 || btn.clientHeight <= 0) return;
+    let size = parseFloat(getComputedStyle(btn).fontSize) || 17;
+    while (size > 11 && (btn.scrollWidth > btn.clientWidth + 1 || btn.scrollHeight > btn.clientHeight + 1)) {
+      size -= 1;
+      btn.style.fontSize = size + "px";
+    }
+  });
+}
+window.addEventListener("resize", fitCategoryButtons);
 
 function renderCategories() {
   const box = document.getElementById("posCategories");
@@ -1167,6 +1191,7 @@ function renderCategories() {
 
   const target = Array.from(box.querySelectorAll("button.cat-btn")).find(b => b.textContent === (prev || (categories.includes("無菜單") ? "無菜單" : "全部商品")));
   if (target) target.classList.add("active");
+  requestAnimationFrame(fitCategoryButtons);
 }
 function setCatActive(btn) { document.querySelectorAll("#posCategories button.cat-btn").forEach(b => b.classList.remove("active")); btn.classList.add("active"); }
 
@@ -2200,6 +2225,7 @@ async function deleteUser(rowIndex) {
 </script>
 </body>
 </html>
+
 
 
 
